@@ -1,0 +1,6 @@
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-pref-height: 20;
+    -fx-pref-width: 20;
+    -fx-background-insets: 5;
+}
