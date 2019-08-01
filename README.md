@@ -12,6 +12,7 @@ Once downloaded, unzip the "images" files and simply open it with the mnist-read
 Upcoming functionalities :
 - At loading a file, automatic searching for the related "labels" file to show what figure (or letter) the image represents.
 - Automatic resizability of the canvas.
+- Another view that shows multiple images at once.
 - Saving single or multiple images into PNG, JPG or both types files.
 
 Feel free to comment on my work and to give suggestions.
