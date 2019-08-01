@@ -14,7 +14,8 @@ public class Main extends Application {
 
         Parent root = loader.load();
         primaryStage.setTitle("Datasets Images Reader");
-        primaryStage.setScene(new Scene(root));
+        primaryStage.setScene(new Scene(root,280,384));
+        primaryStage.setResizable(false);
         primaryStage.centerOnScreen();
         primaryStage.show();
 

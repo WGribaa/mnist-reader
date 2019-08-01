@@ -45,8 +45,10 @@ public class Controller implements Initializable {
     @FXML
     public void on_open() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("DataSets files (*.idx3-ubyte)","*.idx3-ubyte"));
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("All compatible files","*.idx3-ubyte","*-idx3-ubyte"),
+                new FileChooser.ExtensionFilter("Mnist DataSet files (*.idx3-ubyte)","*.idx3-ubyte"),
+                new FileChooser.ExtensionFilter("Emnist DataSet files ","*-idx3-ubyte"));
         fileChooser.setInitialDirectory(currentFile != null ?currentFile.getParentFile(): null);
         File file= fileChooser.showOpenDialog(null);
         if(file !=null) {
@@ -129,7 +131,8 @@ public class Controller implements Initializable {
         }
         currentImageIndex = 0;
         index_scrollbar.setMax(numberOfImages-1);
-        index_scrollbar.setBlockIncrement(numberOfImages/10);
+        index_scrollbar.setBlockIncrement(numberOfImages/20);
+        updateIndex();
         paint();
     }
 
@@ -139,16 +142,10 @@ public class Controller implements Initializable {
     private void paint(){
         BufferedInputStream bis = jumpToIndex(currentImageIndex);
         if (bis == null) return;
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        double resolution = Double.min(canvas.getHeight()/numberOfRows, canvas.getWidth()/numberOfColumns);
-        gc.setFill(empty_color_picker.getValue());
-        gc.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
+
+        byte[] imageBuffer = new byte[numberOfRows*numberOfColumns];
         try{
-            for(int y = 0; y<numberOfRows; y++)
-                for (int x = 0; x<numberOfColumns; x++){
-                    gc.setFill(pallet[bis.read()]);
-                    gc.fillRect(x*resolution, y*resolution,resolution, resolution);
-                }
+            bis.read(imageBuffer);
         } catch (IOException e) {
             e.printStackTrace();
         }finally{
@@ -158,6 +155,19 @@ public class Controller implements Initializable {
                 e.printStackTrace();
             }
         }
+        // Corrects the orientation of the imageBuffer if it comes from an EMNIST dataset.
+        if(currentFile.getName().contains("-idx3-ubyte"))
+            correctOrientation(imageBuffer);
+
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        double resolution = Double.min(canvas.getHeight()/numberOfRows, canvas.getWidth()/numberOfColumns);
+        gc.setFill(empty_color_picker.getValue());
+        gc.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
+        for(int y = 0; y<numberOfRows; y++)
+            for (int x = 0; x<numberOfColumns; x++){
+                gc.setFill(pallet[imageBuffer[y*numberOfRows+x]&0xFF]);
+                gc.fillRect(x*resolution, y*resolution,resolution, resolution);
+            }
     }
 
     /**
@@ -209,4 +219,22 @@ public class Controller implements Initializable {
             pallet[i]= new Color(fullColor.getRed(), fullColor.getGreen(), fullColor.getBlue(), i/256d);
     }
 
+    /**
+     * The EMNIST dataset needs 2 transformations in order to be drawn as identifiable character :
+     * 1 - A horizontal mirroring (or a vertical axial symmetry)
+     * 2 - A 90° counter-clockwise rotation.
+     * The transformation resulting is an axial symmetry along a descendant diagonal.
+     * Modifies directly the content of the array passed as parameter.
+     * @param imageBuffer Array of bytes of the image.
+     * @
+     */
+    private void correctOrientation(byte[] imageBuffer){
+        byte buffer;
+        for (int y=0;y<numberOfRows;y++)
+            for(int x = y+1; x<numberOfColumns; x++){
+                buffer = imageBuffer[y*numberOfColumns+x];
+                imageBuffer[y*numberOfColumns+x] = imageBuffer[x*numberOfColumns+y];
+                imageBuffer[x*numberOfColumns+y] = buffer;
+            }
+    }
 }
