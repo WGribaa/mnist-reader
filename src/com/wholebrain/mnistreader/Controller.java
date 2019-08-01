@@ -1,25 +1,34 @@
 package com.wholebrain.mnistreader;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.*;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollBar;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.awt.Desktop;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.function.UnaryOperator;
 
 
 public class Controller implements Initializable {
@@ -63,11 +72,22 @@ public class Controller implements Initializable {
         }
     }
 
+    @FXML
+    public void mnist_goto() {
+        gotoHtmlLink("http://yann.lecun.com/exdb/mnist/");
+    }
+
+    @FXML
+    public void emnist_goto() {
+        gotoHtmlLink("https://www.nist.gov/node/1298471/emnist-dataset");
+    }
+
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         index_scrollbar.setMax(0);
         index_scrollbar.valueProperty().addListener((observable, oldValue, newValue) ->
-            updateIndex(newValue.intValue())
+                updateIndex(newValue.intValue())
         );
 
         EventHandler<ActionEvent> colorChangedEvent = event -> {
@@ -109,8 +129,7 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Stores a link to the {@link Stage primary stage} to be able to close it
-     * or to display a model {@link Dialog dialogs} over it.
+     * Stores a link to the {@link Stage primary stage} to be able to close it.
      * @param primaryStage Main {@link Stage window}.
      */
     void setStage(Stage primaryStage) {
@@ -134,6 +153,7 @@ public class Controller implements Initializable {
     /**
      * Gets and stores the meta infos about the current DataSet.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void getMetaInfos(){
         BufferedInputStream bis = null;
         byte[] buffer = new byte[4];
@@ -173,6 +193,7 @@ public class Controller implements Initializable {
 
         byte[] imageBuffer = new byte[numberOfRows*numberOfColumns];
         try{
+            //noinspection ResultOfMethodCallIgnored
             bis.read(imageBuffer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -210,6 +231,7 @@ public class Controller implements Initializable {
 
         try{
             bis = new BufferedInputStream(new FileInputStream(currentFile));
+            //noinspection ResultOfMethodCallIgnored
             bis.skip(16+index*numberOfRows*numberOfColumns);
         } catch (IOException e) {
             e.printStackTrace();
@@ -263,5 +285,38 @@ public class Controller implements Initializable {
                 imageBuffer[y*numberOfColumns+x] = imageBuffer[x*numberOfColumns+y];
                 imageBuffer[x*numberOfColumns+y] = buffer;
             }
+    }
+
+    /**
+     * Open the user's main web browsing application (if available) and browses to the link.
+     * @param link Link to open in the Web Browser.
+     */
+    private void gotoHtmlLink(String link){
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            try {
+                Desktop.getDesktop().browse(new URI(link));
+            } catch (IOException | URISyntaxException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Shows some infos about us aka I, me and myself at the moment.
+     * @throws IOException Common Exception occurring during the FXML loading step.
+     */
+    @FXML
+    public void about_us() throws IOException {
+        Stage infoStage = new Stage();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("infopanel/infopanel.fxml"));
+        Parent root = loader.load();
+        infoStage.opacityProperty().set(0.9);
+        infoStage.setTitle("About us...");
+        infoStage.setScene(new Scene(root));
+        infoStage.initModality(Modality.APPLICATION_MODAL);
+        infoStage.setResizable(false);
+        infoStage.centerOnScreen();
+        infoStage.show();
+
     }
 }

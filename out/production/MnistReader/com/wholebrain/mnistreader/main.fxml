@@ -43,12 +43,19 @@
                      <items>
                         <MenuItem mnemonicParsing="false">
                            <graphic>
-                              <TextField fx:id="jumpto_textfield" alignment="TOP_LEFT" prefColumnCount="6" />
+                              <TextField fx:id="jumpto_textfield" alignment="TOP_LEFT" prefColumnCount="7" />
                            </graphic>
                         </MenuItem>
                      </items>
                   </Menu>
                </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#mnist_goto" text="Go to MNIST Database website" />
+                  <MenuItem mnemonicParsing="false" onAction="#emnist_goto" text="Go to EMNIST Database website" />
+                  <MenuItem mnemonicParsing="false" onAction="#about_us" text="About" />
+              </items>
             </Menu>
         </menus>
       </MenuBar>
