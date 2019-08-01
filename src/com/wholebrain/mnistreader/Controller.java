@@ -1,5 +1,7 @@
 package com.wholebrain.mnistreader;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
@@ -22,10 +24,12 @@ public class Controller implements Initializable {
     public Canvas canvas;
     public Label index_label;
     public ScrollBar index_scrollbar;
+    public ColorPicker empty_color_picker, full_color_picker;
 
     private Stage primaryStage;
     private File currentFile;
     private int magicNumber, numberOfImages, numberOfRows, numberOfColumns, currentImageIndex = 0;
+    private Color[] pallet = new Color[256];
 
     /**
      * Closes the application.
@@ -58,8 +62,25 @@ public class Controller implements Initializable {
         index_scrollbar.valueProperty().addListener((observable, oldValue, newValue) -> {
             currentImageIndex=newValue.intValue();
             updateIndex();
-            picturize();
+            paint();
         });
+
+        EventHandler<ActionEvent> colorChangedEvent = event -> {
+            initializePalet();
+            paint();
+        };
+
+        empty_color_picker.setValue(Color.WHITE);
+        empty_color_picker.setOnAction(colorChangedEvent);
+        empty_color_picker.getCustomColors().add(Color.WHITE);
+
+        full_color_picker.setValue(Color.BLACK);
+        full_color_picker.setOnAction(colorChangedEvent);
+        full_color_picker.getCustomColors().add(Color.BLACK);
+
+        initializePalet();
+
+
     }
 
     /**
@@ -109,22 +130,23 @@ public class Controller implements Initializable {
         currentImageIndex = 0;
         index_scrollbar.setMax(numberOfImages-1);
         index_scrollbar.setBlockIncrement(numberOfImages/10);
-        picturize();
+        paint();
     }
 
     /**
-     * Displays a greyscaled representation of the current image on the {@link Canvas canvas}.
+     * Displays a colored representation of the current image on the {@link Canvas canvas}.
      */
-    private void picturize(){
+    private void paint(){
         BufferedInputStream bis = jumpToIndex(currentImageIndex);
         if (bis == null) return;
         GraphicsContext gc = canvas.getGraphicsContext2D();
         double resolution = Double.min(canvas.getHeight()/numberOfRows, canvas.getWidth()/numberOfColumns);
+        gc.setFill(empty_color_picker.getValue());
+        gc.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
         try{
             for(int y = 0; y<numberOfRows; y++)
                 for (int x = 0; x<numberOfColumns; x++){
-                    double grey = (255 - bis.read())/255d;
-                    gc.setFill(new Color(grey, grey, grey,1));
+                    gc.setFill(pallet[bis.read()]);
                     gc.fillRect(x*resolution, y*resolution,resolution, resolution);
                 }
         } catch (IOException e) {
@@ -136,11 +158,10 @@ public class Controller implements Initializable {
                 e.printStackTrace();
             }
         }
-
     }
 
     /**
-     * Creates a {@Link BufferedInputStream stream} and puts its positioning index
+     * Creates a {@link BufferedInputStream stream} and puts its positioning index
      * to the specified index.
      * @param index Target index.
      * @return {@link BufferedInputStream} with the correct positioning index.
@@ -178,5 +199,14 @@ public class Controller implements Initializable {
         System.out.println("Number Of Columns = "+numberOfColumns);
     }
 
+    /**
+     * Prepares the color pallet used to paint the images.
+     */
+    private void initializePalet(){
+        Color fullColor = full_color_picker.getValue();
+        pallet = new Color[256];
+        for (int i = 0; i<256; i++)
+            pallet[i]= new Color(fullColor.getRed(), fullColor.getGreen(), fullColor.getBlue(), i/256d);
+    }
 
 }
