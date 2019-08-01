@@ -1,5 +1,7 @@
 package com.wholebrain.mnistreader;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -17,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.UnaryOperator;
 
 
 public class Controller implements Initializable {
@@ -25,11 +28,13 @@ public class Controller implements Initializable {
     public Label index_label;
     public ScrollBar index_scrollbar;
     public ColorPicker empty_color_picker, full_color_picker;
+    public TextField jumpto_textfield;
 
     private Stage primaryStage;
     private File currentFile;
     private int magicNumber, numberOfImages, numberOfRows, numberOfColumns, currentImageIndex = 0;
     private Color[] pallet = new Color[256];
+    private boolean needsTransformation = false;
 
     /**
      * Closes the application.
@@ -61,11 +66,9 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         index_scrollbar.setMax(0);
-        index_scrollbar.valueProperty().addListener((observable, oldValue, newValue) -> {
-            currentImageIndex=newValue.intValue();
-            updateIndex();
-            paint();
-        });
+        index_scrollbar.valueProperty().addListener((observable, oldValue, newValue) ->
+            updateIndex(newValue.intValue())
+        );
 
         EventHandler<ActionEvent> colorChangedEvent = event -> {
             initializePalet();
@@ -82,6 +85,26 @@ public class Controller implements Initializable {
 
         initializePalet();
 
+        jumpto_textfield.setTextFormatter(new TextFormatter<>(change -> {
+            String text = change.getText();
+            if(!text.matches("\\d*"))
+                return null;
+            return change;
+        }));
+        jumpto_textfield.textProperty().addListener((observable, oldValue, newValue) -> {
+            int newInt=0;
+            try {
+                newInt = Integer.parseInt(newValue);
+            } catch (NumberFormatException e) {
+                jumpto_textfield.setText(oldValue);
+//                throw new NumberFormatException("The input number \""+newValue+"\" is out of Integer range.");
+            }
+            if (newInt < 0)
+                newInt = 0;
+            else if (newInt >= numberOfImages)
+                newInt = numberOfImages - 1;
+            updateIndex(newInt);
+        });
 
     }
 
@@ -97,8 +120,15 @@ public class Controller implements Initializable {
     /**
      * Update the displayed infos about the current image index.
      */
-    private void updateIndex(){
+    private void updateIndex(int newIndex){
+        if(currentFile==null || numberOfImages==0) return;
         index_label.setText(String.valueOf(currentImageIndex));
+        currentImageIndex = newIndex;
+        jumpto_textfield.setText(String.valueOf(newIndex));
+        index_scrollbar.setValue(newIndex);
+        // Corrects the orientation of the imageBuffer if it comes from an EMNIST dataset.
+        needsTransformation = currentFile.getName().contains("-idx3-ubyte");
+        paint();
     }
 
     /**
@@ -129,11 +159,9 @@ public class Controller implements Initializable {
                     e.printStackTrace();
                 }
         }
-        currentImageIndex = 0;
         index_scrollbar.setMax(numberOfImages-1);
         index_scrollbar.setBlockIncrement(numberOfImages/20);
-        updateIndex();
-        paint();
+        updateIndex(0);
     }
 
     /**
@@ -155,9 +183,8 @@ public class Controller implements Initializable {
                 e.printStackTrace();
             }
         }
-        // Corrects the orientation of the imageBuffer if it comes from an EMNIST dataset.
-        if(currentFile.getName().contains("-idx3-ubyte"))
-            correctOrientation(imageBuffer);
+
+        if (needsTransformation) correctOrientation(imageBuffer);
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
         double resolution = Double.min(canvas.getHeight()/numberOfRows, canvas.getWidth()/numberOfColumns);

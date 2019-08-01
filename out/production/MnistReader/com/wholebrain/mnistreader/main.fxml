@@ -8,6 +8,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollBar?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -35,6 +36,19 @@
                      </graphic>
                   </MenuItem>
               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="View">
+               <items>
+                  <Menu mnemonicParsing="false" text="Jump to #">
+                     <items>
+                        <MenuItem mnemonicParsing="false">
+                           <graphic>
+                              <TextField fx:id="jumpto_textfield" alignment="TOP_LEFT" prefColumnCount="6" />
+                           </graphic>
+                        </MenuItem>
+                     </items>
+                  </Menu>
+               </items>
             </Menu>
         </menus>
       </MenuBar>
