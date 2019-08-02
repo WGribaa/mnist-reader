@@ -2,16 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/infopanel/Infopanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/infopanel/infopanel.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/infopanel/Infopanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/infopanel/Infopanel.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/main.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/module-info.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/module-info.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/module-info.java" afterDir="false" />
     </list>
     <ignored path="JavaFxApplication.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -71,11 +67,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Main.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="289">
-              <caret line="17" column="41" lean-forward="true" selection-start-line="17" selection-start-column="41" selection-end-line="17" selection-end-column="41" />
+              <caret line="17" column="41" selection-start-line="17" selection-start-column="41" selection-end-line="17" selection-end-column="41" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -83,43 +79,65 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-871">
-              <caret line="131" column="78" selection-start-line="131" selection-start-column="78" selection-end-line="131" selection-end-column="78" />
+            <state relative-caret-position="-272">
+              <caret line="29" column="31" selection-start-line="29" selection-start-column="31" selection-end-line="29" selection-end-column="31" />
               <folding>
-                <element signature="imports" expanded="true" />
                 <element signature="docComment;method#on_close#0;class#Controller#0" />
                 <element signature="n#!!block;n#on_close#0;n#Controller#0" />
                 <element signature="docComment;method#on_open#0;class#Controller#0" />
                 <element signature="method#on_open#0;class#Controller#0" />
-                <element signature="e#1697#1861#1" />
-                <element signature="e#2529#2530#0" expanded="true" />
-                <element signature="e#2594#2595#0" expanded="true" />
-                <element signature="e#2675#2676#0" expanded="true" />
-                <element signature="e#2755#2756#0" expanded="true" />
-                <element signature="e#2243#2315#0" />
-                <element signature="e#2975#3133#0" />
-                <element signature="e#3241#3720#0" />
-                <element signature="e#3319#3387#0" />
-                <element signature="e#3420#3529#0" />
+                <element signature="e#2276#2440#1" />
+                <element signature="method#initialize#0;class#Controller#0" />
+                <element signature="e#3000#3072#0" />
+                <element signature="e#3508#3667#0" />
+                <element signature="e#3723#4275#0" />
+                <element signature="e#3803#3871#0" />
+                <element signature="e#3904#4084#0" />
+                <element signature="e#5017#5890#0" />
+                <element signature="docComment;method#setStage#0;class#Controller#0" />
                 <element signature="docComment;method#updateIndex#0;class#Controller#0" />
                 <element signature="method#updateIndex#0;class#Controller#0" />
                 <element signature="docComment;method#getMetaInfos#0;class#Controller#0" />
-                <element signature="e#5294#5340#0" expanded="true" />
-                <element signature="e#3836#3880#0" />
-                <element signature="e#3887#4078#0" />
-                <element signature="e#3935#3987#0" />
-                <element signature="e#4008#4068#0" />
+                <element signature="method#getMetaInfos#0;class#Controller#0" />
+                <element signature="e#5361#5791#0" />
+                <element signature="e#5814#5858#0" />
+                <element signature="e#5865#6056#0" />
+                <element signature="e#5913#5965#0" />
+                <element signature="e#5986#6046#0" />
+                <element signature="docComment;method#loadLabels#0;class#Controller#0" />
+                <element signature="e#8986#9032#0" expanded="true" />
+                <element signature="e#7040#7084#0" />
+                <element signature="e#7092#7277#0" />
+                <element signature="e#7110#7192#0" />
+                <element signature="e#7215#7267#0" />
+                <element signature="e#8035#8358#1" />
+                <element signature="e#8370#9620#0" />
+                <element signature="e#8449#8480#1" />
+                <element signature="e#8773#8814#1" />
+                <element signature="e#8738#8830#0" />
+                <element signature="e#8891#8927#1" />
+                <element signature="e#8863#8907#0" />
+                <element signature="e#9626#9849#0" />
+                <element signature="e#9737#9774#1" />
+                <element signature="docComment;method#updateLabel#0;class#Controller#0" />
+                <element signature="method#updateLabel#0;class#Controller#0" />
+                <element signature="e#7898#8003#1" />
+                <element signature="e#8339#8496#1" />
                 <element signature="docComment;method#paint#0;class#Controller#0" />
-                <element signature="e#5066#5110#0" />
-                <element signature="e#5117#5261#0" />
-                <element signature="e#5134#5178#0" />
-                <element signature="e#5199#5251#0" />
-                <element signature="e#5223#5378#1" />
+                <element signature="method#paint#0;class#Controller#0" />
+                <element signature="e#6514#6613#0" />
+                <element signature="e#6636#6680#0" />
+                <element signature="e#6687#6831#0" />
+                <element signature="e#6704#6748#0" />
+                <element signature="e#6769#6821#0" />
+                <element signature="e#7277#7444#1" />
                 <element signature="docComment;method#jumpToIndex#0;class#Controller#0" />
-                <element signature="e#5854#5898#0" />
+                <element signature="method#jumpToIndex#0;class#Controller#0" />
+                <element signature="e#7865#8067#0" />
+                <element signature="e#8090#8134#0" />
                 <element signature="docComment;method#bytesToInt#0;class#Controller#0" />
                 <element signature="method#bytesToInt#0;class#Controller#0" />
                 <element signature="docComment;method#printMetaInfos#0;class#Controller#0" />
@@ -128,12 +146,12 @@
                 <element signature="method#initializePalet#0;class#Controller#0" />
                 <element signature="docComment;method#correctOrientation#0;class#Controller#0" />
                 <element signature="method#correctOrientation#0;class#Controller#0" />
-                <element signature="e#7597#7634#1" />
+                <element signature="e#9755#9973#1" />
                 <element signature="docComment;method#gotoHtmlLink#0;class#Controller#0" />
                 <element signature="method#gotoHtmlLink#0;class#Controller#0" />
-                <element signature="e#9777#10017#1" />
-                <element signature="e#9799#9897#0" />
-                <element signature="e#9942#10003#0" />
+                <element signature="e#10287#10488#1" />
+                <element signature="e#10305#10380#0" />
+                <element signature="e#10425#10478#0" />
                 <element signature="docComment;method#about_us#0;class#Controller#0" />
                 <element signature="method#about_us#0;class#Controller#0" />
               </folding>
@@ -142,32 +160,13 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/module-info.java">
+        <entry file="jar://C:/Program Files/Java/jdk-11.0.1/lib/src.zip!/java.base/java/lang/Byte.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="7" column="49" selection-start-line="7" selection-start-column="49" selection-end-line="7" selection-end-column="49" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/infopanel/infopanel.fxml">
-          <provider editor-type-id="JavaFX-Scene-Builder" />
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="159" selection-start-line="8" selection-start-column="159" selection-end-line="8" selection-end-column="159" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/infopanel/Infopanel.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-272">
-              <caret line="5" column="34" selection-start-line="5" selection-start-column="34" selection-end-line="5" selection-end-column="34" />
+            <state relative-caret-position="238">
+              <caret line="508" column="22" selection-start-line="508" selection-start-column="22" selection-end-line="508" selection-end-column="22" />
               <folding>
-                <element signature="e#2775#2776#0" expanded="true" />
-                <element signature="e#2794#2795#0" expanded="true" />
+                <element signature="e#17893#17894#0" expanded="true" />
+                <element signature="e#17932#17933#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -186,8 +185,8 @@
         <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml">
           <provider editor-type-id="JavaFX-Scene-Builder" />
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="634">
-              <caret line="70" lean-forward="true" selection-start-line="70" selection-end-line="70" />
+            <state relative-caret-position="243">
+              <caret line="62" column="49" lean-forward="true" selection-start-line="62" selection-start-column="49" selection-end-line="62" selection-end-column="49" />
             </state>
           </provider>
         </entry>
@@ -202,6 +201,12 @@
         <option value="Class" />
       </list>
     </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>idx3</find>
+      <find>getPath</find>
+    </findStrings>
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -219,9 +224,9 @@
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/infopanel/infopanel.fxml" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Main.java" />
         <option value="$PROJECT_DIR$/src/module-info.java" />
-        <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/infopanel/Infopanel.java" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml" />
+        <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" />
       </list>
     </option>
   </component>
@@ -241,7 +246,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -271,7 +276,7 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -412,9 +417,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.6703755" visible="true" weight="0.1652452" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.6703755" visible="true" weight="0.1684435" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" />
       <window_info id="Designer" order="3" />
@@ -423,7 +427,7 @@
       <window_info id="Capture Tool" order="6" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32936078" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.1971831" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.1971831" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -534,66 +538,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java">
+    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-871">
-          <caret line="131" column="78" selection-start-line="131" selection-start-column="78" selection-end-line="131" selection-end-column="78" />
+        <state relative-caret-position="289">
+          <caret line="17" column="41" selection-start-line="17" selection-start-column="41" selection-end-line="17" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="docComment;method#on_close#0;class#Controller#0" />
-            <element signature="n#!!block;n#on_close#0;n#Controller#0" />
-            <element signature="docComment;method#on_open#0;class#Controller#0" />
-            <element signature="method#on_open#0;class#Controller#0" />
-            <element signature="e#1697#1861#1" />
-            <element signature="e#2529#2530#0" expanded="true" />
-            <element signature="e#2594#2595#0" expanded="true" />
-            <element signature="e#2675#2676#0" expanded="true" />
-            <element signature="e#2755#2756#0" expanded="true" />
-            <element signature="e#2243#2315#0" />
-            <element signature="e#2975#3133#0" />
-            <element signature="e#3241#3720#0" />
-            <element signature="e#3319#3387#0" />
-            <element signature="e#3420#3529#0" />
-            <element signature="docComment;method#updateIndex#0;class#Controller#0" />
-            <element signature="method#updateIndex#0;class#Controller#0" />
-            <element signature="docComment;method#getMetaInfos#0;class#Controller#0" />
-            <element signature="e#5294#5340#0" expanded="true" />
-            <element signature="e#3836#3880#0" />
-            <element signature="e#3887#4078#0" />
-            <element signature="e#3935#3987#0" />
-            <element signature="e#4008#4068#0" />
-            <element signature="docComment;method#paint#0;class#Controller#0" />
-            <element signature="e#5066#5110#0" />
-            <element signature="e#5117#5261#0" />
-            <element signature="e#5134#5178#0" />
-            <element signature="e#5199#5251#0" />
-            <element signature="e#5223#5378#1" />
-            <element signature="docComment;method#jumpToIndex#0;class#Controller#0" />
-            <element signature="e#5854#5898#0" />
-            <element signature="docComment;method#bytesToInt#0;class#Controller#0" />
-            <element signature="method#bytesToInt#0;class#Controller#0" />
-            <element signature="docComment;method#printMetaInfos#0;class#Controller#0" />
-            <element signature="method#printMetaInfos#0;class#Controller#0" />
-            <element signature="docComment;method#initializePalet#0;class#Controller#0" />
-            <element signature="method#initializePalet#0;class#Controller#0" />
-            <element signature="docComment;method#correctOrientation#0;class#Controller#0" />
-            <element signature="method#correctOrientation#0;class#Controller#0" />
-            <element signature="e#7597#7634#1" />
-            <element signature="docComment;method#gotoHtmlLink#0;class#Controller#0" />
-            <element signature="method#gotoHtmlLink#0;class#Controller#0" />
-            <element signature="e#9777#10017#1" />
-            <element signature="e#9799#9897#0" />
-            <element signature="e#9942#10003#0" />
-            <element signature="docComment;method#about_us#0;class#Controller#0" />
-            <element signature="method#about_us#0;class#Controller#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/module-info.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="49" selection-start-line="7" selection-start-column="49" selection-end-line="7" selection-end-column="49" />
+        <state relative-caret-position="170">
+          <caret line="10" column="1" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
         </state>
       </provider>
     </entry>
@@ -607,12 +565,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/infopanel/Infopanel.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-272">
+        <state relative-caret-position="85">
           <caret line="5" column="34" selection-start-line="5" selection-start-column="34" selection-end-line="5" selection-end-column="34" />
-          <folding>
-            <element signature="e#2775#2776#0" expanded="true" />
-            <element signature="e#2794#2795#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -623,20 +577,106 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml">
-      <provider editor-type-id="JavaFX-Scene-Builder" />
+    <entry file="jar://C:/Program Files/Java/jdk-11.0.1/lib/src.zip!/java.base/java/lang/String.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="634">
-          <caret line="70" lean-forward="true" selection-start-line="70" selection-end-line="70" />
+        <state relative-caret-position="299">
+          <caret line="2140" column="18" selection-start-line="2140" selection-start-column="18" selection-end-line="2140" selection-end-column="18" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Main.java">
+    <entry file="jar://C:/Program Files/Java/jdk-11.0.1/lib/src.zip!/java.base/java/lang/Byte.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="41" lean-forward="true" selection-start-line="17" selection-start-column="41" selection-end-line="17" selection-end-column="41" />
+        <state relative-caret-position="238">
+          <caret line="508" column="22" selection-start-line="508" selection-start-column="22" selection-end-line="508" selection-end-column="22" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#17893#17894#0" expanded="true" />
+            <element signature="e#17932#17933#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml">
+      <provider editor-type-id="JavaFX-Scene-Builder" />
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="243">
+          <caret line="62" column="49" lean-forward="true" selection-start-line="62" selection-start-column="49" selection-end-line="62" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-272">
+          <caret line="29" column="31" selection-start-line="29" selection-start-column="31" selection-end-line="29" selection-end-column="31" />
+          <folding>
+            <element signature="docComment;method#on_close#0;class#Controller#0" />
+            <element signature="n#!!block;n#on_close#0;n#Controller#0" />
+            <element signature="docComment;method#on_open#0;class#Controller#0" />
+            <element signature="method#on_open#0;class#Controller#0" />
+            <element signature="e#2276#2440#1" />
+            <element signature="method#initialize#0;class#Controller#0" />
+            <element signature="e#3000#3072#0" />
+            <element signature="e#3508#3667#0" />
+            <element signature="e#3723#4275#0" />
+            <element signature="e#3803#3871#0" />
+            <element signature="e#3904#4084#0" />
+            <element signature="e#5017#5890#0" />
+            <element signature="docComment;method#setStage#0;class#Controller#0" />
+            <element signature="docComment;method#updateIndex#0;class#Controller#0" />
+            <element signature="method#updateIndex#0;class#Controller#0" />
+            <element signature="docComment;method#getMetaInfos#0;class#Controller#0" />
+            <element signature="method#getMetaInfos#0;class#Controller#0" />
+            <element signature="e#5361#5791#0" />
+            <element signature="e#5814#5858#0" />
+            <element signature="e#5865#6056#0" />
+            <element signature="e#5913#5965#0" />
+            <element signature="e#5986#6046#0" />
+            <element signature="docComment;method#loadLabels#0;class#Controller#0" />
+            <element signature="e#8986#9032#0" expanded="true" />
+            <element signature="e#7040#7084#0" />
+            <element signature="e#7092#7277#0" />
+            <element signature="e#7110#7192#0" />
+            <element signature="e#7215#7267#0" />
+            <element signature="e#8035#8358#1" />
+            <element signature="e#8370#9620#0" />
+            <element signature="e#8449#8480#1" />
+            <element signature="e#8773#8814#1" />
+            <element signature="e#8738#8830#0" />
+            <element signature="e#8891#8927#1" />
+            <element signature="e#8863#8907#0" />
+            <element signature="e#9626#9849#0" />
+            <element signature="e#9737#9774#1" />
+            <element signature="docComment;method#updateLabel#0;class#Controller#0" />
+            <element signature="method#updateLabel#0;class#Controller#0" />
+            <element signature="e#7898#8003#1" />
+            <element signature="e#8339#8496#1" />
+            <element signature="docComment;method#paint#0;class#Controller#0" />
+            <element signature="method#paint#0;class#Controller#0" />
+            <element signature="e#6514#6613#0" />
+            <element signature="e#6636#6680#0" />
+            <element signature="e#6687#6831#0" />
+            <element signature="e#6704#6748#0" />
+            <element signature="e#6769#6821#0" />
+            <element signature="e#7277#7444#1" />
+            <element signature="docComment;method#jumpToIndex#0;class#Controller#0" />
+            <element signature="method#jumpToIndex#0;class#Controller#0" />
+            <element signature="e#7865#8067#0" />
+            <element signature="e#8090#8134#0" />
+            <element signature="docComment;method#bytesToInt#0;class#Controller#0" />
+            <element signature="method#bytesToInt#0;class#Controller#0" />
+            <element signature="docComment;method#printMetaInfos#0;class#Controller#0" />
+            <element signature="method#printMetaInfos#0;class#Controller#0" />
+            <element signature="docComment;method#initializePalet#0;class#Controller#0" />
+            <element signature="method#initializePalet#0;class#Controller#0" />
+            <element signature="docComment;method#correctOrientation#0;class#Controller#0" />
+            <element signature="method#correctOrientation#0;class#Controller#0" />
+            <element signature="e#9755#9973#1" />
+            <element signature="docComment;method#gotoHtmlLink#0;class#Controller#0" />
+            <element signature="method#gotoHtmlLink#0;class#Controller#0" />
+            <element signature="e#10287#10488#1" />
+            <element signature="e#10305#10380#0" />
+            <element signature="e#10425#10478#0" />
+            <element signature="docComment;method#about_us#0;class#Controller#0" />
+            <element signature="method#about_us#0;class#Controller#0" />
           </folding>
         </state>
       </provider>
