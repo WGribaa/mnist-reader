@@ -34,7 +34,7 @@ public class Infopanel implements Initializable {
 
         welcome_label.setText(welcomeText);
 
-        addTextWithHyperlink(ideaText,ideaLink,mnistText,mnistLink,emnistText,emnistLink,ideaText, ideaLink,gitHubText, gitHubLink,contactText, contactLink);
+        addTextWithHyperlink(mnistText,mnistLink,emnistText,emnistLink,ideaText, ideaLink,gitHubText, gitHubLink,contactText, contactLink);
     }
 
     /**

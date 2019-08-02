@@ -1,14 +1,11 @@
 package com.wholebrain.mnistreader;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
@@ -18,6 +15,8 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -40,8 +39,7 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
     public MenuItem open_menu, close_menu;
-    public Canvas canvas;
-    public Label index_label, char_label;
+    public Label index_label;
     public ScrollBar index_scrollbar;
     public ColorPicker empty_color_picker, full_color_picker;
     public TextField jumpto_textfield;
@@ -50,14 +48,15 @@ public class Controller implements Initializable {
     public RadioMenuItem topleft_position_radiomenu,topright_position_radiomenu,
             bottomleft_position_radiomenu,bottomright_position_radiomenu,top_position_radiomenu,
             bottom_position_radiomenu,left_position_radiomenu,right_position_radiomenu;
+    public BorderPane main_layout;
 
     private Stage primaryStage;
     private File currentFile;
     private int magicNumber, numberOfImages, numberOfRows, numberOfColumns, currentImageIndex = 0;
-    private Color[] pallet = new Color[256];
     private boolean needsTransformation = false;
     private char[] labelsChars;
     private Map<Integer, Character> mapping;
+    private CustomCanvas canvas = new CustomCanvas();
 
     /**
      * Closes the application.
@@ -103,20 +102,18 @@ public class Controller implements Initializable {
                 updateIndex(newValue.intValue())
         );
 
-        EventHandler<ActionEvent> colorChangedEvent = event -> {
-            initializePalet();
-            paint();
-        };
-
         empty_color_picker.setValue(Color.WHITE);
-        empty_color_picker.setOnAction(colorChangedEvent);
+        empty_color_picker.setOnAction(e->canvas.setBackGroundColor(empty_color_picker.getValue()));
         empty_color_picker.getCustomColors().add(Color.WHITE);
 
         full_color_picker.setValue(Color.BLACK);
-        full_color_picker.setOnAction(colorChangedEvent);
+        full_color_picker.setOnAction(e->{
+            canvas.initializePallet(full_color_picker.getValue());
+//            paint();
+        });
         full_color_picker.getCustomColors().add(Color.BLACK);
 
-        initializePalet();
+        canvas.initializePallet(full_color_picker.getValue());
 
         jumpto_textfield.setTextFormatter(new TextFormatter<>(change -> {
             String text = change.getText();
@@ -139,16 +136,19 @@ public class Controller implements Initializable {
             updateIndex(newInt);
         });
 
-        char_label.visibleProperty().bind(labels_checkbox.selectedProperty());
+        labels_checkbox.setOnAction(e->canvas.setLabelVisible(labels_checkbox.isSelected()));
 
         initializeMenus();
 
+
+//        canvas.widthProperty().bind(canvas_layout.widthProperty());
+//        canvas.heightProperty().bind(canvas_layout.heightProperty());
     }
 
     private void initializeMenus(){
         labelposition_menu.disableProperty().bind(labels_checkbox.disableProperty());
 
-        topleft_position_radiomenu.setOnAction(event -> {
+        /*topleft_position_radiomenu.setOnAction(event -> {
             char_label.setLayoutX(0);
             char_label.setLayoutY(0);
         });
@@ -179,7 +179,7 @@ public class Controller implements Initializable {
         right_position_radiomenu.setOnAction(event -> {
             char_label.setLayoutX(canvas.getWidth()-char_label.getWidth());
             char_label.setLayoutY((canvas.getHeight()-char_label.getHeight())/2);
-        });
+        });*/
 
     }
 
@@ -189,6 +189,9 @@ public class Controller implements Initializable {
      */
     void setStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        main_layout.setCenter(canvas);
+//        canvas.widthProperty().bind(canvas_layout.widthProperty());
+//        canvas.heightProperty().bind(canvas_layout.heightProperty());
     }
 
     /**
@@ -332,6 +335,7 @@ public class Controller implements Initializable {
     /**
      * Shows the label associated with the current image.
      */
+    /*
     private void updateLabel(){
         if(labelsChars ==null) {
             char_label.setText(null);
@@ -340,6 +344,7 @@ public class Controller implements Initializable {
             char_label.setText(String.valueOf(labelsChars[currentImageIndex]));
         }
     }
+    */
 
     /**
      * Displays a colored representation of the current image on the {@link Canvas canvas}.
@@ -364,16 +369,8 @@ public class Controller implements Initializable {
 
         if (needsTransformation) correctOrientation(imageBuffer);
 
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        double resolution = Double.min(canvas.getHeight()/numberOfRows, canvas.getWidth()/numberOfColumns);
-        gc.setFill(empty_color_picker.getValue());
-        gc.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
-        for(int y = 0; y<numberOfRows; y++)
-            for (int x = 0; x<numberOfColumns; x++){
-                gc.setFill(pallet[imageBuffer[y*numberOfRows+x]&0xFF]);
-                gc.fillRect(x*resolution, y*resolution,resolution, resolution);
-            }
-        updateLabel();
+        canvas.loadImage(imageBuffer, numberOfRows, numberOfColumns,labelsChars!=null?labelsChars[currentImageIndex]:'?');
+//        updateLabel();
     }
 
     /**
@@ -416,15 +413,7 @@ public class Controller implements Initializable {
         System.out.println("Number Of Columns = "+numberOfColumns);
     }
 
-    /**
-     * Prepares the color pallet used to paint the images.
-     */
-    private void initializePalet(){
-        Color fullColor = full_color_picker.getValue();
-        pallet = new Color[256];
-        for (int i = 0; i<256; i++)
-            pallet[i]= new Color(fullColor.getRed(), fullColor.getGreen(), fullColor.getBlue(), i/256d);
-    }
+
 
     /**
      * The EMNIST dataset needs 2 transformations in order to be drawn as identifiable character :
@@ -476,5 +465,19 @@ public class Controller implements Initializable {
         infoStage.centerOnScreen();
         infoStage.show();
 
+    }
+
+    private void printSizes(){
+        printRegionSize(main_layout);
+        printRegionSize(canvas);
+    }
+
+    private void printRegionSize(Region region){
+        System.out.println(region.getClass()+" : MinW= "+region.getMinWidth()+" - MinH= "+region.getMinHeight()
+                +" / PrefW= "+region.getPrefWidth()+ "- PrefH= "+region.getPrefHeight()
+                +" / MaxW= "+region.getMaxWidth()+" - MaxH= "+region.getMaxHeight());
+    }
+    private void printRegionSize(Canvas region){
+        System.out.println(region.getClass()+" : W= "+region.getWidth()+" - H= "+region.getHeight());
     }
 }
