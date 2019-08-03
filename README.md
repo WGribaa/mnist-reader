@@ -28,4 +28,16 @@ Added functionalities :
 
 Feel free to comment on my work and to give suggestions.
 
+
+MNIST : Thanks to  Yann LeCun, Professor
+The Courant Institute of Mathematical Sciences
+New York University
+and
+Corinna Cortes, Research Scientist
+Google Labs, New York
+corinna at google dot com 
+
+
+EMNIST : Thanks to Cohen, G., Afshar, S., Tapson, J., & van Schaik, A. (2017). EMNIST: an extension of MNIST to handwritten letters. Retrieved from http://arxiv.org/abs/1702.05373
+
 Contact me at : g.wael@outlook.fr
