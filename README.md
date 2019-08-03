@@ -10,7 +10,9 @@ https://www.nist.gov/node/1298471/emnist-dataset (Binary format)
 Once downloaded, unzip the "images" files and simply open it with the mnist-reader.
 
 Upcoming functionalities :
-- Automatic resizability of the canvas.
+- Filter to show only selected characters (or figures).
+- Sorting 0->Z and Z->0.
+- Image filtering with two threashold : upper (everything equal or above will be full font color), and lower (full blank).
 - Another view that shows multiple images at once.
 - Saving single or multiple images into PNG, JPG or both types files.
 
