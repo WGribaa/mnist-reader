@@ -7,7 +7,10 @@ http://yann.lecun.com/exdb/mnist/
 Also consider downloading the MUCH HEAVIER EMNIST datasets :
 https://www.nist.gov/node/1298471/emnist-dataset (Binary format)
 
-Once downloaded, unzip the "images" files and simply open it with the mnist-reader.
+Once downloaded, unzip the file(s) and simply open it with the mnist-reader.
+You must keep the "images" and "labels" files in the same folder.
+For the MNIST dataset, no further requirement (default mapping is applied).
+For the EMNIST dataset, you must also keep the "*-mapping.txt" file in the same folder as the others.
 
 Upcoming functionalities :
 - Filter to show only selected characters (or figures).
