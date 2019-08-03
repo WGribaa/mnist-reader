@@ -14,10 +14,10 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -50,6 +50,7 @@ public class Controller implements Initializable {
             _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
             _BOTTOM_POSITION_radiomenu, _LEFT_POSITION_radiomenu, _RIGHT_POSITION_radiomenu;
     public BorderPane main_layout;
+    public Slider empty_threshold_slider, full_threshold_slider;
 
     private Stage primaryStage;
     private File currentFile;
@@ -108,10 +109,7 @@ public class Controller implements Initializable {
         empty_color_picker.getCustomColors().add(Color.WHITE);
 
         full_color_picker.setValue(Color.BLACK);
-        full_color_picker.setOnAction(e->{
-            canvas.initializePallet(full_color_picker.getValue());
-//            paint();
-        });
+        full_color_picker.setOnAction(e-> canvas.initializePallet(full_color_picker.getValue()));
         full_color_picker.getCustomColors().add(Color.BLACK);
 
         canvas.initializePallet(full_color_picker.getValue());
@@ -144,39 +142,10 @@ public class Controller implements Initializable {
 
     private void initializeMenus(){
         labelposition_menu.disableProperty().bind(labels_checkbox.disableProperty());
-
-        /*topleft_position_radiomenu.setOnAction(event -> {
-            char_label.setLayoutX(0);
-            char_label.setLayoutY(0);
-        });
-        topright_position_radiomenu.setOnAction(event -> {
-            char_label.setLayoutX(canvas.getWidth()-char_label.getWidth());
-            char_label.setLayoutY(0);
-        });
-        bottomleft_position_radiomenu.setOnAction(event -> {
-            char_label.setLayoutX(0);
-            char_label.setLayoutY(canvas.getHeight()-char_label.getHeight());
-        });
-        bottomright_position_radiomenu.setOnAction(event -> {
-            char_label.setLayoutX(canvas.getWidth()-char_label.getWidth());
-            char_label.setLayoutY(canvas.getHeight()-char_label.getHeight());
-        });
-        top_position_radiomenu.setOnAction(event -> {
-            char_label.setLayoutX((canvas.getWidth()-char_label.getWidth())/2);
-            char_label.setLayoutY(0);
-        });
-        bottom_position_radiomenu.setOnAction(event -> {
-            char_label.setLayoutX((canvas.getWidth()-char_label.getWidth())/2);
-            char_label.setLayoutY(canvas.getHeight()-char_label.getHeight());
-        });
-        left_position_radiomenu.setOnAction(event -> {
-            char_label.setLayoutX(0);
-            char_label.setLayoutY((canvas.getHeight()-char_label.getHeight())/2);
-        });
-        right_position_radiomenu.setOnAction(event -> {
-            char_label.setLayoutX(canvas.getWidth()-char_label.getWidth());
-            char_label.setLayoutY((canvas.getHeight()-char_label.getHeight())/2);
-        });*/
+        full_threshold_slider.minProperty().bind(empty_threshold_slider.valueProperty());
+        empty_threshold_slider.maxProperty().bind(full_threshold_slider.valueProperty());
+        empty_threshold_slider.valueProperty().addListener((observable, oldValue, newValue) -> canvas.setDownFilter(newValue.intValue()));
+        full_threshold_slider.valueProperty().addListener((observable, oldValue, newValue) -> canvas.setUpFilter(newValue.intValue()));
 
     }
 

@@ -2,7 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/CustomCanvas.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/CustomCanvas.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/main.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/CustomCanvas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/CustomCanvas.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml" afterDir="false" />
     </list>
     <ignored path="JavaFxApplication.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -62,25 +68,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1088">
-              <caret line="330" column="33" selection-start-line="330" selection-start-column="33" selection-end-line="330" selection-end-column="33" />
+            <state relative-caret-position="222">
+              <caret line="111" column="41" selection-start-line="111" selection-start-column="41" selection-end-line="111" selection-end-column="41" />
               <folding>
                 <element signature="e#2166#2208#0" />
                 <element signature="e#2245#2282#0" />
                 <element signature="e#2288#2339#0" />
                 <element signature="e#2288#3120#0" />
                 <element signature="e#2950#3114#1" />
-                <element signature="e#3356#5115#0" />
-                <element signature="e#3921#4025#0" />
                 <element signature="e#4217#4376#0" />
                 <element signature="e#4432#4984#0" />
                 <element signature="e#4512#4580#0" />
                 <element signature="e#4613#4793#0" />
-                <element signature="e#5121#6822#0" />
-                <element signature="e#5248#6815#0" />
                 <element signature="e#6828#7210#0" />
                 <element signature="e#7216#7361#0" />
                 <element signature="e#7216#7630#0" />
@@ -152,27 +154,24 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/CustomCanvas.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="17" column="25" lean-forward="true" selection-start-line="17" selection-start-column="25" selection-end-line="17" selection-end-column="25" />
+            <state relative-caret-position="72">
+              <caret line="170" column="13" lean-forward="true" selection-start-line="170" selection-start-column="13" selection-end-line="170" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="docComment;class#POSITION#0;class#CustomCanvas#0" />
+                <element signature="class#POSITION#0;class#CustomCanvas#0" />
                 <element signature="method#POSITION#0;class#POSITION#0;class#CustomCanvas#0" />
                 <element signature="n#!!block;n#getVPosition#0;n#POSITION#0;n#CustomCanvas#0" />
                 <element signature="n#!!block;n#getHPosition#0;n#POSITION#0;n#CustomCanvas#0" />
                 <element signature="docComment;method#loadImage#0;class#CustomCanvas#0" />
                 <element signature="method#loadImage#0;class#CustomCanvas#0" />
                 <element signature="docComment;method#setBackGroundColor#0;class#CustomCanvas#0" />
-                <element signature="method#setBackGroundColor#0;class#CustomCanvas#0" />
                 <element signature="docComment;method#initializePallet#0;class#CustomCanvas#0" />
-                <element signature="method#initializePallet#0;class#CustomCanvas#0" />
                 <element signature="docComment;method#setLabelVisible#0;class#CustomCanvas#0" />
                 <element signature="method#setLabelVisible#0;class#CustomCanvas#0" />
-                <element signature="docComment;method#repaint#0;class#CustomCanvas#0" />
-                <element signature="method#repaint#0;class#CustomCanvas#0" />
                 <element signature="docComment;method#printLabel#0;class#CustomCanvas#0" />
                 <element signature="docComment;method#textWidth#0;class#CustomCanvas#0" />
                 <element signature="method#textWidth#0;class#CustomCanvas#0" />
@@ -190,8 +189,8 @@
         <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml">
           <provider editor-type-id="JavaFX-Scene-Builder" />
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="901">
-              <caret line="53" column="35" selection-start-line="53" selection-start-column="35" selection-end-line="53" selection-end-column="35" />
+            <state relative-caret-position="186">
+              <caret line="45" column="45" selection-start-line="45" selection-start-column="45" selection-end-line="45" selection-end-column="45" />
             </state>
           </provider>
         </entry>
@@ -234,9 +233,9 @@
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/infopanel/Infopanel.java" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/AutoResizableCanvas.java" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/ResizableCanvas.java" />
-        <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/CustomCanvas.java" />
+        <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" />
       </list>
     </option>
   </component>
@@ -640,14 +639,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml">
-      <provider editor-type-id="JavaFX-Scene-Builder" />
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="901">
-          <caret line="53" column="35" selection-start-line="53" selection-start-column="35" selection-end-line="53" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="391">
@@ -658,24 +649,75 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$PROJECT_DIR$/../../Java/libraries/javafx-sdk-11.0.2/lib/src.zip!/javafx.graphics/javafx/geometry/HPos.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="40" column="4" selection-start-line="40" selection-start-column="4" selection-end-line="40" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml">
+      <provider editor-type-id="JavaFX-Scene-Builder" />
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="45" column="45" selection-start-line="45" selection-start-column="45" selection-end-line="45" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk-11.0.1/lib/src.zip!/java.base/java/lang/Math.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="461" column="25" selection-start-line="461" selection-start-column="25" selection-end-line="461" selection-end-column="25" />
+          <folding>
+            <element signature="e#17923#17924#0" expanded="true" />
+            <element signature="e#18006#18007#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/CustomCanvas.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="170" column="13" lean-forward="true" selection-start-line="170" selection-start-column="13" selection-end-line="170" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="docComment;class#POSITION#0;class#CustomCanvas#0" />
+            <element signature="class#POSITION#0;class#CustomCanvas#0" />
+            <element signature="method#POSITION#0;class#POSITION#0;class#CustomCanvas#0" />
+            <element signature="n#!!block;n#getVPosition#0;n#POSITION#0;n#CustomCanvas#0" />
+            <element signature="n#!!block;n#getHPosition#0;n#POSITION#0;n#CustomCanvas#0" />
+            <element signature="docComment;method#loadImage#0;class#CustomCanvas#0" />
+            <element signature="method#loadImage#0;class#CustomCanvas#0" />
+            <element signature="docComment;method#setBackGroundColor#0;class#CustomCanvas#0" />
+            <element signature="docComment;method#initializePallet#0;class#CustomCanvas#0" />
+            <element signature="docComment;method#setLabelVisible#0;class#CustomCanvas#0" />
+            <element signature="method#setLabelVisible#0;class#CustomCanvas#0" />
+            <element signature="docComment;method#printLabel#0;class#CustomCanvas#0" />
+            <element signature="docComment;method#textWidth#0;class#CustomCanvas#0" />
+            <element signature="method#textWidth#0;class#CustomCanvas#0" />
+            <element signature="docComment;method#textHeight#0;class#CustomCanvas#0" />
+            <element signature="method#textHeight#0;class#CustomCanvas#0" />
+            <element signature="docComment;method#textSizes#0;class#CustomCanvas#0" />
+            <element signature="method#textSizes#0;class#CustomCanvas#0" />
+            <element signature="docComment;method#setLabelPosition#0;class#CustomCanvas#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1088">
-          <caret line="330" column="33" selection-start-line="330" selection-start-column="33" selection-end-line="330" selection-end-column="33" />
+        <state relative-caret-position="222">
+          <caret line="111" column="41" selection-start-line="111" selection-start-column="41" selection-end-line="111" selection-end-column="41" />
           <folding>
             <element signature="e#2166#2208#0" />
             <element signature="e#2245#2282#0" />
             <element signature="e#2288#2339#0" />
             <element signature="e#2288#3120#0" />
             <element signature="e#2950#3114#1" />
-            <element signature="e#3356#5115#0" />
-            <element signature="e#3921#4025#0" />
             <element signature="e#4217#4376#0" />
             <element signature="e#4432#4984#0" />
             <element signature="e#4512#4580#0" />
             <element signature="e#4613#4793#0" />
-            <element signature="e#5121#6822#0" />
-            <element signature="e#5248#6815#0" />
             <element signature="e#6828#7210#0" />
             <element signature="e#7216#7361#0" />
             <element signature="e#7216#7630#0" />
@@ -730,45 +772,6 @@
             <element signature="e#16056#16109#0" />
             <element signature="e#16131#16295#0" />
             <element signature="e#16131#16827#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/../../Java/libraries/javafx-sdk-11.0.2/lib/src.zip!/javafx.graphics/javafx/geometry/HPos.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="40" column="4" selection-start-line="40" selection-start-column="4" selection-end-line="40" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/CustomCanvas.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="25" lean-forward="true" selection-start-line="17" selection-start-column="25" selection-end-line="17" selection-end-column="25" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="docComment;class#POSITION#0;class#CustomCanvas#0" />
-            <element signature="method#POSITION#0;class#POSITION#0;class#CustomCanvas#0" />
-            <element signature="n#!!block;n#getVPosition#0;n#POSITION#0;n#CustomCanvas#0" />
-            <element signature="n#!!block;n#getHPosition#0;n#POSITION#0;n#CustomCanvas#0" />
-            <element signature="docComment;method#loadImage#0;class#CustomCanvas#0" />
-            <element signature="method#loadImage#0;class#CustomCanvas#0" />
-            <element signature="docComment;method#setBackGroundColor#0;class#CustomCanvas#0" />
-            <element signature="method#setBackGroundColor#0;class#CustomCanvas#0" />
-            <element signature="docComment;method#initializePallet#0;class#CustomCanvas#0" />
-            <element signature="method#initializePallet#0;class#CustomCanvas#0" />
-            <element signature="docComment;method#setLabelVisible#0;class#CustomCanvas#0" />
-            <element signature="method#setLabelVisible#0;class#CustomCanvas#0" />
-            <element signature="docComment;method#repaint#0;class#CustomCanvas#0" />
-            <element signature="method#repaint#0;class#CustomCanvas#0" />
-            <element signature="docComment;method#printLabel#0;class#CustomCanvas#0" />
-            <element signature="docComment;method#textWidth#0;class#CustomCanvas#0" />
-            <element signature="method#textWidth#0;class#CustomCanvas#0" />
-            <element signature="docComment;method#textHeight#0;class#CustomCanvas#0" />
-            <element signature="method#textHeight#0;class#CustomCanvas#0" />
-            <element signature="docComment;method#textSizes#0;class#CustomCanvas#0" />
-            <element signature="method#textSizes#0;class#CustomCanvas#0" />
-            <element signature="docComment;method#setLabelPosition#0;class#CustomCanvas#0" />
           </folding>
         </state>
       </provider>

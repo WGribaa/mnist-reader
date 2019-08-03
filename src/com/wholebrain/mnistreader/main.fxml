@@ -10,6 +10,7 @@
 <?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.ScrollBar?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.BorderPane?>
@@ -34,6 +35,17 @@
                        <ColorPicker fx:id="full_color_picker" accessibleRole="BUTTON" promptText="Full color" />
                    </graphic>
                </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Empty threashold">
+               <graphic>
+                  <Slider fx:id="empty_threshold_slider" blockIncrement="1.0" max="255.0" minorTickCount="25" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+               </graphic>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" text="Full threashold">
+               <graphic>
+                  <Slider fx:id="full_threshold_slider" blockIncrement="1.0" max="255.0" minorTickCount="25" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="255.0" />
+               </graphic>
+            </MenuItem>
            </Menu>
            <Menu mnemonicParsing="false" text="View">
                <Menu mnemonicParsing="false" text="Jump to #">
@@ -46,29 +58,18 @@
             <SeparatorMenuItem mnemonicParsing="false" />
             <CheckMenuItem fx:id="labels_checkbox" disable="true" mnemonicParsing="false" text="Show labels" />
                <Menu fx:id="labelposition_menu" mnemonicParsing="false" text="Labels position">
-                   <RadioMenuItem fx:id="_TOPLEFT_POSITION_radiomenu" mnemonicParsing="false"
-                                  onAction="#send_position_tocanvas" selected="true" text="Top Left">
+                   <RadioMenuItem fx:id="_TOPLEFT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" selected="true" text="Top Left">
                        <toggleGroup>
-                           <ToggleGroup fx:id="label_position_group"/>
+                           <ToggleGroup fx:id="label_position_group" />
                        </toggleGroup>
                    </RadioMenuItem>
-                   <RadioMenuItem fx:id="_TOPRIGHT_POSITION_radiomenu" mnemonicParsing="false"
-                                  onAction="#send_position_tocanvas" text="Top Right"
-                                  toggleGroup="$label_position_group"/>
-                   <RadioMenuItem fx:id="_BOTTOMLEFT_POSITION_radiomenu" mnemonicParsing="false"
-                                  onAction="#send_position_tocanvas" text="Bottom Left"
-                                  toggleGroup="$label_position_group"/>
-                   <RadioMenuItem fx:id="_BOTTOMRIGHT_POSITION_radiomenu" mnemonicParsing="false"
-                                  onAction="#send_position_tocanvas" text="Bottom Right"
-                                  toggleGroup="$label_position_group"/>
-                   <RadioMenuItem fx:id="_TOP_POSITION_radiomenu" mnemonicParsing="false"
-                                  onAction="#send_position_tocanvas" text="Top" toggleGroup="$label_position_group"/>
-                   <RadioMenuItem fx:id="_BOTTOM_POSITION_radiomenu" mnemonicParsing="false"
-                                  onAction="#send_position_tocanvas" text="Bottom" toggleGroup="$label_position_group"/>
-                   <RadioMenuItem fx:id="_LEFT_POSITION_radiomenu" mnemonicParsing="false"
-                                  onAction="#send_position_tocanvas" text="Left" toggleGroup="$label_position_group"/>
-                   <RadioMenuItem fx:id="_RIGHT_POSITION_radiomenu" mnemonicParsing="false"
-                                  onAction="#send_position_tocanvas" text="Right" toggleGroup="$label_position_group"/>
+                   <RadioMenuItem fx:id="_TOPRIGHT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Top Right" toggleGroup="$label_position_group" />
+                   <RadioMenuItem fx:id="_BOTTOMLEFT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Bottom Left" toggleGroup="$label_position_group" />
+                   <RadioMenuItem fx:id="_BOTTOMRIGHT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Bottom Right" toggleGroup="$label_position_group" />
+                   <RadioMenuItem fx:id="_TOP_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Top" toggleGroup="$label_position_group" />
+                   <RadioMenuItem fx:id="_BOTTOM_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Bottom" toggleGroup="$label_position_group" />
+                   <RadioMenuItem fx:id="_LEFT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Left" toggleGroup="$label_position_group" />
+                   <RadioMenuItem fx:id="_RIGHT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Right" toggleGroup="$label_position_group" />
                </Menu>
            </Menu>
            <Menu mnemonicParsing="false" text="Help">

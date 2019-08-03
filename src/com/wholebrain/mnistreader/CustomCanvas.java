@@ -16,8 +16,9 @@ public class CustomCanvas extends Pane {
     private Color backGroundColor = Color.WHITE;
     private char currentChar;
     private byte[] image;
-    private int numberOfRows, numberOfColumns;
-    private boolean isLabelVisible = true;
+    private int numberOfRows, numberOfColumns,
+            filterDownThreshold=0, filterUpThreshold=255;
+    private boolean isLabelVisible = true, isFiltered = false;
     private Font labelFont = new Font(Font.getDefault().getName(),50);
     private Canvas canvas = new Canvas(280,280);
     private POSITION currentLabelPosition = POSITION._TOPLEFT_POSITION;
@@ -49,6 +50,34 @@ public class CustomCanvas extends Pane {
         double getHPosition(){
             return hPosition;
         }
+    }
+
+    /**
+     * Sets the down threshold for filtering the image :
+     * every value equal or below will show a "blank" pixel.
+     * @param downValue Limit value to be a blank pixel.
+     */
+    public void setDownFilter(int downValue) {
+        this.filterDownThreshold = downValue;
+        updateFiltering();
+    }
+
+    /**
+     * Sets the up threshold for filtering the image :
+     * every value equal or above will show a "full" pixel.
+     * @param upValue Limit value to be a fully opaque pixel.
+     */
+    public void setUpFilter(int upValue) {
+        this.filterUpThreshold = upValue;
+        updateFiltering();
+    }
+
+    /**
+     * Checks if the image needs filtering and reinitialize the pallet in consequence.
+     */
+    private void updateFiltering(){
+        isFiltered = !(filterDownThreshold ==0 && filterUpThreshold ==255);
+        initializePallet(pallet[255]);
     }
 
     public CustomCanvas(){
@@ -90,6 +119,7 @@ public class CustomCanvas extends Pane {
      */
     public void setBackGroundColor(Color backGroundColor) {
         this.backGroundColor = backGroundColor;
+        initializePallet(pallet[255]);
         repaint();
     }
 
@@ -98,8 +128,18 @@ public class CustomCanvas extends Pane {
      */
     void initializePallet(Color color){
         pallet = new Color[256];
-        for (int i = 0; i<256; i++)
-            pallet[i]= new Color(color.getRed(), color.getGreen(), color.getBlue(), i/256d);
+        if(!isFiltered)
+            for (int i = 0; i<256; i++)
+                pallet[i]= new Color(color.getRed(), color.getGreen(), color.getBlue(), i/256d);
+        else {
+            for (int i = 0; i<= filterDownThreshold; i++)
+                pallet[i]=backGroundColor;
+            for (int i = filterDownThreshold +1; i< filterUpThreshold; i++)
+                pallet[i]= new Color(color.getRed(), color.getGreen(), color.getBlue(), i/256d);
+            for (int i = filterUpThreshold; i<256; i++)
+                pallet[i] = color;
+        }
+
         repaint();
     }
 
@@ -113,21 +153,21 @@ public class CustomCanvas extends Pane {
     }
 
     /**
-     * Makes the canvas repaint itself.
+     * Makes the canvas repaint its content.
      */
     private void repaint(){
         double size = Double.min(canvas.getHeight(), canvas.getWidth());
-        double xPos = (canvas.getWidth()-size)/2;
-        double yPos = (canvas.getHeight()-size)/2;
+        double xPos = (canvas.getWidth()-size)/2.0;
+        double yPos = (canvas.getHeight()-size)/2.0;
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        double resolution = Double.min(size/numberOfRows, size/numberOfColumns);
+        double resolution = Math.floor(Double.min(size/(1.0*numberOfRows), size/(1.0*numberOfColumns)));
         gc.setFill(backGroundColor);
         gc.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
         for(int y = 0; y<numberOfRows; y++)
             for (int x = 0; x<numberOfColumns; x++){
                 gc.setFill(pallet[image[y*numberOfRows+x]&0xFF]);
-                gc.fillRect(xPos+x*resolution, yPos+y*resolution,resolution, resolution);
+                gc.fillRect(Math.floor(xPos+x*resolution), Math.floor(yPos+y*resolution),resolution, resolution);
             }
         if(isLabelVisible) printLabel(gc);
     }
@@ -188,4 +228,5 @@ public class CustomCanvas extends Pane {
         currentLabelPosition=POSITION.valueOf(positionString);
         repaint();
     }
+
 }
