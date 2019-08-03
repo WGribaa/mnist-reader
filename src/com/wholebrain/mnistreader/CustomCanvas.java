@@ -7,6 +7,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
 import java.awt.Dimension;
 
@@ -54,7 +55,8 @@ public class CustomCanvas extends Pane {
         getChildren().add(canvas);
         setMinSize(280,280);
         canvas.getGraphicsContext2D().setFont(labelFont);
-        canvas.getGraphicsContext2D().setTextBaseline(VPos.TOP);
+        canvas.getGraphicsContext2D().setTextBaseline(VPos.CENTER);
+        canvas.getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
     }
 
     /**
@@ -137,9 +139,8 @@ public class CustomCanvas extends Pane {
     private void printLabel(GraphicsContext gc) {
         gc.setFill(pallet[255]);
         String toPrint = String.valueOf(currentChar);
-        Dimension textDimension = textSizes(labelFont, toPrint);
-        double x = currentLabelPosition.getHPosition()*(canvas.getWidth()-textDimension.width-textDimension.height)+textDimension.height/2d;
-        double y = currentLabelPosition.getVPosition()*(canvas.getHeight()-2*textDimension.height-textDimension.width)+textDimension.width/2d;
+        double x = (1+4*currentLabelPosition.getHPosition())/6d*canvas.getWidth();
+        double y = (1+4*currentLabelPosition.getVPosition())/6d*canvas.getHeight();
         gc.fillText(toPrint,x,y);
     }
 
