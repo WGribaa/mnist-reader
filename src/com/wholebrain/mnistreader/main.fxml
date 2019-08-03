@@ -45,22 +45,31 @@
                </Menu>
             <SeparatorMenuItem mnemonicParsing="false" />
             <CheckMenuItem fx:id="labels_checkbox" disable="true" mnemonicParsing="false" text="Show labels" />
-            <Menu fx:id="labelposition_menu" mnemonicParsing="false" text="Labels position">
-              <items>
-                  <RadioMenuItem fx:id="topleft_position_radiomenu" mnemonicParsing="false" selected="true" text="Top Left">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="label_position_group" />
-                     </toggleGroup>
-                  </RadioMenuItem>
-                  <RadioMenuItem fx:id="topright_position_radiomenu" mnemonicParsing="false" text="Top Right" toggleGroup="$label_position_group" />
-                  <RadioMenuItem fx:id="bottomleft_position_radiomenu" mnemonicParsing="false" text="Bottom Left" toggleGroup="$label_position_group" />
-                  <RadioMenuItem fx:id="bottomright_position_radiomenu" mnemonicParsing="false" text="Bottom Right" toggleGroup="$label_position_group" />
-                  <RadioMenuItem fx:id="top_position_radiomenu" mnemonicParsing="false" text="Top" toggleGroup="$label_position_group" />
-                  <RadioMenuItem fx:id="bottom_position_radiomenu" mnemonicParsing="false" text="Bottom" toggleGroup="$label_position_group" />
-                  <RadioMenuItem fx:id="left_position_radiomenu" mnemonicParsing="false" text="Left" toggleGroup="$label_position_group" />
-                  <RadioMenuItem fx:id="right_position_radiomenu" mnemonicParsing="false" text="Right" toggleGroup="$label_position_group" />
-              </items>
-            </Menu>
+               <Menu fx:id="labelposition_menu" mnemonicParsing="false" text="Labels position">
+                   <RadioMenuItem fx:id="_TOPLEFT_POSITION_radiomenu" mnemonicParsing="false"
+                                  onAction="#send_position_tocanvas" selected="true" text="Top Left">
+                       <toggleGroup>
+                           <ToggleGroup fx:id="label_position_group"/>
+                       </toggleGroup>
+                   </RadioMenuItem>
+                   <RadioMenuItem fx:id="_TOPRIGHT_POSITION_radiomenu" mnemonicParsing="false"
+                                  onAction="#send_position_tocanvas" text="Top Right"
+                                  toggleGroup="$label_position_group"/>
+                   <RadioMenuItem fx:id="_BOTTOMLEFT_POSITION_radiomenu" mnemonicParsing="false"
+                                  onAction="#send_position_tocanvas" text="Bottom Left"
+                                  toggleGroup="$label_position_group"/>
+                   <RadioMenuItem fx:id="_BOTTOMRIGHT_POSITION_radiomenu" mnemonicParsing="false"
+                                  onAction="#send_position_tocanvas" text="Bottom Right"
+                                  toggleGroup="$label_position_group"/>
+                   <RadioMenuItem fx:id="_TOP_POSITION_radiomenu" mnemonicParsing="false"
+                                  onAction="#send_position_tocanvas" text="Top" toggleGroup="$label_position_group"/>
+                   <RadioMenuItem fx:id="_BOTTOM_POSITION_radiomenu" mnemonicParsing="false"
+                                  onAction="#send_position_tocanvas" text="Bottom" toggleGroup="$label_position_group"/>
+                   <RadioMenuItem fx:id="_LEFT_POSITION_radiomenu" mnemonicParsing="false"
+                                  onAction="#send_position_tocanvas" text="Left" toggleGroup="$label_position_group"/>
+                   <RadioMenuItem fx:id="_RIGHT_POSITION_radiomenu" mnemonicParsing="false"
+                                  onAction="#send_position_tocanvas" text="Right" toggleGroup="$label_position_group"/>
+               </Menu>
            </Menu>
            <Menu mnemonicParsing="false" text="Help">
                <MenuItem mnemonicParsing="false" onAction="#mnist_goto" text="Go to MNIST Database website" />

@@ -1,5 +1,6 @@
 package com.wholebrain.mnistreader;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -45,9 +46,9 @@ public class Controller implements Initializable {
     public TextField jumpto_textfield;
     public CheckMenuItem labels_checkbox;
     public Menu labelposition_menu;
-    public RadioMenuItem topleft_position_radiomenu,topright_position_radiomenu,
-            bottomleft_position_radiomenu,bottomright_position_radiomenu,top_position_radiomenu,
-            bottom_position_radiomenu,left_position_radiomenu,right_position_radiomenu;
+    public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
+            _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
+            _BOTTOM_POSITION_radiomenu, _LEFT_POSITION_radiomenu, _RIGHT_POSITION_radiomenu;
     public BorderPane main_layout;
 
     private Stage primaryStage;
@@ -139,10 +140,6 @@ public class Controller implements Initializable {
         labels_checkbox.setOnAction(e->canvas.setLabelVisible(labels_checkbox.isSelected()));
 
         initializeMenus();
-
-
-//        canvas.widthProperty().bind(canvas_layout.widthProperty());
-//        canvas.heightProperty().bind(canvas_layout.heightProperty());
     }
 
     private void initializeMenus(){
@@ -181,6 +178,14 @@ public class Controller implements Initializable {
             char_label.setLayoutY((canvas.getHeight()-char_label.getHeight())/2);
         });*/
 
+    }
+
+    @FXML
+    public void send_position_tocanvas(ActionEvent actionEvent) {
+        String positionString = actionEvent.getSource().toString();
+        positionString= positionString.substring(positionString.indexOf('=')+1,positionString.lastIndexOf("_radiomenu"));
+        System.out.println("Sending position : "+positionString);
+        canvas.setLabelPosition(positionString);
     }
 
     /**
@@ -333,20 +338,6 @@ public class Controller implements Initializable {
 
 
     /**
-     * Shows the label associated with the current image.
-     */
-    /*
-    private void updateLabel(){
-        if(labelsChars ==null) {
-            char_label.setText(null);
-        } else{
-//            System.out.println(labelsChars[currentImageIndex]);
-            char_label.setText(String.valueOf(labelsChars[currentImageIndex]));
-        }
-    }
-    */
-
-    /**
      * Displays a colored representation of the current image on the {@link Canvas canvas}.
      */
     private void paint(){
@@ -370,7 +361,6 @@ public class Controller implements Initializable {
         if (needsTransformation) correctOrientation(imageBuffer);
 
         canvas.loadImage(imageBuffer, numberOfRows, numberOfColumns,labelsChars!=null?labelsChars[currentImageIndex]:'?');
-//        updateLabel();
     }
 
     /**
@@ -412,8 +402,6 @@ public class Controller implements Initializable {
         System.out.println("Number Of Rows = "+numberOfRows);
         System.out.println("Number Of Columns = "+numberOfColumns);
     }
-
-
 
     /**
      * The EMNIST dataset needs 2 transformations in order to be drawn as identifiable character :
@@ -465,19 +453,5 @@ public class Controller implements Initializable {
         infoStage.centerOnScreen();
         infoStage.show();
 
-    }
-
-    private void printSizes(){
-        printRegionSize(main_layout);
-        printRegionSize(canvas);
-    }
-
-    private void printRegionSize(Region region){
-        System.out.println(region.getClass()+" : MinW= "+region.getMinWidth()+" - MinH= "+region.getMinHeight()
-                +" / PrefW= "+region.getPrefWidth()+ "- PrefH= "+region.getPrefHeight()
-                +" / MaxW= "+region.getMaxWidth()+" - MaxH= "+region.getMaxHeight());
-    }
-    private void printRegionSize(Canvas region){
-        System.out.println(region.getClass()+" : W= "+region.getWidth()+" - H= "+region.getHeight());
     }
 }
