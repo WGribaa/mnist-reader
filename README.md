@@ -13,7 +13,6 @@ For the MNIST dataset, no further requirement (default mapping is applied).
 For the EMNIST dataset, you must also keep the "*-mapping.txt" file in the same folder as the others.
 
 Upcoming functionalities :
-- Filter to show only selected characters (or figures).
 - Sorting 0->Z and Z->0.
 - Another view that shows multiple images at once.
 - Saving single or multiple images into PNG, JPG or both types files.
@@ -25,6 +24,7 @@ Added functionalities :
 - Automatic reading of the labels.
 - Free resizability of the canvas.
 - Positioning of the labels at  8 possible locations.
+- Filters to show only selected characters (or figures).
 
 Feel free to comment on my work and to give suggestions.
 
