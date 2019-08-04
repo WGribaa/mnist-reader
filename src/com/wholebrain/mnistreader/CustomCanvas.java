@@ -126,7 +126,7 @@ public class CustomCanvas extends Pane {
     /**
      * Prepares the color pallet used to paint the images.
      */
-    void initializePallet(Color color){
+    public void initializePallet(Color color){
         pallet = new Color[256];
         if(!isFiltered)
             for (int i = 0; i<256; i++)
@@ -157,17 +157,17 @@ public class CustomCanvas extends Pane {
      */
     private void repaint(){
         double size = Double.min(canvas.getHeight(), canvas.getWidth());
-        double xPos = (canvas.getWidth()-size)/2.0;
-        double yPos = (canvas.getHeight()-size)/2.0;
+        double resolution = Math.floor(Double.min(size/(1.0*numberOfRows), size/(1.0*numberOfColumns)));
+        double xPos = Math.floor((canvas.getWidth()-resolution*numberOfColumns)/2.0);
+        double yPos = Math.floor((canvas.getHeight()-resolution*numberOfRows)/2.0);
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        double resolution = Math.floor(Double.min(size/(1.0*numberOfRows), size/(1.0*numberOfColumns)));
         gc.setFill(backGroundColor);
         gc.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
         for(int y = 0; y<numberOfRows; y++)
             for (int x = 0; x<numberOfColumns; x++){
                 gc.setFill(pallet[image[y*numberOfRows+x]&0xFF]);
-                gc.fillRect(Math.floor(xPos+x*resolution), Math.floor(yPos+y*resolution),resolution, resolution);
+                gc.fillRect(xPos+x*resolution, yPos+y*resolution,resolution,resolution);
             }
         if(isLabelVisible) printLabel(gc);
     }

@@ -1,12 +1,12 @@
 package com.wholebrain.mnistreader;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
@@ -23,42 +23,46 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javax.imageio.ImageIO;
 import java.awt.Desktop;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.ResourceBundle;
 
 
 public class Controller implements Initializable {
-    public MenuItem open_menu, close_menu;
-    public Label index_label;
-    public ScrollBar index_scrollbar;
-    public ColorPicker empty_color_picker, full_color_picker;
-    public TextField jumpto_textfield;
-    public CheckMenuItem labels_checkbox;
-    public Menu labelposition_menu;
-    public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
+    @FXML public BorderPane main_layout;
+    @FXML public Menu labelposition_menu, filters_menu, showonly_menu;
+    @FXML public MenuItem open_menu, close_menu, showall_labels_menuitem;;
+    @FXML public CheckMenuItem labels_checkbox;
+    @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
             _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
             _BOTTOM_POSITION_radiomenu, _LEFT_POSITION_radiomenu, _RIGHT_POSITION_radiomenu;
-    public BorderPane main_layout;
-    public Slider empty_threshold_slider, full_threshold_slider;
+    @FXML public Label index_label;
+    @FXML public TextField jumpto_textfield;
+    @FXML public ScrollBar index_scrollbar;
+    @FXML public ColorPicker empty_color_picker, full_color_picker;
+    @FXML public Slider empty_threshold_slider, full_threshold_slider;
 
-    private Stage primaryStage;
-    private File currentFile;
-    private int magicNumber, numberOfImages, numberOfRows, numberOfColumns, currentImageIndex = 0;
-    private boolean needsTransformation = false;
-    private char[] labelsChars;
-    private Map<Integer, Character> mapping;
     private CustomCanvas canvas = new CustomCanvas();
+    private List<CheckMenuItem> charFilters= new ArrayList<>();
+    private List<MenuItem> showOnlyFilters = new ArrayList<>();
+    private Stage primaryStage;
+
+    private DatasetReader reader = new DatasetReader();
+    private int currentImageIndex = 0;
+    private List<Character> filteredChars = new ArrayList<>();
+    private List<Integer> filteredImageIndexes = new ArrayList<>();
 
     /**
      * Closes the application.
@@ -78,13 +82,8 @@ public class Controller implements Initializable {
                 new FileChooser.ExtensionFilter("All compatible files","*.idx3-ubyte","*-idx3-ubyte"),
                 new FileChooser.ExtensionFilter("Mnist DataSet files (*.idx3-ubyte)","*.idx3-ubyte"),
                 new FileChooser.ExtensionFilter("Emnist DataSet files ","*-idx3-ubyte"));
-        fileChooser.setInitialDirectory(currentFile != null ?currentFile.getParentFile(): null);
-        File file= fileChooser.showOpenDialog(null);
-        if(file !=null) {
-            currentFile = file;
-            primaryStage.setTitle("Datasets Images Reader" + " : " + currentFile.getName());
-            getMetaInfos();
-        }
+        fileChooser.setInitialDirectory(reader.getCurrentFile() != null ?reader.getCurrentFile().getParentFile(): null);
+        loadFile(fileChooser.showOpenDialog(null));
     }
 
     @FXML
@@ -97,12 +96,26 @@ public class Controller implements Initializable {
         gotoHtmlLink("https://www.nist.gov/node/1298471/emnist-dataset");
     }
 
+    @FXML
+    public void send_position_tocanvas(ActionEvent actionEvent) {
+        String positionString = actionEvent.getSource().toString();
+        positionString= positionString.substring(positionString.indexOf('=')+1,positionString.lastIndexOf("_radiomenu"));
+        System.out.println("Sending position : "+positionString);
+        canvas.setLabelPosition(positionString);
+    }
+
+    @FXML
+    public void on_showall_labels(ActionEvent actionEvent) {
+        for(CheckMenuItem m : charFilters)
+            m.setSelected(true);
+        resetFilteredImageIndexes();
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         index_scrollbar.setMax(0);
         index_scrollbar.valueProperty().addListener((observable, oldValue, newValue) ->
-                updateIndex(newValue.intValue())
-        );
+                updateIndex(newValue.intValue()));
 
         empty_color_picker.setValue(Color.WHITE);
         empty_color_picker.setOnAction(e->canvas.setBackGroundColor(empty_color_picker.getValue()));
@@ -121,40 +134,39 @@ public class Controller implements Initializable {
             return change;
         }));
         jumpto_textfield.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue==null || newValue.isEmpty())
+                newValue="0";
+
             int newInt=0;
             try {
-                newInt = Integer.parseInt(newValue);
+                newInt = Math.min(Integer.parseInt(newValue),reader.getNumberOfImages()-1);
             } catch (NumberFormatException e) {
                 jumpto_textfield.setText(oldValue);
-//                throw new NumberFormatException("The input number \""+newValue+"\" is out of Integer range.");
+                newInt = reader.getNumberOfImages()-1;
+                //throw new NumberFormatException("The input number \""+newValue+"\" is out of Integer range.");
             }
-            if (newInt < 0)
-                newInt = 0;
-            else if (newInt >= numberOfImages)
-                newInt = numberOfImages - 1;
             updateIndex(newInt);
         });
 
         labels_checkbox.setOnAction(e->canvas.setLabelVisible(labels_checkbox.isSelected()));
 
-        initializeMenus();
+        initializeBindings();
     }
 
-    private void initializeMenus(){
-        labelposition_menu.disableProperty().bind(labels_checkbox.disableProperty());
+    /**
+     * Initialize all needed bindings between node properties.
+     */
+    private void initializeBindings(){
+        labelposition_menu.disableProperty().bind(labels_checkbox.disableProperty()
+                .and(labels_checkbox.selectedProperty().not()));
+
+        filters_menu.disableProperty().bind(labels_checkbox.disableProperty());
+
         full_threshold_slider.minProperty().bind(empty_threshold_slider.valueProperty());
         empty_threshold_slider.maxProperty().bind(full_threshold_slider.valueProperty());
         empty_threshold_slider.valueProperty().addListener((observable, oldValue, newValue) -> canvas.setDownFilter(newValue.intValue()));
         full_threshold_slider.valueProperty().addListener((observable, oldValue, newValue) -> canvas.setUpFilter(newValue.intValue()));
 
-    }
-
-    @FXML
-    public void send_position_tocanvas(ActionEvent actionEvent) {
-        String positionString = actionEvent.getSource().toString();
-        positionString= positionString.substring(positionString.indexOf('=')+1,positionString.lastIndexOf("_radiomenu"));
-        System.out.println("Sending position : "+positionString);
-        canvas.setLabelPosition(positionString);
     }
 
     /**
@@ -164,212 +176,163 @@ public class Controller implements Initializable {
     void setStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
         main_layout.setCenter(canvas);
-//        canvas.widthProperty().bind(canvas_layout.widthProperty());
-//        canvas.heightProperty().bind(canvas_layout.heightProperty());
+    }
+
+    /**
+     * Send the file to the DatasetReader, then change every related variables and properties.
+     * @param file to read.
+     */
+    private void loadFile(File file) {
+        if(file == null) return;
+        reader.setCurrentFile(file);
+        primaryStage.setTitle("Datasets Images Reader" + " : " + file.getName());
+
+        resetFilteredImageIndexes();
+
+        labels_checkbox.setDisable(false);
+        setupScrollBar();
+
+        loadFilters();
+        updateIndex(filteredImageIndexes.get(0));
+    }
+
+    private void setupScrollBar(){
+        index_scrollbar.setMin(filteredImageIndexes.size()>0?filteredImageIndexes.get(0):0);
+        index_scrollbar.setMax(filteredImageIndexes.size()>0?filteredImageIndexes.get(filteredImageIndexes.size()-1):0);
+        index_scrollbar.setBlockIncrement(filteredImageIndexes.size()/20);
     }
 
     /**
      * Update the displayed infos about the current image index.
      */
     private void updateIndex(int newIndex){
-        if(currentFile==null || numberOfImages==0) return;
-        index_label.setText(String.valueOf(currentImageIndex));
-        currentImageIndex = newIndex;
-        jumpto_textfield.setText(String.valueOf(newIndex));
-        index_scrollbar.setValue(newIndex);
-        // Corrects the orientation of the imageBuffer if it comes from an EMNIST dataset.
-        needsTransformation = currentFile.getName().contains("emnist");
-        paint();
+        if(reader.getCurrentFile()==null) return;
+        if(filteredImageIndexes.size()==0) {
+            canvas.loadImage(getNullImage(), 112, 112, '?');
+            index_label.setText("No image.");
+            jumpto_textfield.setText(null);
+        }else {
+            if (!filteredImageIndexes.contains(newIndex))
+                newIndex = findClosestInt(newIndex, currentImageIndex, filteredImageIndexes);
+            currentImageIndex = newIndex;
+            index_label.setText(String.valueOf(currentImageIndex));
+            index_scrollbar.setValue(newIndex);
+            paint();
+        }
     }
 
     /**
-     * Gets and stores the meta infos about the current DataSet.
-     */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void getMetaInfos(){
-        BufferedInputStream bis = null;
-        byte[] buffer = new byte[4];
-
-        try{
-            bis = new BufferedInputStream(new FileInputStream(currentFile));
-            bis.read(buffer);
-            magicNumber = bytesToInt(buffer);
-            bis.read(buffer);
-            numberOfImages = bytesToInt(buffer);
-            bis.read(buffer);
-            numberOfRows = bytesToInt(buffer);
-            bis.read(buffer);
-            numberOfColumns = bytesToInt(buffer);
-            printMetaInfos();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally{
-            if(bis !=null)
-                try{
-                    bis.close();
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-        }
-        loadLabels();
-        index_scrollbar.setMax(numberOfImages-1);
-        index_scrollbar.setBlockIncrement(numberOfImages/20);
-        updateIndex(0);
-    }
-
-    /**
-     * Reads the labels file associated with the current image file and save it in a byte array.
-     * If the number of images is different from the number of labels, the byte array will remain null.
-     */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void loadLabels() {
-        labelsChars = null;
-
-        StringBuilder labelSb = new StringBuilder(currentFile.getPath());
-        labelSb.replace(labelSb.lastIndexOf("idx3"),labelSb.lastIndexOf("idx3")+4,"idx1")
-                .replace(labelSb.lastIndexOf("images"), labelSb.lastIndexOf("images")+6, "labels");
-        File labelFile = new File(labelSb.toString());
-        if (!labelFile.exists())
-            return;
-
-        BufferedInputStream bis = null;
-        byte[] labelsBytes = null;
-        try{
-            bis = new BufferedInputStream((new FileInputStream(labelFile)));
-            bis.skip(4);
-            byte[] buffer = new byte[4];
-            bis.read(buffer);
-            if(bytesToInt(buffer) != numberOfImages)
-                return;
-            labelsBytes = bis.readAllBytes();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally {
-            try {
-                if (bis != null)
-                    bis.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (labelsBytes==null || labelsBytes.length != numberOfImages)
-            labelsChars = null;
-        else {
-            loadMapping();
-            labelsChars = new char[labelsBytes.length];
-            for(int i =0; i< labelsBytes.length; i++)
-                labelsChars[i]= mapping.get((int) labelsBytes[i]);
-
-            labels_checkbox.setDisable(false);
-            labels_checkbox.setSelected(true);
-        }
-    }
-
-    private void loadMapping(){
-        mapping = new HashMap<>();
-        if(currentFile.getPath().lastIndexOf("emnist")==-1) {
-            System.out.println("No loading because not an Emnist dataset.");
-            defaultMapping();
-            return;
-        }
-        String mappingType = currentFile.getName().split("-")[1];
-        File mappingFile = new File(currentFile.getParent()+File.separator+"emnist-"+mappingType+"-mapping.txt");
-        if (!mappingFile.exists()) {
-            System.out.println("No loading because the file \""+ mappingFile.getPath()+"\" doesn't exist.");
-            defaultMapping();
-            return;
-        }
-
-        try (BufferedReader br = new BufferedReader(new FileReader(mappingFile))){
-            String line = br.readLine();
-            String[] splittedLine;
-            while(line!=null){
-                splittedLine = line.split(" ");
-                mapping.put(Integer.valueOf(splittedLine[0]),(char)Integer.parseInt(splittedLine[1]));
-                line=br.readLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Mapping file \""+mappingFile.getPath()+"\" has been loaded.");
-        System.out.println(mapping);
-
-    }
-
-    private void defaultMapping(){
-        for (int i = 0; i<10;i++){
-            mapping.put(i,(char)(i+48));
-        }
-        System.out.println("Default mapping has been loaded.");
-        System.out.println(mapping);
-    }
-
-
-    /**
-     * Displays a colored representation of the current image on the {@link Canvas canvas}.
+     * Displays a colored representation of the current image on the {@link CustomCanvas canvas}.
      */
     private void paint(){
-        BufferedInputStream bis = jumpToIndex(currentImageIndex);
-        if (bis == null) return;
+        byte[] imageBuffer = reader.getImageBuffer(currentImageIndex);
 
-        byte[] imageBuffer = new byte[numberOfRows*numberOfColumns];
-        try{
-            //noinspection ResultOfMethodCallIgnored
-            bis.read(imageBuffer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally{
-            try{
-                bis.close();
-            }catch (IOException e){
-                e.printStackTrace();
-            }
+
+        if (reader.isNeedsTransformation()) correctOrientation(imageBuffer);
+
+        canvas.loadImage(imageBuffer, reader.getRowCount(),
+                reader.getColumnCount(),
+                reader.getLabel(currentImageIndex));
+    }
+
+    /**
+     * Adds a {@link CheckMenuItem} for every char present in dataset.
+     */
+    private void loadFilters(){
+        filters_menu.getItems().clear();
+        showonly_menu.getItems().clear();
+
+        showOnlyFilters.clear();
+        charFilters.clear();
+        if(reader.getNumberOfImages()== 0)
+            return;
+
+        EventHandler<ActionEvent> filterEvent = event -> {
+            System.out.println("Char filter event");
+            char c = ((CheckMenuItem)event.getSource()).getText().charAt(0);
+            if(((CheckMenuItem)event.getSource()).isSelected())
+                addCharToFilter(c);
+            else
+                removeCharToFilter(c);
+        };
+        EventHandler<ActionEvent> showOnlyEvent = event -> {
+            System.out.println("Show only event");
+            char c = ((MenuItem)event.getSource()).getText().charAt(0);
+            filteredChars.clear();
+            for(CheckMenuItem filter : charFilters)
+                filter.setSelected(false);
+            charFilters.get(showOnlyFilters.indexOf((MenuItem)event.getSource())).setSelected(true);
+            addCharToFilter(c);
+        };
+
+        for (char c : reader.getCharSet()) {
+            filteredChars.add(c);
+
+            CheckMenuItem newCharFilter = new CheckMenuItem(String.valueOf(c));
+            newCharFilter.setSelected(true);
+            newCharFilter.setOnAction(filterEvent);
+            charFilters.add(newCharFilter);
+
+            MenuItem newShowOnlyItem = new MenuItem(String.valueOf(c));
+            newShowOnlyItem.setOnAction(showOnlyEvent);
+            showOnlyFilters.add(newShowOnlyItem);
         }
+        charFilters.sort(Comparator.comparingInt(o -> o.getText().charAt(0)));
+        showOnlyFilters.sort(Comparator.comparingInt(o -> o.getText().charAt(0)));
 
-        if (needsTransformation) correctOrientation(imageBuffer);
+        filters_menu.getItems().addAll(charFilters);
+        showonly_menu.getItems().addAll(showOnlyFilters);
 
-        canvas.loadImage(imageBuffer, numberOfRows, numberOfColumns,labelsChars!=null?labelsChars[currentImageIndex]:'?');
+        System.out.println("Filtered chars at initialization = "+filteredChars);
     }
 
     /**
-     * Creates a {@link BufferedInputStream stream} and puts its positioning index
-     * to the specified index.
-     * @param index Target index.
-     * @return {@link BufferedInputStream} with the correct positioning index.
+     * Resets the variable {@link List<Integer> filteredImageIndexes} to a ascendant list of integer
+     * from 0 to the number of images inside the dataset.
      */
-    private BufferedInputStream jumpToIndex(int index){
-        if (index >= numberOfImages)
-            return null;
-        BufferedInputStream bis = null;
+    private void resetFilteredImageIndexes(){
+        filteredImageIndexes.clear();
+        for (int i=0; i<reader.getNumberOfImages(); i++)
+            filteredImageIndexes.add(i);
+        updateIndex(currentImageIndex);
+    }
 
-        try{
-            bis = new BufferedInputStream(new FileInputStream(currentFile));
-            //noinspection ResultOfMethodCallIgnored
-            bis.skip(16+index*numberOfRows*numberOfColumns);
-        } catch (IOException e) {
-            e.printStackTrace();
+    /**
+     * Adds a character to the filtering process.
+     * @param c char to add.
+     */
+    private void addCharToFilter(char c){
+        if(!filteredChars.contains(c)){
+            filteredChars.add(c);
+            updateCharFiltering();
         }
-        return bis;
     }
 
     /**
-     * Translate an array of 4 bytes into a integer.
-     * @param bytes Array of 4 bytes.
-     * @return int.
+     * Removes a character to the filtering process.
+     * @param c char to add.
      */
-    private int bytesToInt(byte[] bytes){
-        return bytes[0]<<24 | (bytes[1]&0xFF)<<16 | (bytes[2]&0xFF) <<8 | (bytes[3]&0xFF);
+    private void removeCharToFilter(char c) {
+        if(filteredChars.contains(c)){
+            System.out.println("Wanting to remove char '"+c+"' from filters.");
+            filteredChars.remove(filteredChars.indexOf(c));
+            updateCharFiltering();
+        }
     }
 
     /**
-     * Shows the Meta Infos inside the console.
+     * Updates the variable filteredImageIndexes to correspond
+     * to the indexes of the filtered characters.
      */
-    private void printMetaInfos(){
-        System.out.println("Magic Number = "+magicNumber);
-        System.out.println("Number Of Images = "+numberOfImages);
-        System.out.println("Number Of Rows = "+numberOfRows);
-        System.out.println("Number Of Columns = "+numberOfColumns);
+    private void updateCharFiltering(){
+        filteredImageIndexes.clear();
+        for(char c : filteredChars)
+            filteredImageIndexes.addAll(reader.getIndexForChar(c));
+        filteredImageIndexes.sort(Comparator.comparingInt(o -> o));
+        setupScrollBar();
+        System.out.println("Updated filtered image indexes : "+filteredImageIndexes);
+        updateIndex(currentImageIndex);
+
     }
 
     /**
@@ -383,11 +346,13 @@ public class Controller implements Initializable {
      */
     private void correctOrientation(byte[] imageBuffer){
         byte buffer;
-        for (int y=0;y<numberOfRows;y++)
-            for(int x = y+1; x<numberOfColumns; x++){
-                buffer = imageBuffer[y*numberOfColumns+x];
-                imageBuffer[y*numberOfColumns+x] = imageBuffer[x*numberOfColumns+y];
-                imageBuffer[x*numberOfColumns+y] = buffer;
+        int rowCount = reader.getRowCount(),
+                columnCount = reader.getColumnCount();
+        for (int y=0;y<columnCount;y++)
+            for(int x = y+1; x<rowCount; x++){
+                buffer = imageBuffer[y*columnCount+x];
+                imageBuffer[y*columnCount+x] = imageBuffer[x*columnCount+y];
+                imageBuffer[x*columnCount+y] = buffer;
             }
     }
 
@@ -423,4 +388,97 @@ public class Controller implements Initializable {
         infoStage.show();
 
     }
+
+    /**
+     * Finds the closest int in a {@link List<Integer> list of integer}
+     * from a int.
+     * Example : List = {0 ; 10 ; 20 ; 30 ; 40}. findClosestInt(21,List) will return 30.
+     * @param value int to consider
+     * @param oldValue previous int, to know the direction of the search.
+     * @param sortedList {@link }List<Integer>} sorted with int values from smallest to biggest.
+     * @return the closest int in the list in the correct direction.
+     */
+    private static int findClosestInt(int value, int oldValue, List<Integer> sortedList) {
+        if(sortedList.get(0)>value)
+            return sortedList.get(sortedList.size()-1);
+        if(value>=oldValue && sortedList.get(sortedList.size()-1)<value)
+            return 0;
+        else if (value < oldValue && sortedList.get(0)>value)
+            return sortedList.get(sortedList.size()-1);
+
+
+        int exp = (int)Math.floor(Math.log(sortedList.size())/Math.log(2)),
+                index = (int)Math.pow(2,exp);
+        boolean dir; // true = ascend; false = descend.
+        while(exp>=0){
+            dir = sortedList.get(Math.min(index, sortedList.size() - 1)) < value;
+            exp--;
+            index = dir?index+(int)Math.pow(2,exp):index-(int)Math.pow(2,exp);
+        }
+
+        return value>=oldValue ?
+                (sortedList.get(index)>value?
+                        sortedList.get(index):
+                        sortedList.get(index+1)):
+                (sortedList.get(index)<value?
+                        sortedList.get(index):
+                        sortedList.get(index-1))
+                ;
+    }
+
+    /**
+     * Simply a byte by byte generated image for the fun !
+     * @return imageBuffer readable by the {@link CustomCanvas custom canvas}.
+     */
+    private byte[] getNullImage(){
+        byte[] imgData = new byte[12544];
+        pxRect(imgData, 5,62,20,96);
+        pxRect(imgData, 22,62,37,96);
+        pxPyramid(imgData, 5,62,36,true);
+        pxRect(imgData, 39,28,54,62);
+        pxRect(imgData, 56,28,71,62);
+        pxPyramid(imgData,39,62,70,false);
+        pxRect(imgData, 73,10,88,96);
+        pxRect(imgData, 90,10,105,96);
+        return imgData;
+    }
+
+    /**
+     * Colors a rectangle in the imageBuffer.
+     * @param imageBuffer as an array of byte.
+     * @param startX X coordinate of the top left corner of the rectangle.
+     * @param startY Y coordinate of the top left corner of the rectangle.
+     * @param endX X coordinate of the bottom right corner of the rectangle.
+     * @param endY Y coordinate of the bottom right corner of the rectangle.
+     */
+    private void pxRect(byte[] imageBuffer, int startX, int startY, int endX, int endY){
+        for (int i = startY; i<endY; i++){
+            for (int j = startX; j<endX; j++){
+                imageBuffer[i*112+j]=(byte)255;
+            }
+        }
+    }
+
+    /**
+     * Colors a pyramid int the imageBuffer.
+     * @param imageBuffer as an array of byte.
+     * @param startX X coordinate of the left corner of the pyramid.
+     * @param startY Y coordinate of the left corner of the pyramid.
+     * @param endX X coordinate of the right corner of the pyramid.
+     * @param up Direction of the pyramid : true = up ; false = down.
+     */
+    private void pxPyramid(byte[] imageBuffer, int startX, int startY, int endX, boolean up){
+        int height = (endX-startX)/2;
+        int i = 0;
+        while(i<=height){
+            for (int j =0; j<=i; j++) {
+                imageBuffer[112 * startY + (up?-j:j) * 112 + startX + i] = (byte) 255;
+                imageBuffer[112 * startY + (up?-j:j) * 112 + endX-i]=(byte)255;
+            }
+            i++;
+        }
+
+    }
+
+
 }

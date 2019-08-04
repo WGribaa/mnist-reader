@@ -56,7 +56,7 @@
                    </MenuItem>
                </Menu>
             <SeparatorMenuItem mnemonicParsing="false" />
-            <CheckMenuItem fx:id="labels_checkbox" disable="true" mnemonicParsing="false" text="Show labels" />
+            <CheckMenuItem fx:id="labels_checkbox" disable="true" mnemonicParsing="false" selected="true" text="Show labels" />
                <Menu fx:id="labelposition_menu" mnemonicParsing="false" text="Labels position">
                    <RadioMenuItem fx:id="_TOPLEFT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" selected="true" text="Top Left">
                        <toggleGroup>
@@ -71,6 +71,10 @@
                    <RadioMenuItem fx:id="_LEFT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Left" toggleGroup="$label_position_group" />
                    <RadioMenuItem fx:id="_RIGHT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Right" toggleGroup="$label_position_group" />
                </Menu>
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem fx:id="showall_labels_menuitem" mnemonicParsing="false" onAction="#on_showall_labels" text="Show all labels" />
+            <Menu fx:id="filters_menu" mnemonicParsing="false" text="Filter labels" />
+            <Menu fx:id="showonly_menu" mnemonicParsing="false" text="Show only" />
            </Menu>
            <Menu mnemonicParsing="false" text="Help">
                <MenuItem mnemonicParsing="false" onAction="#mnist_goto" text="Go to MNIST Database website" />
