@@ -23,21 +23,17 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import javax.imageio.ImageIO;
 import java.awt.Desktop;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.TreeSet;
 
 
 public class Controller implements Initializable {
@@ -100,12 +96,11 @@ public class Controller implements Initializable {
     public void send_position_tocanvas(ActionEvent actionEvent) {
         String positionString = actionEvent.getSource().toString();
         positionString= positionString.substring(positionString.indexOf('=')+1,positionString.lastIndexOf("_radiomenu"));
-        System.out.println("Sending position : "+positionString);
         canvas.setLabelPosition(positionString);
     }
 
     @FXML
-    public void on_showall_labels(ActionEvent actionEvent) {
+    public void on_showall_labels() {
         for(CheckMenuItem m : charFilters)
             m.setSelected(true);
         resetFilteredImageIndexes();
@@ -137,14 +132,17 @@ public class Controller implements Initializable {
             if (newValue==null || newValue.isEmpty())
                 newValue="0";
 
-            int newInt=0;
+            int newInt;
             try {
                 newInt = Math.min(Integer.parseInt(newValue),reader.getNumberOfImages()-1);
+
             } catch (NumberFormatException e) {
                 jumpto_textfield.setText(oldValue);
                 newInt = reader.getNumberOfImages()-1;
                 //throw new NumberFormatException("The input number \""+newValue+"\" is out of Integer range.");
             }
+            if (!filteredImageIndexes.contains(newInt))
+                newInt= findClosestInt(newInt, currentImageIndex, filteredImageIndexes);
             updateIndex(newInt);
         });
 
@@ -161,6 +159,7 @@ public class Controller implements Initializable {
                 .and(labels_checkbox.selectedProperty().not()));
 
         filters_menu.disableProperty().bind(labels_checkbox.disableProperty());
+        showonly_menu.disableProperty().bind(labels_checkbox.disableProperty());
 
         full_threshold_slider.minProperty().bind(empty_threshold_slider.valueProperty());
         empty_threshold_slider.maxProperty().bind(full_threshold_slider.valueProperty());
@@ -197,8 +196,8 @@ public class Controller implements Initializable {
     }
 
     private void setupScrollBar(){
-        index_scrollbar.setMin(filteredImageIndexes.size()>0?filteredImageIndexes.get(0):0);
-        index_scrollbar.setMax(filteredImageIndexes.size()>0?filteredImageIndexes.get(filteredImageIndexes.size()-1):0);
+        index_scrollbar.setMin(0);
+        index_scrollbar.setMax(filteredImageIndexes.size());
         index_scrollbar.setBlockIncrement(filteredImageIndexes.size()/20);
     }
 
@@ -212,9 +211,7 @@ public class Controller implements Initializable {
             index_label.setText("No image.");
             jumpto_textfield.setText(null);
         }else {
-            if (!filteredImageIndexes.contains(newIndex))
-                newIndex = findClosestInt(newIndex, currentImageIndex, filteredImageIndexes);
-            currentImageIndex = newIndex;
+            currentImageIndex = filteredImageIndexes.get(Math.min(newIndex,filteredImageIndexes.size()-1));
             index_label.setText(String.valueOf(currentImageIndex));
             index_scrollbar.setValue(newIndex);
             paint();
@@ -248,7 +245,6 @@ public class Controller implements Initializable {
             return;
 
         EventHandler<ActionEvent> filterEvent = event -> {
-            System.out.println("Char filter event");
             char c = ((CheckMenuItem)event.getSource()).getText().charAt(0);
             if(((CheckMenuItem)event.getSource()).isSelected())
                 addCharToFilter(c);
@@ -256,7 +252,6 @@ public class Controller implements Initializable {
                 removeCharToFilter(c);
         };
         EventHandler<ActionEvent> showOnlyEvent = event -> {
-            System.out.println("Show only event");
             char c = ((MenuItem)event.getSource()).getText().charAt(0);
             filteredChars.clear();
             for(CheckMenuItem filter : charFilters)
@@ -282,8 +277,6 @@ public class Controller implements Initializable {
 
         filters_menu.getItems().addAll(charFilters);
         showonly_menu.getItems().addAll(showOnlyFilters);
-
-        System.out.println("Filtered chars at initialization = "+filteredChars);
     }
 
     /**
@@ -314,7 +307,6 @@ public class Controller implements Initializable {
      */
     private void removeCharToFilter(char c) {
         if(filteredChars.contains(c)){
-            System.out.println("Wanting to remove char '"+c+"' from filters.");
             filteredChars.remove(filteredChars.indexOf(c));
             updateCharFiltering();
         }
@@ -330,9 +322,7 @@ public class Controller implements Initializable {
             filteredImageIndexes.addAll(reader.getIndexForChar(c));
         filteredImageIndexes.sort(Comparator.comparingInt(o -> o));
         setupScrollBar();
-        System.out.println("Updated filtered image indexes : "+filteredImageIndexes);
         updateIndex(currentImageIndex);
-
     }
 
     /**
@@ -386,7 +376,6 @@ public class Controller implements Initializable {
         infoStage.setResizable(false);
         infoStage.centerOnScreen();
         infoStage.show();
-
     }
 
     /**
@@ -399,9 +388,7 @@ public class Controller implements Initializable {
      * @return the closest int in the list in the correct direction.
      */
     private static int findClosestInt(int value, int oldValue, List<Integer> sortedList) {
-        if(sortedList.get(0)>value)
-            return sortedList.get(sortedList.size()-1);
-        if(value>=oldValue && sortedList.get(sortedList.size()-1)<value)
+        /*if(value>=oldValue && sortedList.get(sortedList.size()-1)<value)
             return 0;
         else if (value < oldValue && sortedList.get(0)>value)
             return sortedList.get(sortedList.size()-1);
@@ -423,7 +410,14 @@ public class Controller implements Initializable {
                 (sortedList.get(index)<value?
                         sortedList.get(index):
                         sortedList.get(index-1))
-                ;
+         ;*/ // Old fashion. Using a TreeSet is 5 to 18 times faster !
+
+        Integer ret = (value>=oldValue)?
+                new TreeSet<>(sortedList).higher(value):
+                new TreeSet<>(sortedList).lower(value);
+        return ret!=null ?
+                ret.intValue() :
+                value<oldValue ? sortedList.get(0) : sortedList.get(sortedList.size()-1);
     }
 
     /**
@@ -434,10 +428,10 @@ public class Controller implements Initializable {
         byte[] imgData = new byte[12544];
         pxRect(imgData, 5,62,20,96);
         pxRect(imgData, 22,62,37,96);
-        pxPyramid(imgData, 5,62,36,true);
+        pxSimpleTriangle(imgData, 5,62,36,true);
         pxRect(imgData, 39,28,54,62);
         pxRect(imgData, 56,28,71,62);
-        pxPyramid(imgData,39,62,70,false);
+        pxSimpleTriangle(imgData,39,62,70,false);
         pxRect(imgData, 73,10,88,96);
         pxRect(imgData, 90,10,105,96);
         return imgData;
@@ -460,14 +454,14 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Colors a pyramid int the imageBuffer.
+     * Colors a horizontal based equilateral triangle int the imageBuffer.
      * @param imageBuffer as an array of byte.
-     * @param startX X coordinate of the left corner of the pyramid.
-     * @param startY Y coordinate of the left corner of the pyramid.
-     * @param endX X coordinate of the right corner of the pyramid.
-     * @param up Direction of the pyramid : true = up ; false = down.
+     * @param startX X coordinate of the left corner of the triangle.
+     * @param startY Y coordinate of the left corner of the triangle.
+     * @param endX X coordinate of the right corner of the triangle.
+     * @param up Direction of the third corner of the triangle : true = up ; false = down.
      */
-    private void pxPyramid(byte[] imageBuffer, int startX, int startY, int endX, boolean up){
+    private void pxSimpleTriangle(byte[] imageBuffer, int startX, int startY, int endX, boolean up){
         int height = (endX-startX)/2;
         int i = 0;
         while(i<=height){
@@ -479,6 +473,5 @@ public class Controller implements Initializable {
         }
 
     }
-
 
 }
