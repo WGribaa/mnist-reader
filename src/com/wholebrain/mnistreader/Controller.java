@@ -31,8 +31,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.TreeSet;
 
 
@@ -57,7 +59,7 @@ public class Controller implements Initializable {
 
     private DatasetReader reader = new DatasetReader();
     private int currentImageIndex = 0;
-    private List<Character> filteredChars = new ArrayList<>();
+    private Set<Character> filteredChars = new HashSet<>();
     private List<Integer> filteredImageIndexes = new ArrayList<>();
 
     /**
@@ -103,14 +105,17 @@ public class Controller implements Initializable {
     public void on_showall_labels() {
         for(CheckMenuItem m : charFilters)
             m.setSelected(true);
-        resetFilteredImageIndexes();
+        filteredChars.addAll(reader.getCharSet());
+        updateCharFiltering();
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         index_scrollbar.setMax(0);
-        index_scrollbar.valueProperty().addListener((observable, oldValue, newValue) ->
-                updateIndex(newValue.intValue()));
+        index_scrollbar.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue.intValue() == oldValue.intValue()) return;
+                    updateIndex(newValue.intValue());
+                });
 
         empty_color_picker.setValue(Color.WHITE);
         empty_color_picker.setOnAction(e->canvas.setBackGroundColor(empty_color_picker.getValue()));
@@ -129,21 +134,26 @@ public class Controller implements Initializable {
             return change;
         }));
         jumpto_textfield.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue==null || newValue.isEmpty())
-                newValue="0";
+
+            if (filteredImageIndexes.isEmpty())
+                return;
+            if (newValue == null || newValue.isEmpty())
+                newValue = "0";
 
             int newInt;
             try {
-                newInt = Math.min(Integer.parseInt(newValue),reader.getNumberOfImages()-1);
+                newInt = Math.min(Integer.parseInt(newValue), filteredImageIndexes.get(filteredImageIndexes.size()-1));
 
             } catch (NumberFormatException e) {
                 jumpto_textfield.setText(oldValue);
-                newInt = reader.getNumberOfImages()-1;
+                newInt = filteredImageIndexes.get(filteredImageIndexes.size()-1);
                 //throw new NumberFormatException("The input number \""+newValue+"\" is out of Integer range.");
             }
             if (!filteredImageIndexes.contains(newInt))
-                newInt= findClosestInt(newInt, currentImageIndex, filteredImageIndexes);
-            updateIndex(newInt);
+                newInt = findClosestInt(newInt,  filteredImageIndexes);
+
+            updateIndex(filteredImageIndexes.indexOf(newInt));
+
         });
 
         labels_checkbox.setOnAction(e->canvas.setLabelVisible(labels_checkbox.isSelected()));
@@ -183,40 +193,42 @@ public class Controller implements Initializable {
      */
     private void loadFile(File file) {
         if(file == null) return;
+        currentImageIndex=0;
         reader.setCurrentFile(file);
         primaryStage.setTitle("Datasets Images Reader" + " : " + file.getName());
 
-        resetFilteredImageIndexes();
 
         labels_checkbox.setDisable(false);
         setupScrollBar();
 
+        filteredChars.addAll(reader.getCharSet());
         loadFilters();
-        updateIndex(filteredImageIndexes.get(0));
+        updateCharFiltering();
     }
 
     private void setupScrollBar(){
         index_scrollbar.setMin(0);
-        index_scrollbar.setMax(filteredImageIndexes.size());
+        index_scrollbar.setMax(filteredImageIndexes.size()-1);
         index_scrollbar.setBlockIncrement(filteredImageIndexes.size()/20);
     }
 
     /**
      * Update the displayed infos about the current image index.
      */
-    private void updateIndex(int newIndex){
-        if(reader.getCurrentFile()==null) return;
-        if(filteredImageIndexes.size()==0) {
+    private void updateIndex(int newFilteredIndex) {
+        if (reader.getCurrentFile() == null) return;
+        if (filteredImageIndexes.size() == 0) {
             canvas.loadImage(getNullImage(), 112, 112, '?');
             index_label.setText("No image.");
             jumpto_textfield.setText(null);
-        }else {
-            currentImageIndex = filteredImageIndexes.get(Math.min(newIndex,filteredImageIndexes.size()-1));
+        } else {
+            currentImageIndex = filteredImageIndexes.get(newFilteredIndex);
             index_label.setText(String.valueOf(currentImageIndex));
-            index_scrollbar.setValue(newIndex);
+            index_scrollbar.setValue(newFilteredIndex);
             paint();
         }
     }
+
 
     /**
      * Displays a colored representation of the current image on the {@link CustomCanvas canvas}.
@@ -246,8 +258,9 @@ public class Controller implements Initializable {
 
         EventHandler<ActionEvent> filterEvent = event -> {
             char c = ((CheckMenuItem)event.getSource()).getText().charAt(0);
-            if(((CheckMenuItem)event.getSource()).isSelected())
+            if(((CheckMenuItem)event.getSource()).isSelected()) {
                 addCharToFilter(c);
+            }
             else
                 removeCharToFilter(c);
         };
@@ -280,17 +293,6 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Resets the variable {@link List<Integer> filteredImageIndexes} to a ascendant list of integer
-     * from 0 to the number of images inside the dataset.
-     */
-    private void resetFilteredImageIndexes(){
-        filteredImageIndexes.clear();
-        for (int i=0; i<reader.getNumberOfImages(); i++)
-            filteredImageIndexes.add(i);
-        updateIndex(currentImageIndex);
-    }
-
-    /**
      * Adds a character to the filtering process.
      * @param c char to add.
      */
@@ -307,7 +309,7 @@ public class Controller implements Initializable {
      */
     private void removeCharToFilter(char c) {
         if(filteredChars.contains(c)){
-            filteredChars.remove(filteredChars.indexOf(c));
+            filteredChars.remove(c);
             updateCharFiltering();
         }
     }
@@ -322,7 +324,11 @@ public class Controller implements Initializable {
             filteredImageIndexes.addAll(reader.getIndexForChar(c));
         filteredImageIndexes.sort(Comparator.comparingInt(o -> o));
         setupScrollBar();
-        updateIndex(currentImageIndex);
+        if(filteredImageIndexes.size()==0)
+            updateIndex(0);
+        else updateIndex(filteredImageIndexes.contains(currentImageIndex) ?
+                    filteredImageIndexes.indexOf(currentImageIndex):
+                    filteredImageIndexes.indexOf(findClosestInt(currentImageIndex,filteredImageIndexes)));
     }
 
     /**
@@ -383,11 +389,10 @@ public class Controller implements Initializable {
      * from a int.
      * Example : List = {0 ; 10 ; 20 ; 30 ; 40}. findClosestInt(21,List) will return 30.
      * @param value int to consider
-     * @param oldValue previous int, to know the direction of the search.
      * @param sortedList {@link }List<Integer>} sorted with int values from smallest to biggest.
-     * @return the closest int in the list in the correct direction.
+     * @return the closest int in the lis.
      */
-    private static int findClosestInt(int value, int oldValue, List<Integer> sortedList) {
+    private static int findClosestInt(final int value, final List<Integer> sortedList) {
         /*if(value>=oldValue && sortedList.get(sortedList.size()-1)<value)
             return 0;
         else if (value < oldValue && sortedList.get(0)>value)
@@ -411,13 +416,10 @@ public class Controller implements Initializable {
                         sortedList.get(index):
                         sortedList.get(index-1))
          ;*/ // Old fashion. Using a TreeSet is 5 to 18 times faster !
-
-        Integer ret = (value>=oldValue)?
-                new TreeSet<>(sortedList).higher(value):
-                new TreeSet<>(sortedList).lower(value);
+        Integer ret = new TreeSet<>(sortedList).higher(value);
         return ret!=null ?
-                ret.intValue() :
-                value<oldValue ? sortedList.get(0) : sortedList.get(sortedList.size()-1);
+                ret :
+                sortedList.get(sortedList.size()-1); //Method with a TreeSet.
     }
 
     /**
