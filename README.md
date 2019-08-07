@@ -13,9 +13,11 @@ For the MNIST dataset, no further requirement (default mapping is applied).
 For the EMNIST dataset, you must also keep the "*-mapping.txt" file in the same folder as the others.
 
 Upcoming functionalities :
-- Sorting 0->Z and Z->0.
 - Another view that shows multiple images at once.
 - Saving single or multiple images into PNG, JPG or both types files.
+- Hint appearing above the canvas to give detailed about individual pixels.
+- Panel and/or dialog that shows details about the currently displayed image.
+- Panel and/or dialog that shows details about the currently read Dataset file.
 
 Added functionalities : 
 - Mnist Compatibility.
@@ -25,6 +27,7 @@ Added functionalities :
 - Free resizability of the canvas.
 - Positioning of the labels at  8 possible locations.
 - Filters to show only selected characters (or figures).
+- Multiple sorting.
 
 Feel free to comment on my work and to give suggestions.
 
