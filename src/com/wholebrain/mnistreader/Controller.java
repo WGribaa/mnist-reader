@@ -7,16 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -40,8 +31,8 @@ import java.util.TreeSet;
 
 public class Controller implements Initializable {
     @FXML public BorderPane main_layout;
-    @FXML public Menu labelposition_menu, filters_menu, showonly_menu;
-    @FXML public MenuItem open_menu, close_menu, showall_labels_menuitem;;
+    @FXML public Menu labelposition_menu, filters_menu, showonly_menu, sorters_menu;
+    @FXML public MenuItem open_menu, close_menu, showall_labels_menuitem;
     @FXML public CheckMenuItem labels_checkbox;
     @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
             _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
@@ -52,15 +43,23 @@ public class Controller implements Initializable {
     @FXML public ColorPicker empty_color_picker, full_color_picker;
     @FXML public Slider empty_threshold_slider, full_threshold_slider;
 
+    // Programmatically added GUI elements.
     private CustomCanvas canvas = new CustomCanvas();
     private List<CheckMenuItem> charFilters= new ArrayList<>();
     private List<MenuItem> showOnlyFilters = new ArrayList<>();
     private Stage primaryStage;
 
+    // Dataset related
     private DatasetReader reader = new DatasetReader();
     private int currentImageIndex = 0;
+
+    // Filters
     private Set<Character> filteredChars = new HashSet<>();
     private List<Integer> filteredImageIndexes = new ArrayList<>();
+
+    // Sorter
+    private Comparator<Integer> currentSorter;
+    private SorterList sorters = new SorterList();
 
     /**
      * Closes the application.
@@ -159,7 +158,11 @@ public class Controller implements Initializable {
         labels_checkbox.setOnAction(e->canvas.setLabelVisible(labels_checkbox.isSelected()));
 
         initializeBindings();
+        initializeSorters();
+
     }
+
+
 
     /**
      * Initialize all needed bindings between node properties.
@@ -175,6 +178,51 @@ public class Controller implements Initializable {
         empty_threshold_slider.maxProperty().bind(full_threshold_slider.valueProperty());
         empty_threshold_slider.valueProperty().addListener((observable, oldValue, newValue) -> canvas.setDownFilter(newValue.intValue()));
         full_threshold_slider.valueProperty().addListener((observable, oldValue, newValue) -> canvas.setUpFilter(newValue.intValue()));
+
+    }
+
+    /**
+     * Initialize the available {@link Comparator<Integer>} which will sort the displayed characters.
+     */
+    private void initializeSorters() {
+        Comparator<Integer> sorterDefault = Comparator.comparingInt(i->i);
+        Comparator<Integer> sorterInvertedDefault = (i1,i2)->i2-i1;
+        Comparator<Integer> sorter0z = Comparator.comparingInt(i -> reader.getCharForIndex(i));
+        Comparator<Integer> sorterz0 = (i1, i2) -> reader.getCharForIndex(i2)-reader.getCharForIndex(i1);
+        Comparator<Integer> sorterAZaz09 = Comparator.comparingInt(i -> (reader.getCharForIndex(i) - (byte)'A' + Byte.MAX_VALUE) % Byte.MAX_VALUE);
+        Comparator<Integer> sorter90zaZA = (i1, i2) -> (reader.getCharForIndex(i2)-(byte)'A'+Byte.MAX_VALUE)%Byte.MAX_VALUE - (reader.getCharForIndex(i1)-(byte)'A'+Byte.MAX_VALUE)%Byte.MAX_VALUE;
+        Comparator<Integer> sorterazAZ09az = Comparator.comparingInt(i ->
+                -((reader.getCharForIndex(i) - (byte) 'A' + Byte.MAX_VALUE) % Byte.MAX_VALUE - 31 - Byte.MAX_VALUE) % Byte.MAX_VALUE);
+        Comparator<Integer> sorterza90ZA = (i1, i2) ->
+                - ((reader.getCharForIndex(i2)-(byte)'A'+Byte.MAX_VALUE)%Byte.MAX_VALUE-31-Byte.MAX_VALUE)% Byte.MAX_VALUE
+                        +((reader.getCharForIndex(i1)-(byte)'A'+Byte.MAX_VALUE)%Byte.MAX_VALUE-31-Byte.MAX_VALUE)%Byte.MAX_VALUE;
+
+        sorters.put("Default order", sorterDefault);
+        sorters.put("Inverted order", sorterInvertedDefault);
+        sorters.put("0 -> 9 -> A -> Z -> a -> z",sorter0z);
+        sorters.put("0 <- 9 <- A <- Z <- a <- z", sorterz0);
+        sorters.put("A -> Z -> a -> z -> 0 -> 9",sorterAZaz09);
+        sorters.put("A <- Z <- a <- z <- 0 <- 9",sorter90zaZA);
+        sorters.put("A -> Z -> 0 -> 9 -> a -> z",sorterazAZ09az);
+        sorters.put("A <- Z <- 0 <- 9 <- a <- z",sorterza90ZA);
+
+        EventHandler<ActionEvent> sortEvent = event -> {
+            currentSorter = sorters.getComparator(((RadioMenuItem) event.getSource()).getText());
+            sort();
+            updateIndex(filteredImageIndexes.indexOf(currentImageIndex));
+        };
+
+        ToggleGroup sorterGroup = new ToggleGroup();
+        for(int i = 0; i<sorters.size(); i++){
+            RadioMenuItem newMenuItem = new RadioMenuItem();
+            newMenuItem.setText(sorters.getString(i));
+            sorterGroup.getToggles().add(newMenuItem);
+            if (i==0)newMenuItem.setSelected(true);
+            newMenuItem.setOnAction(sortEvent);
+            sorters_menu.getItems().add(newMenuItem);
+        }
+        sorters_menu.getItems().add(2,new SeparatorMenuItem());
+        currentSorter=sorters.getComparator(0);
 
     }
 
@@ -206,6 +254,10 @@ public class Controller implements Initializable {
         updateCharFiltering();
     }
 
+    /**
+     * Change basic size properties of the {@link java.awt.Scrollbar scroll bar}
+     * to map the count of displayed images.
+     */
     private void setupScrollBar(){
         index_scrollbar.setMin(0);
         index_scrollbar.setMax(filteredImageIndexes.size()-1);
@@ -322,13 +374,21 @@ public class Controller implements Initializable {
         filteredImageIndexes.clear();
         for(char c : filteredChars)
             filteredImageIndexes.addAll(reader.getIndexForChar(c));
-        filteredImageIndexes.sort(Comparator.comparingInt(o -> o));
+        sort();
         setupScrollBar();
         if(filteredImageIndexes.size()==0)
             updateIndex(0);
         else updateIndex(filteredImageIndexes.contains(currentImageIndex) ?
                     filteredImageIndexes.indexOf(currentImageIndex):
                     filteredImageIndexes.indexOf(findClosestInt(currentImageIndex,filteredImageIndexes)));
+    }
+
+    /**
+     * Sort displayed characters in the chosen order.
+     */
+    private void sort(){
+        if(filteredImageIndexes.size()==0) return;
+        filteredImageIndexes.sort(currentSorter);
     }
 
     /**
@@ -385,6 +445,25 @@ public class Controller implements Initializable {
     }
 
     /**
+     * Simply a byte by byte generated image for the fun !
+     * @return imageBuffer readable by the {@link CustomCanvas custom canvas}.
+     */
+    private byte[] getNullImage(){
+        byte[] imgData = new byte[12544];
+        pxRect(imgData, 5,62,20,96);
+        pxRect(imgData, 22,62,37,96);
+        pxSimpleTriangle(imgData, 5,62,36,true);
+        pxRect(imgData, 39,28,54,62);
+        pxRect(imgData, 56,28,71,62);
+        pxSimpleTriangle(imgData,39,62,70,false);
+        pxRect(imgData, 73,10,88,96);
+        pxRect(imgData, 90,10,105,96);
+        return imgData;
+    }
+
+    // Utils methods
+
+    /**
      * Finds the closest int in a {@link List<Integer> list of integer}
      * from a int.
      * Example : List = {0 ; 10 ; 20 ; 30 ; 40}. findClosestInt(21,List) will return 30.
@@ -420,23 +499,6 @@ public class Controller implements Initializable {
         return ret!=null ?
                 ret :
                 sortedList.get(sortedList.size()-1); //Method with a TreeSet.
-    }
-
-    /**
-     * Simply a byte by byte generated image for the fun !
-     * @return imageBuffer readable by the {@link CustomCanvas custom canvas}.
-     */
-    private byte[] getNullImage(){
-        byte[] imgData = new byte[12544];
-        pxRect(imgData, 5,62,20,96);
-        pxRect(imgData, 22,62,37,96);
-        pxSimpleTriangle(imgData, 5,62,36,true);
-        pxRect(imgData, 39,28,54,62);
-        pxRect(imgData, 56,28,71,62);
-        pxSimpleTriangle(imgData,39,62,70,false);
-        pxRect(imgData, 73,10,88,96);
-        pxRect(imgData, 90,10,105,96);
-        return imgData;
     }
 
     /**

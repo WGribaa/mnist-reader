@@ -13,6 +13,7 @@
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -21,10 +22,16 @@
    <top>
        <MenuBar BorderPane.alignment="CENTER">
            <Menu mnemonicParsing="false" text="File">
-               <MenuItem fx:id="open_menu" mnemonicParsing="false" onAction="#on_open" text="Open" />
-               <MenuItem fx:id="close_menu" mnemonicParsing="false" onAction="#on_close" text="Close" />
+               <MenuItem fx:id="open_menu" mnemonicParsing="false" onAction="#on_open" text="Open">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator></MenuItem>
+               <MenuItem fx:id="close_menu" mnemonicParsing="false" onAction="#on_close" text="Quit">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="X" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator></MenuItem>
            </Menu>
-           <Menu mnemonicParsing="false" text="Edit">
+           <Menu mnemonicParsing="false" text="Images">
                <MenuItem mnemonicParsing="false" text="Empty Color">
                    <graphic>
                        <ColorPicker fx:id="empty_color_picker" accessibleRole="BUTTON" promptText="Empty color" />
@@ -36,18 +43,18 @@
                    </graphic>
                </MenuItem>
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Empty threashold">
+            <MenuItem mnemonicParsing="false" text="Empty threshold">
                <graphic>
                   <Slider fx:id="empty_threshold_slider" blockIncrement="1.0" max="255.0" minorTickCount="25" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
                </graphic>
             </MenuItem>
-            <MenuItem mnemonicParsing="false" text="Full threashold">
+            <MenuItem mnemonicParsing="false" text="Full threshold">
                <graphic>
                   <Slider fx:id="full_threshold_slider" blockIncrement="1.0" max="255.0" minorTickCount="25" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="255.0" />
                </graphic>
             </MenuItem>
            </Menu>
-           <Menu mnemonicParsing="false" text="View">
+           <Menu mnemonicParsing="false" text="Labels">
                <Menu mnemonicParsing="false" text="Jump to #">
                    <MenuItem mnemonicParsing="false">
                        <graphic>
@@ -56,12 +63,18 @@
                    </MenuItem>
                </Menu>
             <SeparatorMenuItem mnemonicParsing="false" />
-            <CheckMenuItem fx:id="labels_checkbox" disable="true" mnemonicParsing="false" selected="true" text="Show labels" />
+            <CheckMenuItem fx:id="labels_checkbox" disable="true" mnemonicParsing="false" selected="true" text="Show labels">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="L" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator></CheckMenuItem>
                <Menu fx:id="labelposition_menu" mnemonicParsing="false" text="Labels position">
                    <RadioMenuItem fx:id="_TOPLEFT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" selected="true" text="Top Left">
                        <toggleGroup>
                            <ToggleGroup fx:id="label_position_group" />
                        </toggleGroup>
+                  <accelerator>
+                     <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                  </accelerator>
                    </RadioMenuItem>
                    <RadioMenuItem fx:id="_TOPRIGHT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Top Right" toggleGroup="$label_position_group" />
                    <RadioMenuItem fx:id="_BOTTOMLEFT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Bottom Left" toggleGroup="$label_position_group" />
@@ -72,14 +85,30 @@
                    <RadioMenuItem fx:id="_RIGHT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Right" toggleGroup="$label_position_group" />
                </Menu>
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="showall_labels_menuitem" mnemonicParsing="false" onAction="#on_showall_labels" text="Show all labels" />
-            <Menu fx:id="filters_menu" mnemonicParsing="false" text="Filter labels" />
-            <Menu fx:id="showonly_menu" mnemonicParsing="false" text="Show only" />
+           </Menu>
+           <Menu mnemonicParsing="false" text="Browse">
+               <MenuItem fx:id="showall_labels_menuitem" mnemonicParsing="false" onAction="#on_showall_labels"
+                         text="Show all characters">
+                   <accelerator>
+                       <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                   </accelerator>
+               </MenuItem>
+               <Menu fx:id="filters_menu" mnemonicParsing="false" text="Filter characters">
+                   <accelerator>
+                       <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                   </accelerator>
+               </Menu>
+               <Menu fx:id="showonly_menu" mnemonicParsing="false" text="Show only"/>
+               <SeparatorMenuItem mnemonicParsing="false"/>
+               <Menu fx:id="sorters_menu" mnemonicParsing="false" text="Sort"/>
            </Menu>
            <Menu mnemonicParsing="false" text="Help">
                <MenuItem mnemonicParsing="false" onAction="#mnist_goto" text="Go to MNIST Database website" />
                <MenuItem mnemonicParsing="false" onAction="#emnist_goto" text="Go to EMNIST Database website" />
-               <MenuItem mnemonicParsing="false" onAction="#about_us" text="About" />
+               <MenuItem mnemonicParsing="false" onAction="#about_us" text="About">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="H" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator></MenuItem>
            </Menu>
        </MenuBar>
    </top>

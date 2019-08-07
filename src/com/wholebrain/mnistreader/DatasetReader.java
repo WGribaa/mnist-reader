@@ -189,6 +189,9 @@ public class DatasetReader {
         }
     }
 
+    /**
+     * Maps the instructions about correspondancy between byte with characters from the dataset label file.
+     */
     private void loadByteToCharMapping(){
         byteToCharMapping.clear();
         if(currentFile.getPath().lastIndexOf("emnist")==-1) {
@@ -219,6 +222,9 @@ public class DatasetReader {
         System.out.println(byteToCharMapping);
     }
 
+    /**
+     * Default byte-character mapping.
+     */
     private void defaultMapping(){
         for (int i = 0; i<10;i++){
             byteToCharMapping.put(i,(char)(i+48));
@@ -253,5 +259,9 @@ public class DatasetReader {
      */
     public List<Integer> getIndexForChar(char c) {
         return charToImageIndexMapping.get(c);
+    }
+
+    public char getCharForIndex(int index){
+        return labelsChars[index];
     }
 }

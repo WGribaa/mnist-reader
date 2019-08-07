@@ -4,7 +4,11 @@
     <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/DatasetReader.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/DatasetReader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/main.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/DatasetReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/DatasetReader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml" afterDir="false" />
     </list>
     <ignored path="JavaFxApplication.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -64,66 +68,91 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1177">
-              <caret line="226" column="55" lean-forward="true" selection-start-line="226" selection-start-column="55" selection-end-line="226" selection-end-column="55" />
+            <state relative-caret-position="4947">
+              <caret line="323" column="53" selection-start-line="323" selection-start-column="53" selection-end-line="323" selection-end-column="53" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/CustomCanvas.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="731">
+              <caret line="59" column="4" selection-start-line="59" selection-start-column="4" selection-end-line="59" selection-end-column="4" />
               <folding>
-                <element signature="e#2423#2465#0" />
-                <element signature="e#2502#2539#0" />
-                <element signature="e#2545#2596#0" />
-                <element signature="e#2545#3211#0" />
-                <element signature="e#3447#3763#0" />
-                <element signature="e#3769#3976#0" />
-                <element signature="e#4148#4333#0" />
-                <element signature="e#6117#6191#0" />
-                <element signature="e#6117#7004#0" />
-                <element signature="e#7010#7155#0" />
-                <element signature="e#7010#7282#0" />
-                <element signature="e#7288#7422#0" />
-                <element signature="e#7288#7825#0" />
-                <element signature="e#7831#8040#0" />
-                <element signature="e#8046#8122#0" />
-                <element signature="e#8688#8797#0" />
-                <element signature="e#8688#9134#0" />
-                <element signature="e#9140#9222#0" />
-                <element signature="e#9140#10961#0" />
-                <element signature="e#9513#9782#0" />
-                <element signature="e#9665#9716#1" />
-                <element signature="e#9834#10189#0" />
-                <element signature="e#10235#10681#1" />
-                <element signature="e#10967#11057#0" />
-                <element signature="e#10967#11224#0" />
-                <element signature="e#11138#11218#1" />
-                <element signature="e#11230#11323#0" />
-                <element signature="e#11230#11496#0" />
-                <element signature="e#11407#11490#1" />
-                <element signature="e#11502#11626#0" />
-                <element signature="e#11502#12231#0" />
-                <element signature="e#12237#12678#0" />
-                <element signature="e#12237#13150#0" />
-                <element signature="e#12942#13144#1" />
-                <element signature="e#13156#13312#0" />
-                <element signature="e#13156#13665#0" />
-                <element signature="e#13458#13659#1" />
-                <element signature="e#13476#13551#0" />
-                <element signature="e#13596#13649#0" />
-                <element signature="e#13671#13835#0" />
-                <element signature="e#13671#14366#0" />
-                <element signature="e#14372#14739#0" />
-                <element signature="e#14372#16022#0" />
-                <element signature="e#14837#15768#0" />
-                <element signature="e#16028#16177#0" />
-                <element signature="e#16028#16611#0" />
-                <element signature="e#16617#17025#0" />
-                <element signature="e#16617#17282#0" />
-                <element signature="e#17156#17276#1" />
-                <element signature="e#17203#17266#1" />
-                <element signature="e#17288#17721#0" />
-                <element signature="e#17288#18160#0" />
-                <element signature="e#17904#18153#1" />
-                <element signature="e#17944#18126#1" />
+                <element signature="docComment;class#POSITION#0;class#CustomCanvas#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/SorterList.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="method#put#0;class#SorterList#0" />
+                <element signature="method#getComparator#0;class#SorterList#0" />
+                <element signature="method#getComparator#1;class#SorterList#0" />
+                <element signature="method#getString#0;class#SorterList#0" />
+                <element signature="method#getString#1;class#SorterList#0" />
+                <element signature="n#!!block;n#getIndex#1;n#SorterList#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/DatasetReader.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1258">
+              <caret line="225" column="38" selection-start-line="225" selection-start-column="38" selection-end-line="225" selection-end-column="38" />
+              <folding>
+                <element signature="n#!!block;n#getCurrentFile#0;n#DatasetReader#0" />
+                <element signature="method#setCurrentFile#0;class#DatasetReader#0" />
+                <element signature="e#989#1058#1" />
+                <element signature="n#!!block;n#getRowCount#0;n#DatasetReader#0" />
+                <element signature="n#!!block;n#getColumnCount#0;n#DatasetReader#0" />
+                <element signature="n#!!block;n#getPixelCount#0;n#DatasetReader#0" />
+                <element signature="n#!!block;n#isNeedsTransformation#0;n#DatasetReader#0" />
+                <element signature="n#!!block;n#getLabel#0;n#DatasetReader#0" />
+                <element signature="method#getImageBuffer#0;class#DatasetReader#0" />
+                <element signature="e#1705#1804#0" />
+                <element signature="e#1827#1871#0" />
+                <element signature="e#1878#2022#0" />
+                <element signature="e#1895#1939#0" />
+                <element signature="e#1960#2012#0" />
+                <element signature="method#getCharSet#0;class#DatasetReader#0" />
+                <element signature="docComment;method#jumpToIndex#0;class#DatasetReader#0" />
+                <element signature="method#jumpToIndex#0;class#DatasetReader#0" />
+                <element signature="e#2641#2843#0" />
+                <element signature="e#2866#2910#0" />
+                <element signature="docComment;method#getMetaInfos#0;class#DatasetReader#0" />
+                <element signature="method#getMetaInfos#0;class#DatasetReader#0" />
+                <element signature="e#3192#3622#0" />
+                <element signature="e#3645#3689#0" />
+                <element signature="e#3696#3887#0" />
+                <element signature="e#3744#3796#0" />
+                <element signature="e#3817#3877#0" />
+                <element signature="docComment;method#loadLabels#0;class#DatasetReader#0" />
+                <element signature="method#loadLabels#0;class#DatasetReader#0" />
+                <element signature="e#4786#5094#0" />
+                <element signature="e#5117#5161#0" />
+                <element signature="e#5170#5355#0" />
+                <element signature="e#5188#5270#0" />
+                <element signature="e#5293#5345#0" />
+                <element signature="e#5474#6088#1" />
+                <element signature="e#5626#6078#1" />
+                <element signature="e#5872#6064#1" />
+                <element signature="docComment;method#printMetaInfos#0;class#DatasetReader#0" />
+                <element signature="method#printMetaInfos#0;class#DatasetReader#0" />
+                <element signature="docComment;method#bytesToInt#0;class#DatasetReader#0" />
+                <element signature="method#bytesToInt#0;class#DatasetReader#0" />
+                <element signature="docComment;method#getIndexForChar#0;class#DatasetReader#0" />
               </folding>
             </state>
           </provider>
@@ -145,8 +174,8 @@
         <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml">
           <provider editor-type-id="JavaFX-Scene-Builder" />
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1258">
-              <caret line="74" column="96" selection-start-line="74" selection-start-column="96" selection-end-line="74" selection-end-column="96" />
+            <state relative-caret-position="1224">
+              <caret line="72" column="55" selection-start-line="72" selection-start-column="55" selection-end-line="72" selection-end-column="55" />
             </state>
           </provider>
         </entry>
@@ -174,6 +203,11 @@
       <find>112</find>
       <find>system.out</find>
       <find>system.out.</find>
+      <find>compara</find>
+      <find>sort(</find>
+      <find>getVa</find>
+      <find>sort</find>
+      <find>system.</find>
     </findStrings>
   </component>
   <component name="FindManager">
@@ -195,10 +229,11 @@
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/infopanel/Infopanel.java" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/AutoResizableCanvas.java" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/ResizableCanvas.java" />
-        <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/CustomCanvas.java" />
+        <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/SorterList.java" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/DatasetReader.java" />
         <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" />
+        <option value="$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml" />
       </list>
     </option>
   </component>
@@ -217,7 +252,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -240,6 +274,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -400,7 +435,7 @@
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.6703755" visible="true" weight="0.084754795" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.6703755" visible="true" weight="0.08635394" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" />
       <window_info id="Designer" order="3" />
@@ -473,6 +508,18 @@
   <component name="VcsManagerConfiguration">
     <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="true" />
     <option name="INCLUDE_TEXT_INTO_SHELF" value="false" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-field">
+          <url>file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java</url>
+          <line>60</line>
+          <properties field="currentSorter" class="com.wholebrain.mnistreader.Controller" />
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
@@ -629,13 +676,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/../../Java/libraries/javafx-sdk-11.0.2/lib/src.zip!/javafx.controls/javafx/scene/control/MenuItem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="384" column="33" selection-start-line="384" selection-start-column="33" selection-end-line="384" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk-11.0.1/lib/src.zip!/java.base/java/util/Set.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="299">
@@ -668,17 +708,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/CustomCanvas.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
-          <folding>
-            <element signature="docComment;class#POSITION#0;class#CustomCanvas#0" />
-            <element signature="class#POSITION#0;class#CustomCanvas#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk-11.0.1/lib/src.zip!/java.base/java/util/Arrays.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="536">
@@ -690,17 +719,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/../../Java/libraries/javafx-sdk-11.0.2/lib/src.zip!/javafx.controls/javafx/scene/control/CheckMenuItem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="133" column="22" selection-start-line="133" selection-start-column="22" selection-end-line="133" selection-end-column="22" />
-          <folding>
-            <element signature="e#5171#5172#0" expanded="true" />
-            <element signature="e#5216#5217#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$PROJECT_DIR$/../../Java/libraries/javafx-sdk-11.0.2/lib/src.zip!/javafx.controls/javafx/scene/control/ScrollBar.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="230">
@@ -708,6 +726,126 @@
           <folding>
             <element signature="e#5922#5923#0" expanded="true" />
             <element signature="e#5964#5965#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/../../Java/libraries/javafx-sdk-11.0.2/lib/src.zip!/javafx.controls/javafx/scene/control/RadioMenuItem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="94" column="13" selection-start-line="94" selection-start-column="13" selection-end-line="94" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/../../Java/libraries/javafx-sdk-11.0.2/lib/src.zip!/javafx.controls/javafx/scene/control/CheckMenuItem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="485">
+          <caret line="87" column="40" selection-start-line="87" selection-start-column="40" selection-end-line="87" selection-end-column="40" />
+          <folding>
+            <element signature="e#5171#5172#0" expanded="true" />
+            <element signature="e#5216#5217#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/../../Java/libraries/javafx-sdk-11.0.2/lib/src.zip!/javafx.controls/javafx/scene/control/MenuItem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="102" column="13" selection-start-line="102" selection-start-column="13" selection-end-line="102" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk-11.0.1/lib/src.zip!/java.base/java/util/SortedMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="299">
+          <caret line="112" column="17" selection-start-line="112" selection-start-column="17" selection-end-line="112" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk-11.0.1/lib/src.zip!/java.base/java/util/HashMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="222">
+          <caret line="870" column="19" selection-start-line="870" selection-start-column="19" selection-end-line="870" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk-11.0.1/lib/src.zip!/java.base/java/util/Map.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="485">
+          <caret line="242" column="6" selection-start-line="242" selection-start-column="6" selection-end-line="242" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk-11.0.1/lib/src.zip!/java.base/java/util/List.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="503" column="17" selection-start-line="503" selection-start-column="17" selection-end-line="503" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4947">
+          <caret line="323" column="53" selection-start-line="323" selection-start-column="53" selection-end-line="323" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/CustomCanvas.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="731">
+          <caret line="59" column="4" selection-start-line="59" selection-start-column="4" selection-end-line="59" selection-end-column="4" />
+          <folding>
+            <element signature="docComment;class#POSITION#0;class#CustomCanvas#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/DatasetReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1258">
+          <caret line="225" column="38" selection-start-line="225" selection-start-column="38" selection-end-line="225" selection-end-column="38" />
+          <folding>
+            <element signature="n#!!block;n#getCurrentFile#0;n#DatasetReader#0" />
+            <element signature="method#setCurrentFile#0;class#DatasetReader#0" />
+            <element signature="e#989#1058#1" />
+            <element signature="n#!!block;n#getRowCount#0;n#DatasetReader#0" />
+            <element signature="n#!!block;n#getColumnCount#0;n#DatasetReader#0" />
+            <element signature="n#!!block;n#getPixelCount#0;n#DatasetReader#0" />
+            <element signature="n#!!block;n#isNeedsTransformation#0;n#DatasetReader#0" />
+            <element signature="n#!!block;n#getLabel#0;n#DatasetReader#0" />
+            <element signature="method#getImageBuffer#0;class#DatasetReader#0" />
+            <element signature="e#1705#1804#0" />
+            <element signature="e#1827#1871#0" />
+            <element signature="e#1878#2022#0" />
+            <element signature="e#1895#1939#0" />
+            <element signature="e#1960#2012#0" />
+            <element signature="method#getCharSet#0;class#DatasetReader#0" />
+            <element signature="docComment;method#jumpToIndex#0;class#DatasetReader#0" />
+            <element signature="method#jumpToIndex#0;class#DatasetReader#0" />
+            <element signature="e#2641#2843#0" />
+            <element signature="e#2866#2910#0" />
+            <element signature="docComment;method#getMetaInfos#0;class#DatasetReader#0" />
+            <element signature="method#getMetaInfos#0;class#DatasetReader#0" />
+            <element signature="e#3192#3622#0" />
+            <element signature="e#3645#3689#0" />
+            <element signature="e#3696#3887#0" />
+            <element signature="e#3744#3796#0" />
+            <element signature="e#3817#3877#0" />
+            <element signature="docComment;method#loadLabels#0;class#DatasetReader#0" />
+            <element signature="method#loadLabels#0;class#DatasetReader#0" />
+            <element signature="e#4786#5094#0" />
+            <element signature="e#5117#5161#0" />
+            <element signature="e#5170#5355#0" />
+            <element signature="e#5188#5270#0" />
+            <element signature="e#5293#5345#0" />
+            <element signature="e#5474#6088#1" />
+            <element signature="e#5626#6078#1" />
+            <element signature="e#5872#6064#1" />
+            <element signature="docComment;method#printMetaInfos#0;class#DatasetReader#0" />
+            <element signature="method#printMetaInfos#0;class#DatasetReader#0" />
+            <element signature="docComment;method#bytesToInt#0;class#DatasetReader#0" />
+            <element signature="method#bytesToInt#0;class#DatasetReader#0" />
+            <element signature="docComment;method#getIndexForChar#0;class#DatasetReader#0" />
           </folding>
         </state>
       </provider>
@@ -725,77 +863,22 @@
     <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/main.fxml">
       <provider editor-type-id="JavaFX-Scene-Builder" />
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1258">
-          <caret line="74" column="96" selection-start-line="74" selection-start-column="96" selection-end-line="74" selection-end-column="96" />
+        <state relative-caret-position="1224">
+          <caret line="72" column="55" selection-start-line="72" selection-start-column="55" selection-end-line="72" selection-end-column="55" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/DatasetReader.java">
+    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/SorterList.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="25" selection-start-line="25" selection-end-line="234" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1177">
-          <caret line="226" column="55" lean-forward="true" selection-start-line="226" selection-start-column="55" selection-end-line="226" selection-end-column="55" />
+        <state>
           <folding>
-            <element signature="e#2423#2465#0" />
-            <element signature="e#2502#2539#0" />
-            <element signature="e#2545#2596#0" />
-            <element signature="e#2545#3211#0" />
-            <element signature="e#3447#3763#0" />
-            <element signature="e#3769#3976#0" />
-            <element signature="e#4148#4333#0" />
-            <element signature="e#6117#6191#0" />
-            <element signature="e#6117#7004#0" />
-            <element signature="e#7010#7155#0" />
-            <element signature="e#7010#7282#0" />
-            <element signature="e#7288#7422#0" />
-            <element signature="e#7288#7825#0" />
-            <element signature="e#7831#8040#0" />
-            <element signature="e#8046#8122#0" />
-            <element signature="e#8688#8797#0" />
-            <element signature="e#8688#9134#0" />
-            <element signature="e#9140#9222#0" />
-            <element signature="e#9140#10961#0" />
-            <element signature="e#9513#9782#0" />
-            <element signature="e#9665#9716#1" />
-            <element signature="e#9834#10189#0" />
-            <element signature="e#10235#10681#1" />
-            <element signature="e#10967#11057#0" />
-            <element signature="e#10967#11224#0" />
-            <element signature="e#11138#11218#1" />
-            <element signature="e#11230#11323#0" />
-            <element signature="e#11230#11496#0" />
-            <element signature="e#11407#11490#1" />
-            <element signature="e#11502#11626#0" />
-            <element signature="e#11502#12231#0" />
-            <element signature="e#12237#12678#0" />
-            <element signature="e#12237#13150#0" />
-            <element signature="e#12942#13144#1" />
-            <element signature="e#13156#13312#0" />
-            <element signature="e#13156#13665#0" />
-            <element signature="e#13458#13659#1" />
-            <element signature="e#13476#13551#0" />
-            <element signature="e#13596#13649#0" />
-            <element signature="e#13671#13835#0" />
-            <element signature="e#13671#14366#0" />
-            <element signature="e#14372#14739#0" />
-            <element signature="e#14372#16022#0" />
-            <element signature="e#14837#15768#0" />
-            <element signature="e#16028#16177#0" />
-            <element signature="e#16028#16611#0" />
-            <element signature="e#16617#17025#0" />
-            <element signature="e#16617#17282#0" />
-            <element signature="e#17156#17276#1" />
-            <element signature="e#17203#17266#1" />
-            <element signature="e#17288#17721#0" />
-            <element signature="e#17288#18160#0" />
-            <element signature="e#17904#18153#1" />
-            <element signature="e#17944#18126#1" />
+            <element signature="imports" expanded="true" />
+            <element signature="method#put#0;class#SorterList#0" />
+            <element signature="method#getComparator#0;class#SorterList#0" />
+            <element signature="method#getComparator#1;class#SorterList#0" />
+            <element signature="method#getString#0;class#SorterList#0" />
+            <element signature="method#getString#1;class#SorterList#0" />
+            <element signature="n#!!block;n#getIndex#1;n#SorterList#0" />
           </folding>
         </state>
       </provider>
