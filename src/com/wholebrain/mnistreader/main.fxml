@@ -84,23 +84,28 @@
                    <RadioMenuItem fx:id="_LEFT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Left" toggleGroup="$label_position_group" />
                    <RadioMenuItem fx:id="_RIGHT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Right" toggleGroup="$label_position_group" />
                </Menu>
-            <SeparatorMenuItem mnemonicParsing="false" />
            </Menu>
            <Menu mnemonicParsing="false" text="Browse">
-               <MenuItem fx:id="showall_labels_menuitem" mnemonicParsing="false" onAction="#on_showall_labels"
-                         text="Show all characters">
+               <MenuItem fx:id="showall_labels_menuitem" mnemonicParsing="false" onAction="#on_showall_labels" text="Show all characters">
                    <accelerator>
-                       <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                       <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                    </accelerator>
                </MenuItem>
                <Menu fx:id="filters_menu" mnemonicParsing="false" text="Filter characters">
                    <accelerator>
-                       <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                       <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                    </accelerator>
                </Menu>
-               <Menu fx:id="showonly_menu" mnemonicParsing="false" text="Show only"/>
-               <SeparatorMenuItem mnemonicParsing="false"/>
-               <Menu fx:id="sorters_menu" mnemonicParsing="false" text="Sort"/>
+               <Menu fx:id="showonly_menu" mnemonicParsing="false" text="Show only" />
+               <SeparatorMenuItem mnemonicParsing="false" />
+               <Menu fx:id="sorters_menu" mnemonicParsing="false" text="Sort" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+               <Menu mnemonicParsing="false" text="Infos over cursor">
+                   <CheckMenuItem fx:id="hint_show_menuitem" mnemonicParsing="false" selected="true" text="Show" />
+                   <SeparatorMenuItem mnemonicParsing="false" />
+                   <CheckMenuItem fx:id="hint_coordinates_menuitem" mnemonicParsing="false" selected="true" text="Coordinates" />
+                   <CheckMenuItem fx:id="hint_value_menuitem" mnemonicParsing="false" selected="true" text="Value" />
+               </Menu>
            </Menu>
            <Menu mnemonicParsing="false" text="Help">
                <MenuItem mnemonicParsing="false" onAction="#mnist_goto" text="Go to MNIST Database website" />

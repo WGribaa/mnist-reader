@@ -7,13 +7,13 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("WeakerAccess")
 public class DatasetReader {
 
     private File currentFile;
@@ -76,7 +76,6 @@ public class DatasetReader {
     }
     public Set<Character> getCharSet(){
         return charToImageIndexMapping.keySet();
-
     }
 
     /**
@@ -142,6 +141,8 @@ public class DatasetReader {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void loadLabels() {
         labelsChars = null;
+        charToImageIndexMapping.clear();
+        byteToCharMapping.clear();
 
         StringBuilder labelSb = new StringBuilder(currentFile.getPath());
         labelSb.replace(labelSb.lastIndexOf("idx3"), labelSb.lastIndexOf("idx3") + 4, "idx1")

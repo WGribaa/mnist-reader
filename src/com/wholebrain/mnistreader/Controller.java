@@ -33,7 +33,7 @@ public class Controller implements Initializable {
     @FXML public BorderPane main_layout;
     @FXML public Menu labelposition_menu, filters_menu, showonly_menu, sorters_menu;
     @FXML public MenuItem open_menu, close_menu, showall_labels_menuitem;
-    @FXML public CheckMenuItem labels_checkbox;
+    @FXML public CheckMenuItem labels_checkbox, hint_show_menuitem, hint_coordinates_menuitem, hint_value_menuitem;
     @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
             _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
             _BOTTOM_POSITION_radiomenu, _LEFT_POSITION_radiomenu, _RIGHT_POSITION_radiomenu;
@@ -80,7 +80,7 @@ public class Controller implements Initializable {
                 new FileChooser.ExtensionFilter("Mnist DataSet files (*.idx3-ubyte)","*.idx3-ubyte"),
                 new FileChooser.ExtensionFilter("Emnist DataSet files ","*-idx3-ubyte"));
         fileChooser.setInitialDirectory(reader.getCurrentFile() != null ?reader.getCurrentFile().getParentFile(): null);
-        loadFile(fileChooser.showOpenDialog(null));
+        loadFile(fileChooser.showOpenDialog(primaryStage));
     }
 
     @FXML
@@ -159,10 +159,9 @@ public class Controller implements Initializable {
 
         initializeBindings();
         initializeSorters();
+        initializeHints();
 
     }
-
-
 
     /**
      * Initialize all needed bindings between node properties.
@@ -178,7 +177,6 @@ public class Controller implements Initializable {
         empty_threshold_slider.maxProperty().bind(full_threshold_slider.valueProperty());
         empty_threshold_slider.valueProperty().addListener((observable, oldValue, newValue) -> canvas.setDownFilter(newValue.intValue()));
         full_threshold_slider.valueProperty().addListener((observable, oldValue, newValue) -> canvas.setUpFilter(newValue.intValue()));
-
     }
 
     /**
@@ -227,6 +225,23 @@ public class Controller implements Initializable {
     }
 
     /**
+     * Initializes the behaviour of the {@link Tooltip].
+     */
+    private void initializeHints() {
+        EventHandler<ActionEvent> handler = event -> {
+            boolean isCoordShown = hint_coordinates_menuitem.isSelected(),
+                    isValueShown = hint_value_menuitem.isSelected(),
+                    isHintShown = hint_show_menuitem.isSelected()&&(isCoordShown || isValueShown);
+
+            canvas.sendHintSetup(isHintShown,isCoordShown,isValueShown);
+        };
+
+        hint_show_menuitem.setOnAction(handler);
+        hint_coordinates_menuitem.setOnAction(handler);
+        hint_value_menuitem.setOnAction(handler);
+    }
+
+    /**
      * Stores a link to the {@link Stage primary stage} to be able to close it.
      * @param primaryStage Main {@link Stage window}.
      */
@@ -245,13 +260,13 @@ public class Controller implements Initializable {
         reader.setCurrentFile(file);
         primaryStage.setTitle("Datasets Images Reader" + " : " + file.getName());
 
-
         labels_checkbox.setDisable(false);
-        setupScrollBar();
 
+        filteredChars.clear();
         filteredChars.addAll(reader.getCharSet());
         loadFilters();
         updateCharFiltering();
+        setupScrollBar();
     }
 
     /**
@@ -280,7 +295,6 @@ public class Controller implements Initializable {
             paint();
         }
     }
-
 
     /**
      * Displays a colored representation of the current image on the {@link CustomCanvas canvas}.
@@ -321,6 +335,7 @@ public class Controller implements Initializable {
             filteredChars.clear();
             for(CheckMenuItem filter : charFilters)
                 filter.setSelected(false);
+            //noinspection RedundantCast
             charFilters.get(showOnlyFilters.indexOf((MenuItem)event.getSource())).setSelected(true);
             addCharToFilter(c);
         };
