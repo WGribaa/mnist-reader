@@ -15,7 +15,6 @@ For the EMNIST dataset, you must also keep the "*-mapping.txt" file in the same 
 Upcoming functionalities :
 - Another view that shows multiple images at once.
 - Saving single or multiple images into PNG, JPG or both types files.
-- Hint appearing above the canvas to give detailed about individual pixels.
 - Panel and/or dialog that shows details about the currently displayed image.
 - Panel and/or dialog that shows details about the currently read Dataset file.
 
@@ -28,6 +27,7 @@ Added functionalities :
 - Positioning of the labels at  8 possible locations.
 - Filters to show only selected characters (or figures).
 - Multiple sorting.
+- Hint appearing over the next to the cursor to give details (coordinate and value from 0 to 255) about individual pixels.
 
 Feel free to comment on my work and to give suggestions.
 
