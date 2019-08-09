@@ -1,5 +1,6 @@
 package com.wholebrain.mnistreader;
 
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -21,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -32,8 +34,8 @@ import java.util.TreeSet;
 public class Controller implements Initializable {
     @FXML public BorderPane main_layout;
     @FXML public Menu labelposition_menu, filters_menu, showonly_menu, sorters_menu;
-    @FXML public MenuItem open_menu, close_menu, showall_labels_menuitem;
-    @FXML public CheckMenuItem labels_checkbox, hint_show_menuitem, hint_coordinates_menuitem, hint_value_menuitem;
+    @FXML public MenuItem open_menu, close_menu, showall_chars_menuitem;
+    @FXML public CheckMenuItem show_labels_checkbox, hint_show_menuitem, hint_coordinates_menuitem, hint_value_menuitem;
     @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
             _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
             _BOTTOM_POSITION_radiomenu, _LEFT_POSITION_radiomenu, _RIGHT_POSITION_radiomenu;
@@ -112,9 +114,9 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         index_scrollbar.setMax(0);
         index_scrollbar.valueProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue.intValue() == oldValue.intValue()) return;
-                    updateIndex(newValue.intValue());
-                });
+            if (newValue.intValue() == oldValue.intValue()) return;
+            updateIndex(newValue.intValue());
+        });
 
         empty_color_picker.setValue(Color.WHITE);
         empty_color_picker.setOnAction(e->canvas.setBackGroundColor(empty_color_picker.getValue()));
@@ -127,8 +129,7 @@ public class Controller implements Initializable {
         canvas.initializePallet(full_color_picker.getValue());
 
         jumpto_textfield.setTextFormatter(new TextFormatter<>(change -> {
-            String text = change.getText();
-            if(!text.matches("\\d*"))
+            if(!change.getText().matches("\\d*"))
                 return null;
             return change;
         }));
@@ -139,13 +140,13 @@ public class Controller implements Initializable {
             if (newValue == null || newValue.isEmpty())
                 newValue = "0";
 
-            int newInt;
+            int newInt, maxValue=Collections.max(filteredImageIndexes);
             try {
-                newInt = Math.min(Integer.parseInt(newValue), filteredImageIndexes.get(filteredImageIndexes.size()-1));
+                newInt = Math.min(Integer.parseInt(newValue), maxValue);
 
             } catch (NumberFormatException e) {
                 jumpto_textfield.setText(oldValue);
-                newInt = filteredImageIndexes.get(filteredImageIndexes.size()-1);
+                newInt = maxValue;
                 //throw new NumberFormatException("The input number \""+newValue+"\" is out of Integer range.");
             }
             if (!filteredImageIndexes.contains(newInt))
@@ -155,7 +156,10 @@ public class Controller implements Initializable {
 
         });
 
-        labels_checkbox.setOnAction(e->canvas.setLabelVisible(labels_checkbox.isSelected()));
+        ChangeListener<Boolean> sendVisibleProperty =((observable, oldValue, newValue) ->
+                canvas.setLabelVisible(show_labels_checkbox.isSelected()&&!show_labels_checkbox.isDisable()));
+        show_labels_checkbox.selectedProperty().addListener(sendVisibleProperty);
+        show_labels_checkbox.disableProperty().addListener(sendVisibleProperty);
 
         initializeBindings();
         initializeSorters();
@@ -167,11 +171,11 @@ public class Controller implements Initializable {
      * Initialize all needed bindings between node properties.
      */
     private void initializeBindings(){
-        labelposition_menu.disableProperty().bind(labels_checkbox.disableProperty()
-                .and(labels_checkbox.selectedProperty().not()));
+        labelposition_menu.disableProperty().bind(show_labels_checkbox.disableProperty()
+                .and(show_labels_checkbox.selectedProperty().not()));
 
-        filters_menu.disableProperty().bind(labels_checkbox.disableProperty());
-        showonly_menu.disableProperty().bind(labels_checkbox.disableProperty());
+        filters_menu.disableProperty().bind(show_labels_checkbox.disableProperty());
+        showonly_menu.disableProperty().bind(show_labels_checkbox.disableProperty());
 
         full_threshold_slider.minProperty().bind(empty_threshold_slider.valueProperty());
         empty_threshold_slider.maxProperty().bind(full_threshold_slider.valueProperty());
@@ -216,6 +220,8 @@ public class Controller implements Initializable {
             newMenuItem.setText(sorters.getString(i));
             sorterGroup.getToggles().add(newMenuItem);
             if (i==0)newMenuItem.setSelected(true);
+            else if (i>1)
+                newMenuItem.setDisable(true);
             newMenuItem.setOnAction(sortEvent);
             sorters_menu.getItems().add(newMenuItem);
         }
@@ -256,17 +262,59 @@ public class Controller implements Initializable {
      */
     private void loadFile(File file) {
         if(file == null) return;
-        currentImageIndex=0;
+        reInitializeMenus();
         reader.setCurrentFile(file);
-        primaryStage.setTitle("Datasets Images Reader" + " : " + file.getName());
+        primaryStage.setTitle("Datasets Images Reader : " + file.getName());
 
-        labels_checkbox.setDisable(false);
 
+        if (!reader.hasLabels()) {
+            for (int i = 0; i<reader.getNumberOfImages();i++)
+                filteredImageIndexes.add(i);
+            setupScrollBar();
+            updateIndex(0);
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Datasets Images Reader");
+            alert.setHeaderText("The labels file \""+DatasetReader.getLabelsFileName(file)+"\" could not be found.");
+            alert.setContentText("The labels won't be shown. To show the labels, please put the labels file next to its associated images file.");
+            alert.showAndWait();
+        }else {
+            show_labels_checkbox.setDisable(false);
+            setDisabledLabelBoundedSorters(false);
+            filteredChars.addAll(reader.getCharSet());
+            loadFilters();
+            updateCharFiltering();
+            setupScrollBar();
+        }
+
+    }
+
+    /**
+     * Sets the menus to the initial settings.
+     */
+    private void reInitializeMenus(){
+        currentImageIndex=0;
         filteredChars.clear();
-        filteredChars.addAll(reader.getCharSet());
-        loadFilters();
-        updateCharFiltering();
-        setupScrollBar();
+        show_labels_checkbox.setDisable(true);
+        canvas.setLabelVisible(false);
+        showall_chars_menuitem.setDisable(true);
+        filteredImageIndexes.clear();
+        setDisabledLabelBoundedSorters(true);
+    }
+
+    /**
+     * Sets the {@link javafx.beans.property.BooleanProperty Disable Property} of all the sorting
+     * {@link MenuItem} that needs labels in the {@link DatasetReader} to operate properly.
+     * @param disable true = disable, false enable.
+     */
+    private void setDisabledLabelBoundedSorters(boolean disable){
+        boolean separatorFound = false;
+        ((RadioMenuItem)sorters_menu.getItems().get(0)).setSelected(true);
+        for (int i =0; i< sorters_menu.getItems().size();i++) {
+            if (sorters_menu.getItems().get(i).getClass() == SeparatorMenuItem.class)
+                separatorFound = true;
+            else if (separatorFound)
+                sorters_menu.getItems().get(i).setDisable(disable);
+        }
     }
 
     /**
@@ -357,6 +405,7 @@ public class Controller implements Initializable {
 
         filters_menu.getItems().addAll(charFilters);
         showonly_menu.getItems().addAll(showOnlyFilters);
+        showall_chars_menuitem.setDisable(false);
     }
 
     /**
@@ -394,8 +443,8 @@ public class Controller implements Initializable {
         if(filteredImageIndexes.size()==0)
             updateIndex(0);
         else updateIndex(filteredImageIndexes.contains(currentImageIndex) ?
-                    filteredImageIndexes.indexOf(currentImageIndex):
-                    filteredImageIndexes.indexOf(findClosestInt(currentImageIndex,filteredImageIndexes)));
+                filteredImageIndexes.indexOf(currentImageIndex):
+                filteredImageIndexes.indexOf(findClosestInt(currentImageIndex,filteredImageIndexes)));
     }
 
     /**

@@ -52,6 +52,9 @@ public class DatasetReader {
     public char getLabel(int index){
         return labelsChars!=null?labelsChars[index]:'?';
     }
+    public char getCharForIndex(int index){
+        return labelsChars[index];
+    }
     public byte[] getImageBuffer(int index){
         BufferedInputStream bis = jumpToIndex(index);
         if (bis == null) return null;
@@ -76,6 +79,18 @@ public class DatasetReader {
     }
     public Set<Character> getCharSet(){
         return charToImageIndexMapping.keySet();
+    }
+    public boolean hasLabels(){
+        return labelsChars!=null;
+    }
+
+    /**
+     * Returns all the indexes corresponding with the provided char.
+     * @param c char to extract the indexes.
+     * @return List of indexes.
+     */
+    public List<Integer> getIndexForChar(char c) {
+        return charToImageIndexMapping.get(c);
     }
 
     /**
@@ -144,10 +159,7 @@ public class DatasetReader {
         charToImageIndexMapping.clear();
         byteToCharMapping.clear();
 
-        StringBuilder labelSb = new StringBuilder(currentFile.getPath());
-        labelSb.replace(labelSb.lastIndexOf("idx3"), labelSb.lastIndexOf("idx3") + 4, "idx1")
-                .replace(labelSb.lastIndexOf("images"), labelSb.lastIndexOf("images") + 6, "labels");
-        File labelFile = new File(labelSb.toString());
+        File labelFile = new File(getLabelsFileName(currentFile));
         if (!labelFile.exists())
             return;
 
@@ -253,16 +265,14 @@ public class DatasetReader {
         return bytes[0]<<24 | (bytes[1]&0xFF)<<16 | (bytes[2]&0xFF) <<8 | (bytes[3]&0xFF);
     }
 
-    /**
-     * Returns all the indexes corresponding with the provided char.
-     * @param c char to extract the indexes.
-     * @return List of indexes.
-     */
-    public List<Integer> getIndexForChar(char c) {
-        return charToImageIndexMapping.get(c);
-    }
 
-    public char getCharForIndex(int index){
-        return labelsChars[index];
+    // Utils methods
+
+
+    public static String getLabelsFileName(File file){
+        StringBuilder labelSb = new StringBuilder(file.getPath());
+        labelSb.replace(labelSb.lastIndexOf("idx3"), labelSb.lastIndexOf("idx3") + 4, "idx1")
+                .replace(labelSb.lastIndexOf("images"), labelSb.lastIndexOf("images") + 6, "labels");
+        return labelSb.toString();
     }
 }

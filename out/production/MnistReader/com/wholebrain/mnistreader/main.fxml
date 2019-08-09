@@ -63,7 +63,7 @@
                    </MenuItem>
                </Menu>
             <SeparatorMenuItem mnemonicParsing="false" />
-            <CheckMenuItem fx:id="labels_checkbox" disable="true" mnemonicParsing="false" selected="true" text="Show labels">
+            <CheckMenuItem fx:id="show_labels_checkbox" disable="true" mnemonicParsing="false" selected="true" text="Show labels">
                <accelerator>
                   <KeyCodeCombination alt="UP" code="L" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator></CheckMenuItem>
@@ -86,7 +86,7 @@
                </Menu>
            </Menu>
            <Menu mnemonicParsing="false" text="Browse">
-               <MenuItem fx:id="showall_labels_menuitem" mnemonicParsing="false" onAction="#on_showall_labels" text="Show all characters">
+               <MenuItem fx:id="showall_chars_menuitem" mnemonicParsing="false" disable="true" onAction="#on_showall_labels" text="Show all characters">
                    <accelerator>
                        <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                    </accelerator>
