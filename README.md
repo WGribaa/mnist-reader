@@ -19,15 +19,16 @@ Upcoming functionalities :
 - Panel and/or dialog that shows details about the currently read Dataset file.
 
 Added functionalities : 
-- Mnist Compatibility.
-- Choosing the colours (background and font) to draw the image. Transparency (alpha canal) is not taken into account by the canvas.
-- Emnist compatibility (binary format).
-- Automatic reading of the labels.
-- Free resizability of the canvas.
-- Positioning of the labels at  8 possible locations.
-- Filters to show only selected characters (or figures).
-- Multiple sorting.
+- Image mean for the whole dataset, for filtered characters and for a specific character.
 - Hint appearing over the next to the cursor to give details (coordinate and value from 0 to 255) about individual pixels.
+- Multiple sorting.
+- Filters to show only selected characters (or figures).
+- Positioning of the labels at  8 possible locations.
+- Free resizability of the canvas.
+- Automatic reading of the labels.
+- Emnist compatibility (binary format).
+- Choosing the colours (background and font) to draw the image. Transparency (alpha canal) is not taken into account by the canvas.
+- Mnist Compatibility.
 
 Feel free to comment on my work and to give suggestions.
 
