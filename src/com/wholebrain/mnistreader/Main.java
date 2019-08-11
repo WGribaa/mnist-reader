@@ -18,6 +18,7 @@ public class Main extends Application {
         primaryStage.setMinWidth(294);
         primaryStage.setMinHeight(424);
         primaryStage.centerOnScreen();
+        primaryStage.setOnCloseRequest(event -> System.exit(0));
         primaryStage.show();
 
         Controller controller = loader.getController();

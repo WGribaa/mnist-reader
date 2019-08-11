@@ -69,7 +69,7 @@ public class CustomCanvas extends Pane {
         Tooltip pxHint = new Tooltip();
         pxHint.setShowDelay(Duration.ZERO);
         pxHint.setHideDelay(Duration.ZERO);
-        /*Tooltip.install(canvas,pxHint);*/
+
         canvas.setOnMouseMoved(event -> {
             if(!showHint) Tooltip.uninstall(canvas,pxHint);
             else {

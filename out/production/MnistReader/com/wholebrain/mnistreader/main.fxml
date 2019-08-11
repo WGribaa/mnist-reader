@@ -70,6 +70,7 @@
                <Menu fx:id="labelposition_menu" mnemonicParsing="false" text="Labels position">
                    <RadioMenuItem fx:id="_TOPLEFT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" selected="true" text="Top Left">
                        <toggleGroup>
+                           <!--suppress JavaFxUnresolvedFxIdReference -->
                            <ToggleGroup fx:id="label_position_group" />
                        </toggleGroup>
                   <accelerator>
@@ -86,7 +87,7 @@
                </Menu>
            </Menu>
            <Menu mnemonicParsing="false" text="Browse">
-               <MenuItem fx:id="showall_chars_menuitem" mnemonicParsing="false" disable="true" onAction="#on_showall_labels" text="Show all characters">
+               <MenuItem fx:id="showall_chars_menuitem" disable="true" mnemonicParsing="false" onAction="#on_showall_labels" text="Show all characters">
                    <accelerator>
                        <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                    </accelerator>
@@ -105,6 +106,13 @@
                    <SeparatorMenuItem mnemonicParsing="false" />
                    <CheckMenuItem fx:id="hint_coordinates_menuitem" mnemonicParsing="false" selected="true" text="Coordinates" />
                    <CheckMenuItem fx:id="hint_value_menuitem" mnemonicParsing="false" selected="true" text="Value" />
+               </Menu>
+               <Menu fx:id="means_menu" disable="true" mnemonicParsing="false" text="Show mean image">
+                   <MenuItem mnemonicParsing="false" onAction="#on_mean_dataset" text="For dataset"/>
+                   <MenuItem fx:id="mean_set_menuitem" mnemonicParsing="false" onAction="#on_mean_set"
+                             text="For current set"/>
+                   <MenuItem fx:id="mean_char_menuitem" mnemonicParsing="false" onAction="#on_mean_char"
+                             text="For current character"/>
                </Menu>
            </Menu>
            <Menu mnemonicParsing="false" text="Help">

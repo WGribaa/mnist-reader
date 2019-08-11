@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,7 +58,7 @@ public class DatasetReader {
         return labelsChars[index];
     }
     public byte[] getImageBuffer(int index){
-        BufferedInputStream bis = jumpToIndex(index);
+        BufferedInputStream bis = getStreamAtImageIndex(index);
         if (bis == null) return null;
 
         byte[] imageBuffer = new byte[getPixelCount()];
@@ -83,31 +85,102 @@ public class DatasetReader {
     public boolean hasLabels(){
         return labelsChars!=null;
     }
-
     /**
      * Returns all the indexes corresponding with the provided char.
      * @param c char to extract the indexes.
      * @return List of indexes.
      */
-    public List<Integer> getIndexForChar(char c) {
+    public List<Integer> getIndicesForChar(char c) {
         return charToImageIndexMapping.get(c);
+    }
+
+    /**
+     * Returns all the ImageBuffers inside the current Dataset.
+     * @return Array of ImageBuffer as byte[].
+     */
+    public byte[][] getAllImageBuffers() {
+        byte[][] allImages = new byte[numberOfImages][getPixelCount()];
+        BufferedInputStream bis = getStreamAtImageIndex(0);
+        if (bis == null) return null;
+
+
+        try {
+            for (int i = 0; i < numberOfImages; i++) {
+                byte[] imageBuffer = new byte[getPixelCount()];
+                //noinspection ResultOfMethodCallIgnored
+                bis.read(imageBuffer);
+                allImages[i] = imageBuffer;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                bis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return allImages;
+    }
+
+    /**
+     * Returns all the ImageBuffers corresponding to a {@link Collection<char> set of char}.
+     * @param characterSet {@link Collection} of the wanted characters.
+     * @return Array of ImageBuffer as byte[].
+     */
+    public byte[][] getAllImageBuffersForChars(Collection<Character> characterSet) {
+        List<Integer> indices = new ArrayList<>();
+        for (char c : characterSet)
+            indices.addAll(getIndicesForChar(c));
+
+        indices.sort(Comparator.comparing(integer -> integer));
+        byte[][] imageBuffers = new byte[indices.size()][getPixelCount()];
+
+        BufferedInputStream bis = getStreamAtImageIndex(indices.get(0));
+        if (bis == null) return null;
+        try {
+            for (int i = 0; i <indices.size(); i++) {
+                byte[] imageBuffer = new byte[getPixelCount()];
+                //noinspection ResultOfMethodCallIgnored
+                bis.read(imageBuffer);
+                imageBuffers[i] = imageBuffer;
+                if(i<indices.size()-1 && indices.get(i+1)>indices.get(i)+1) {
+                    int bytesToSkip = (indices.get(i + 1) - indices.get(i) - 1) * getPixelCount();
+                    while(bytesToSkip>0)
+                        bytesToSkip -= bis.skip(bytesToSkip);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                bis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return imageBuffers;
+
     }
 
     /**
      * Creates a {@link BufferedInputStream stream} and puts its positioning index
      * to the specified index.
-     * @param index Target index.
+     * @param imageIndex Target index.
      * @return {@link BufferedInputStream} with the correct positioning index.
      */
-    private BufferedInputStream jumpToIndex(int index){
-        if (index >= numberOfImages)
+    private BufferedInputStream getStreamAtImageIndex(int imageIndex){
+        if (imageIndex >= numberOfImages)
             return null;
         BufferedInputStream bis = null;
 
         try{
             bis = new BufferedInputStream(new FileInputStream(currentFile));
-            //noinspection ResultOfMethodCallIgnored
-            bis.skip(16+index*numberOfRows*numberOfColumns);
+            int bytesToSkip = 16+imageIndex*numberOfRows*numberOfColumns;
+            while(bytesToSkip>0)
+                bytesToSkip-= bis.skip(bytesToSkip);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -153,7 +226,6 @@ public class DatasetReader {
      * Reads the labels file associated with the current image file and save it in a byte array.
      * If the number of images is different from the number of labels, the byte array will remain null.
      */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void loadLabels() {
         labelsChars = null;
         charToImageIndexMapping.clear();
@@ -167,8 +239,9 @@ public class DatasetReader {
         byte[] labelsBytes = null;
         try {
             bis = new BufferedInputStream((new FileInputStream(labelFile)));
-            bis.skip(4);
+            bis.readNBytes(4);
             byte[] buffer = new byte[4];
+            //noinspection ResultOfMethodCallIgnored
             bis.read(buffer);
             if (bytesToInt(buffer) != numberOfImages)
                 return;

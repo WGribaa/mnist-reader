@@ -1,6 +1,8 @@
 package com.wholebrain.mnistreader;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -16,6 +18,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.awt.Desktop;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -33,8 +36,8 @@ import java.util.TreeSet;
 
 public class Controller implements Initializable {
     @FXML public BorderPane main_layout;
-    @FXML public Menu labelposition_menu, filters_menu, showonly_menu, sorters_menu;
-    @FXML public MenuItem open_menu, close_menu, showall_chars_menuitem;
+    @FXML public Menu labelposition_menu, filters_menu, showonly_menu, sorters_menu, means_menu;
+    @FXML public MenuItem open_menu, close_menu, showall_chars_menuitem, mean_set_menuitem,mean_char_menuitem;
     @FXML public CheckMenuItem show_labels_checkbox, hint_show_menuitem, hint_coordinates_menuitem, hint_value_menuitem;
     @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
             _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
@@ -108,6 +111,46 @@ public class Controller implements Initializable {
             m.setSelected(true);
         filteredChars.addAll(reader.getCharSet());
         updateCharFiltering();
+    }
+
+    @FXML
+    public void on_mean_dataset() {
+        launchMeanImage(reader.getAllImageBuffers(),"of whole dataset");
+    }
+
+    @FXML
+    public void on_mean_set() {
+        StringBuilder charsInSet = new StringBuilder(filteredChars.size()<=1?"":"s").append(" [");
+        for (char c : filteredChars)
+            charsInSet.append(c).append(",");
+        charsInSet.replace(charsInSet.lastIndexOf(","),charsInSet.lastIndexOf(",")+1,"]");
+        launchMeanImage(reader.getAllImageBuffersForChars(filteredChars), "for character"+charsInSet.toString());
+    }
+
+    @FXML
+    public void on_mean_char() {
+        ArrayList<Character> currentCharList = new ArrayList<>();
+        char currentChar = reader.getCharForIndex(currentImageIndex);
+        currentCharList.add(currentChar);
+        launchMeanImage(reader.getAllImageBuffersForChars(currentCharList),"for character ["+currentChar+"]", currentChar);
+    }
+
+    /**
+     * Shows some infos about us aka I, me and myself at the moment.
+     * @throws IOException Common Exception occurring during the FXML loading step.
+     */
+    @FXML
+    public void about_us() throws IOException {
+        Stage infoStage = new Stage();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("infopanel/infopanel.fxml"));
+        Parent root = loader.load();
+        infoStage.opacityProperty().set(0.9);
+        infoStage.setTitle("About us...");
+        infoStage.setScene(new Scene(root));
+        infoStage.initModality(Modality.APPLICATION_MODAL);
+        infoStage.setResizable(false);
+        infoStage.centerOnScreen();
+        infoStage.show();
     }
 
     @Override
@@ -234,6 +277,7 @@ public class Controller implements Initializable {
      * Initializes the behaviour of the {@link Tooltip].
      */
     private void initializeHints() {
+        Platform.runLater(()->canvas.mouseTransparentProperty().bind(primaryStage.focusedProperty().not()));
         EventHandler<ActionEvent> handler = event -> {
             boolean isCoordShown = hint_coordinates_menuitem.isSelected(),
                     isValueShown = hint_value_menuitem.isSelected(),
@@ -264,6 +308,7 @@ public class Controller implements Initializable {
         if(file == null) return;
         reInitializeMenus();
         reader.setCurrentFile(file);
+        means_menu.setDisable(false);
         primaryStage.setTitle("Datasets Images Reader : " + file.getName());
 
 
@@ -272,6 +317,8 @@ public class Controller implements Initializable {
                 filteredImageIndexes.add(i);
             setupScrollBar();
             updateIndex(0);
+            mean_set_menuitem.setDisable(true);
+            mean_char_menuitem.setDisable(true);
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Datasets Images Reader");
             alert.setHeaderText("The labels file \""+DatasetReader.getLabelsFileName(file)+"\" could not be found.");
@@ -281,6 +328,8 @@ public class Controller implements Initializable {
             show_labels_checkbox.setDisable(false);
             setDisabledLabelBoundedSorters(false);
             filteredChars.addAll(reader.getCharSet());
+            mean_set_menuitem.setDisable(false);
+            mean_char_menuitem.setDisable(false);
             loadFilters();
             updateCharFiltering();
             setupScrollBar();
@@ -351,7 +400,7 @@ public class Controller implements Initializable {
         byte[] imageBuffer = reader.getImageBuffer(currentImageIndex);
 
 
-        if (reader.isNeedsTransformation()) correctOrientation(imageBuffer);
+        if (reader.isNeedsTransformation()) correctOrientation(reader, imageBuffer);
 
         canvas.loadImage(imageBuffer, reader.getRowCount(),
                 reader.getColumnCount(),
@@ -437,7 +486,7 @@ public class Controller implements Initializable {
     private void updateCharFiltering(){
         filteredImageIndexes.clear();
         for(char c : filteredChars)
-            filteredImageIndexes.addAll(reader.getIndexForChar(c));
+            filteredImageIndexes.addAll(reader.getIndicesForChar(c));
         sort();
         setupScrollBar();
         if(filteredImageIndexes.size()==0)
@@ -464,7 +513,7 @@ public class Controller implements Initializable {
      * @param imageBuffer Array of bytes of the image.
      * @
      */
-    private void correctOrientation(byte[] imageBuffer){
+    private static void correctOrientation(DatasetReader reader, byte[] imageBuffer){
         byte buffer;
         int rowCount = reader.getRowCount(),
                 columnCount = reader.getColumnCount();
@@ -491,24 +540,6 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Shows some infos about us aka I, me and myself at the moment.
-     * @throws IOException Common Exception occurring during the FXML loading step.
-     */
-    @FXML
-    public void about_us() throws IOException {
-        Stage infoStage = new Stage();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("infopanel/infopanel.fxml"));
-        Parent root = loader.load();
-        infoStage.opacityProperty().set(0.9);
-        infoStage.setTitle("About us...");
-        infoStage.setScene(new Scene(root));
-        infoStage.initModality(Modality.APPLICATION_MODAL);
-        infoStage.setResizable(false);
-        infoStage.centerOnScreen();
-        infoStage.show();
-    }
-
-    /**
      * Simply a byte by byte generated image for the fun !
      * @return imageBuffer readable by the {@link CustomCanvas custom canvas}.
      */
@@ -523,6 +554,75 @@ public class Controller implements Initializable {
         pxRect(imgData, 73,10,88,96);
         pxRect(imgData, 90,10,105,96);
         return imgData;
+    }
+
+    /**
+     * Creates and shows a window that show the pixel-wise mean image of a set of images.
+     * @param image Images to mean, as an array of image buffers (which are arrays of byte).
+     * @param title Title to show on the window. The title will automatically add " in {imageFileName}".
+     */
+    private void launchMeanImage(byte[][] image, String title) {
+        launchMeanImage(image, title, '?');
+    }
+
+    /**
+     * Creates and shows a window that shows the pixel-wise mean image of a set of images.
+     * @param image Images to mean, as an array of image buffers (which are arrays of byte).
+     * @param title Title to show on the window. The title will automatically add " in {imageFileName}".
+     * @param currentChar Character of the label to be shown.
+     */
+    private void launchMeanImage(byte[][] image, String title, char currentChar){
+        CustomCanvas meanCanvas = new CustomCanvas();
+        meanCanvas.setLabelVisible(false);
+        meanCanvas.initializePallet(full_color_picker.getValue());
+        meanCanvas.setBackGroundColor(empty_color_picker.getValue());
+        meanCanvas.sendHintSetup(true, true, true);
+
+        if(reader.isNeedsTransformation()) {
+            //loading bar dialog for transformations
+            new ProgressDialog("Transforming image ", image.length,
+                    new Task() {
+                        @Override
+                        protected Void call() {
+                            for (int i = 0; i< image.length; i++) {
+                                correctOrientation(reader,image[i]);
+                                updateProgress(i,image.length);
+                            }
+                            return null;
+                        }
+                    });
+        }
+
+        byte[] meanImageBuffer = new byte[reader.getPixelCount()];
+        new ProgressDialog("Calculating mean for image ", image.length,
+                new Task() {
+                    @Override
+                    protected Void call(){
+                        long[] meanImage = new long[reader.getPixelCount()];
+                        for (int i =0;i<image.length;i++) {
+                            for (int j = 0; j < image[i].length; j++)
+                                meanImage[j] += ((long) image[i][j] & 0xff);
+                            updateProgress(i,image.length-1);
+                        }
+                        for(int i = 0; i<meanImage.length; i++) {
+                            meanImageBuffer[i] = (byte)(Math.round(meanImage[i]/(image.length*1.0)));
+                        }
+                        return null;
+                    }
+                });
+
+        meanCanvas.loadImage(meanImageBuffer, reader.getRowCount(), reader.getColumnCount(),currentChar);
+
+        BorderPane borderPane = new BorderPane(meanCanvas);
+        Scene meanScene = new Scene(borderPane);
+        Stage meanStage = new Stage();
+        meanCanvas.mouseTransparentProperty().bind(meanStage.focusedProperty().not());
+        meanStage.setScene(meanScene);
+        meanStage.setTitle("Mean image "+title+" in "+reader.getCurrentFile().getName());
+        meanCanvas.setPrefSize(280,280);
+        meanStage.setX(Math.min(primaryStage.getX()+primaryStage.getWidth(), Toolkit.getDefaultToolkit().getScreenSize().width-280));
+        meanStage.setY(primaryStage.getY());
+        meanStage.show();
     }
 
     // Utils methods
@@ -589,7 +689,7 @@ public class Controller implements Initializable {
      * @param endX X coordinate of the right corner of the triangle.
      * @param up Direction of the third corner of the triangle : true = up ; false = down.
      */
-    private void pxSimpleTriangle(byte[] imageBuffer, int startX, int startY, int endX, boolean up){
+    private void pxSimpleTriangle(byte[] imageBuffer, int startX, @SuppressWarnings("SameParameterValue") int startY, int endX, boolean up){
         int height = (endX-startX)/2;
         int i = 0;
         while(i<=height){
@@ -601,5 +701,4 @@ public class Controller implements Initializable {
         }
 
     }
-
 }
