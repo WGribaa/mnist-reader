@@ -11,14 +11,30 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.ScrollBar;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import javax.imageio.ImageIO;
+import javax.swing.text.Style;
 import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.io.File;
@@ -167,12 +183,14 @@ public class Controller implements Initializable {
             String imageType = file.getName().substring(file.getName().lastIndexOf(".")+1);
             try {
                 ImageIO.write(canvas.getSnapshot(imageType),imageType,file);
+                toast(canvas, "Snapshot saved as "+file.getName(),3000);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    @FXML
     public void on_fast_snapshot() {
         String[] formats = ImageIO.getWriterFileSuffixes();
         String fileName =reader.getCurrentFile().getName().substring(0,reader.getCurrentFile().getName().lastIndexOf("idx")-1)
@@ -182,8 +200,15 @@ public class Controller implements Initializable {
             fileName = fileName.concat("[").concat(Character.toString(reader.getLabel(currentImageIndex))).concat("]");
         File file = new File(lastImageFolder==null?reader.getCurrentFile().getParent():lastImageFolder.getPath(),
                 fileName.concat(".").concat(imageType));
+        int firstFreeIndex=1;
+        while(file.exists()){
+            file = new File(file.getParent(),fileName.concat("(")
+                    .concat(Integer.toString(firstFreeIndex)).concat(").").concat(imageType));
+            firstFreeIndex++;
+        }
         try {
             ImageIO.write(canvas.getSnapshot(imageType),imageType,file);
+            toast(canvas, "Snapshot saved as "+file.getName(),3000);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -329,7 +354,7 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Initializes the behaviour of the {@link Tooltip].
+     * Initializes the behaviour of the {@link javafx.scene.control.Tooltip].
      */
     private void initializeHints() {
         Platform.runLater(()->canvas.mouseTransparentProperty().bind(primaryStage.focusedProperty().not()));
@@ -732,7 +757,7 @@ public class Controller implements Initializable {
      * @param endX X coordinate of the bottom right corner of the rectangle.
      * @param endY Y coordinate of the bottom right corner of the rectangle.
      */
-    private void pxRect(byte[] imageBuffer, int startX, int startY, int endX, int endY){
+    private static void pxRect(byte[] imageBuffer, int startX, int startY, int endX, int endY){
         for (int i = startY; i<endY; i++){
             for (int j = startX; j<endX; j++){
                 imageBuffer[i*112+j]=(byte)255;
@@ -748,7 +773,7 @@ public class Controller implements Initializable {
      * @param endX X coordinate of the right corner of the triangle.
      * @param up Direction of the third corner of the triangle : true = up ; false = down.
      */
-    private void pxSimpleTriangle(byte[] imageBuffer, int startX, @SuppressWarnings("SameParameterValue") int startY, int endX, boolean up){
+    private static void pxSimpleTriangle(byte[] imageBuffer, int startX, @SuppressWarnings("SameParameterValue") int startY, int endX, boolean up){
         int height = (endX-startX)/2;
         int i = 0;
         while(i<=height){
@@ -761,5 +786,30 @@ public class Controller implements Initializable {
 
     }
 
-
+    /**
+     * Shows a {@link Popup} at the bottom center of the specified {@link Region region}, inside a simple {@link Label}.
+     * @param region Region to put the Popup over.
+     * @param message Text to show.
+     * @param msPeriod Time in milliseconds to show the {@link Popup}.
+     */
+    private static void toast(Region region, String message, @SuppressWarnings("SameParameterValue") int msPeriod){
+        final Popup popup = new Popup();
+        Label popupText = new Label(message);
+        popupText.setStyle("-fx-font-weight: bold");
+        popup.getContent().add(popupText);
+        Window window = region.getScene().getWindow();
+        popup.setOnShown(e -> {
+            popup.setX(window.getX() + window.getWidth() / 2 - popup.getWidth() / 2);
+            popup.setY(window.getY() + region.getScene().getY()+ region.getLayoutY() + region.getHeight() - popup.getHeight()-10);
+            new Thread(()->{
+                try {
+                    Thread.sleep(msPeriod);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+                Platform.runLater(popup::hide);
+            }).start();
+        });
+        popup.show(window);
+    }
 }
