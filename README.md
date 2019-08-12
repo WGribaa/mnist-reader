@@ -19,6 +19,7 @@ Upcoming functionalities :
 - Panel and/or dialog that shows details about the currently read Dataset file.
 
 Added functionalities : 
+- Snapshots in all formats supported natively by JAVA (JPG, PNG, BMP, TIF, TIFF, WBMP). Fast snapshots to the last folder used to save snapshots, or to the dataset directory if no saved snapshots were previously taken.
 - Image mean for the whole dataset, for filtered characters and for a specific character.
 - Hint appearing over the next to the cursor to give details (coordinate and value from 0 to 255) about individual pixels.
 - Multiple sorting.
