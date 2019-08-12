@@ -2,6 +2,7 @@ package com.wholebrain.mnistreader;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -17,6 +18,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javax.imageio.ImageIO;
 import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.io.File;
@@ -37,7 +39,8 @@ import java.util.TreeSet;
 public class Controller implements Initializable {
     @FXML public BorderPane main_layout;
     @FXML public Menu labelposition_menu, filters_menu, showonly_menu, sorters_menu, means_menu;
-    @FXML public MenuItem open_menu, close_menu, showall_chars_menuitem, mean_set_menuitem,mean_char_menuitem;
+    @FXML public MenuItem open_menu, close_menu, showall_chars_menuitem,
+            mean_set_menuitem,mean_char_menuitem,save_snapshot_menuitem,fast_snapshot_menuitem;
     @FXML public CheckMenuItem show_labels_checkbox, hint_show_menuitem, hint_coordinates_menuitem, hint_value_menuitem;
     @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
             _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
@@ -65,6 +68,10 @@ public class Controller implements Initializable {
     // Sorter
     private Comparator<Integer> currentSorter;
     private SorterList sorters = new SorterList();
+
+    // Image
+    private File lastImageFolder;
+    private int lastExtension;
 
     /**
      * Closes the application.
@@ -134,6 +141,54 @@ public class Controller implements Initializable {
         currentCharList.add(currentChar);
         launchMeanImage(reader.getAllImageBuffersForChars(currentCharList),"for character ["+currentChar+"]", currentChar);
     }
+
+    @FXML
+    public void on_save_snapshot(){
+        FileChooser fileChooser = new FileChooser();
+        String[] formats = ImageIO.getWriterFileSuffixes();
+        String[] formatNames = new String[formats.length];
+        ObservableList<FileChooser.ExtensionFilter> chooserFilter = fileChooser.getExtensionFilters();
+        for (int i = 0; i< formats.length; i++){
+            formatNames[i] = formats[i].toUpperCase()+" image file";
+            formats[i] = "*."+formats[i];
+            chooserFilter.add(new FileChooser.ExtensionFilter(formatNames[i],formats[i]));
+        }
+        fileChooser.setInitialDirectory(lastImageFolder == null ? reader.getCurrentFile().getParentFile():lastImageFolder);
+        fileChooser.setSelectedExtensionFilter(fileChooser.getExtensionFilters().get(lastExtension));
+        String initialFileName =reader.getCurrentFile().getName().substring(0,reader.getCurrentFile().getName().lastIndexOf("idx")-1)
+                .concat("#").concat(Integer.toString(currentImageIndex));
+        if(reader.hasLabels())
+            initialFileName = initialFileName.concat("[").concat(Character.toString(reader.getLabel(currentImageIndex))).concat("]");
+        fileChooser.setInitialFileName(initialFileName);
+        File file = fileChooser.showSaveDialog(primaryStage);
+        if(file!=null){
+            lastExtension=fileChooser.getExtensionFilters().indexOf(fileChooser.getSelectedExtensionFilter());
+            lastImageFolder=file.getParentFile();
+            String imageType = file.getName().substring(file.getName().lastIndexOf(".")+1);
+            try {
+                ImageIO.write(canvas.getSnapshot(imageType),imageType,file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void on_fast_snapshot() {
+        String[] formats = ImageIO.getWriterFileSuffixes();
+        String fileName =reader.getCurrentFile().getName().substring(0,reader.getCurrentFile().getName().lastIndexOf("idx")-1)
+                .concat("#").concat(Integer.toString(currentImageIndex));
+        String imageType = formats[lastExtension];
+        if(reader.hasLabels())
+            fileName = fileName.concat("[").concat(Character.toString(reader.getLabel(currentImageIndex))).concat("]");
+        File file = new File(lastImageFolder==null?reader.getCurrentFile().getParent():lastImageFolder.getPath(),
+                fileName.concat(".").concat(imageType));
+        try {
+            ImageIO.write(canvas.getSnapshot(imageType),imageType,file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * Shows some infos about us aka I, me and myself at the moment.
@@ -309,6 +364,8 @@ public class Controller implements Initializable {
         reInitializeMenus();
         reader.setCurrentFile(file);
         means_menu.setDisable(false);
+        save_snapshot_menuitem.setDisable(false);
+        fast_snapshot_menuitem.setDisable(false);
         primaryStage.setTitle("Datasets Images Reader : " + file.getName());
 
 
@@ -347,6 +404,8 @@ public class Controller implements Initializable {
         canvas.setLabelVisible(false);
         showall_chars_menuitem.setDisable(true);
         filteredImageIndexes.clear();
+        save_snapshot_menuitem.setDisable(true);
+        fast_snapshot_menuitem.setDisable(true);
         setDisabledLabelBoundedSorters(true);
     }
 
@@ -701,4 +760,6 @@ public class Controller implements Initializable {
         }
 
     }
+
+
 }

@@ -26,6 +26,16 @@
                <accelerator>
                   <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator></MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem fx:id="save_snapshot_menuitem" disable="true" mnemonicParsing="false" onAction="#on_save_snapshot" text="Save snapshot">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator></MenuItem>
+            <MenuItem fx:id="fast_snapshot_menuitem" disable="true" mnemonicParsing="false" onAction="#on_fast_snapshot" text="Fast snapshot">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+               </accelerator></MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false" />
                <MenuItem fx:id="close_menu" mnemonicParsing="false" onAction="#on_close" text="Quit">
                <accelerator>
                   <KeyCodeCombination alt="UP" code="X" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
@@ -73,9 +83,6 @@
                            <!--suppress JavaFxUnresolvedFxIdReference -->
                            <ToggleGroup fx:id="label_position_group" />
                        </toggleGroup>
-                  <accelerator>
-                     <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                  </accelerator>
                    </RadioMenuItem>
                    <RadioMenuItem fx:id="_TOPRIGHT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Top Right" toggleGroup="$label_position_group" />
                    <RadioMenuItem fx:id="_BOTTOMLEFT_POSITION_radiomenu" mnemonicParsing="false" onAction="#send_position_tocanvas" text="Bottom Left" toggleGroup="$label_position_group" />
@@ -108,11 +115,9 @@
                    <CheckMenuItem fx:id="hint_value_menuitem" mnemonicParsing="false" selected="true" text="Value" />
                </Menu>
                <Menu fx:id="means_menu" disable="true" mnemonicParsing="false" text="Show mean image">
-                   <MenuItem mnemonicParsing="false" onAction="#on_mean_dataset" text="For dataset"/>
-                   <MenuItem fx:id="mean_set_menuitem" mnemonicParsing="false" onAction="#on_mean_set"
-                             text="For current set"/>
-                   <MenuItem fx:id="mean_char_menuitem" mnemonicParsing="false" onAction="#on_mean_char"
-                             text="For current character"/>
+                   <MenuItem mnemonicParsing="false" onAction="#on_mean_dataset" text="For dataset" />
+                   <MenuItem fx:id="mean_set_menuitem" mnemonicParsing="false" onAction="#on_mean_set" text="For current set" />
+                   <MenuItem fx:id="mean_char_menuitem" mnemonicParsing="false" onAction="#on_mean_char" text="For current character" />
                </Menu>
            </Menu>
            <Menu mnemonicParsing="false" text="Help">

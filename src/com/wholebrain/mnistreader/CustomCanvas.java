@@ -1,17 +1,18 @@
 package com.wholebrain.mnistreader;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
-import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 
 @SuppressWarnings("WeakerAccess")
 public class CustomCanvas extends Pane {
@@ -91,7 +92,8 @@ public class CustomCanvas extends Pane {
         });
     }
 
-    @Override protected void layoutChildren(){
+    @Override
+    protected void layoutChildren(){
         int w = (int)getWidth();
         int h = (int)getHeight();
         if(w!=canvas.getWidth() || h!=canvas.getHeight()){
@@ -99,6 +101,23 @@ public class CustomCanvas extends Pane {
             canvas.setHeight(h);
             repaint();
         }
+    }
+
+    public BufferedImage getSnapshot(String imageType){
+        WritableImage image = new WritableImage((int)(canvas.getWidth()),(int)(canvas.getHeight()));
+        canvas.snapshot(null, image);
+        BufferedImage bufferedImage=SwingFXUtils.fromFXImage(image,null);
+        switch(imageType){
+            case "jpg":
+            case "bmp":
+            case "wbmp":
+                BufferedImage correctedBufferedImage = new BufferedImage((int)canvas.getWidth(), (int)canvas.getHeight(),
+                        imageType.equals("wbmp")?BufferedImage.TYPE_BYTE_BINARY:BufferedImage.TYPE_INT_RGB);
+                correctedBufferedImage.createGraphics().drawImage(bufferedImage,0,0,java.awt.Color.WHITE,null);
+                System.out.println("Image corrected to "+imageType);
+                return correctedBufferedImage;
+        }
+        return bufferedImage;
     }
 
     /**
@@ -185,23 +204,30 @@ public class CustomCanvas extends Pane {
     }
 
     /**
-     * Makes the canvas repaint its content.
+     * Makes the {@link Canvas canvas} repaint its content.
      */
     private void repaint(){
+        paint(canvas.getGraphicsContext2D());
+    }
+
+    /**
+     * Asks the {@link Canvas canvas} draw the current image onto a specified {@link GraphicsContext graphics context}.
+     * @param graphicsContext to draw into.
+     */
+    private void paint(GraphicsContext graphicsContext){
         double size = Double.min(canvas.getHeight(), canvas.getWidth());
         resolution = Math.floor(Double.min(size/(1.0*numberOfRows), size/(1.0*numberOfColumns)));
         xPos = Math.floor((canvas.getWidth()-resolution*numberOfColumns)/2.0);
         yPos = Math.floor((canvas.getHeight()-resolution*numberOfRows)/2.0);
 
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setFill(backGroundColor);
-        gc.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
+        graphicsContext.setFill(backGroundColor);
+        graphicsContext.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
         for(int y = 0; y<numberOfRows; y++)
             for (int x = 0; x<numberOfColumns; x++){
-                gc.setFill(pallet[image[y*numberOfRows+x]&0xFF]);
-                gc.fillRect(xPos+x*resolution, yPos+y*resolution,resolution,resolution);
+                graphicsContext.setFill(pallet[image[y*numberOfRows+x]&0xFF]);
+                graphicsContext.fillRect(xPos+x*resolution, yPos+y*resolution,resolution,resolution);
             }
-        if(isLabelVisible) printLabel(gc);
+        if(isLabelVisible) printLabel(graphicsContext);
     }
 
     /**
