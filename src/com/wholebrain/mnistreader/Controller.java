@@ -34,7 +34,6 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import javax.imageio.ImageIO;
-import javax.swing.text.Style;
 import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.io.File;
@@ -49,7 +48,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.TreeSet;
 
 
 public class Controller implements Initializable {
@@ -173,7 +171,7 @@ public class Controller implements Initializable {
         fileChooser.setSelectedExtensionFilter(fileChooser.getExtensionFilters().get(lastExtension));
         String initialFileName =reader.getCurrentFile().getName().substring(0,reader.getCurrentFile().getName().lastIndexOf("idx")-1)
                 .concat("#").concat(Integer.toString(currentImageIndex));
-        if(reader.hasLabels())
+        if(reader.hasLabelsProperty().get())
             initialFileName = initialFileName.concat("[").concat(Character.toString(reader.getLabel(currentImageIndex))).concat("]");
         fileChooser.setInitialFileName(initialFileName);
         File file = fileChooser.showSaveDialog(primaryStage);
@@ -196,7 +194,7 @@ public class Controller implements Initializable {
         String fileName =reader.getCurrentFile().getName().substring(0,reader.getCurrentFile().getName().lastIndexOf("idx")-1)
                 .concat("#").concat(Integer.toString(currentImageIndex));
         String imageType = formats[lastExtension];
-        if(reader.hasLabels())
+        if(reader.hasLabelsProperty().get())
             fileName = fileName.concat("[").concat(Character.toString(reader.getLabel(currentImageIndex))).concat("]");
         File file = new File(lastImageFolder==null?reader.getCurrentFile().getParent():lastImageFolder.getPath(),
                 fileName.concat(".").concat(imageType));
@@ -213,7 +211,6 @@ public class Controller implements Initializable {
             e.printStackTrace();
         }
     }
-
 
     /**
      * Shows some infos about us aka I, me and myself at the moment.
@@ -295,7 +292,7 @@ public class Controller implements Initializable {
      */
     private void initializeBindings(){
         labelposition_menu.disableProperty().bind(show_labels_checkbox.disableProperty()
-                .and(show_labels_checkbox.selectedProperty().not()));
+                .or(show_labels_checkbox.selectedProperty().not()));
 
         filters_menu.disableProperty().bind(show_labels_checkbox.disableProperty());
         showonly_menu.disableProperty().bind(show_labels_checkbox.disableProperty());
@@ -304,6 +301,17 @@ public class Controller implements Initializable {
         empty_threshold_slider.maxProperty().bind(full_threshold_slider.valueProperty());
         empty_threshold_slider.valueProperty().addListener((observable, oldValue, newValue) -> canvas.setDownFilter(newValue.intValue()));
         full_threshold_slider.valueProperty().addListener((observable, oldValue, newValue) -> canvas.setUpFilter(newValue.intValue()));
+
+        means_menu.disableProperty().bind(reader.hasOpenFile().not());
+        fast_snapshot_menuitem.disableProperty().bind(reader.hasOpenFile().not());
+        save_snapshot_menuitem.disableProperty().bind(reader.hasOpenFile().not());
+
+        show_labels_checkbox.disableProperty().bind(reader.hasLabelsProperty().not());
+        showall_chars_menuitem.disableProperty().bind(reader.hasLabelsProperty().not());
+        filters_menu.disableProperty().bind(reader.hasLabelsProperty().not());
+        showonly_menu.disableProperty().bind(reader.hasLabelsProperty().not());
+        mean_char_menuitem.disableProperty().bind(reader.hasLabelsProperty().not());
+        mean_set_menuitem.disableProperty().bind(reader.hasLabelsProperty().not());
     }
 
     /**
@@ -347,6 +355,8 @@ public class Controller implements Initializable {
                 newMenuItem.setDisable(true);
             newMenuItem.setOnAction(sortEvent);
             sorters_menu.getItems().add(newMenuItem);
+            if(i>1)
+                newMenuItem.disableProperty().bind(reader.hasLabelsProperty().not());
         }
         sorters_menu.getItems().add(2,new SeparatorMenuItem());
         currentSorter=sorters.getComparator(0);
@@ -388,30 +398,21 @@ public class Controller implements Initializable {
         if(file == null) return;
         reInitializeMenus();
         reader.setCurrentFile(file);
-        means_menu.setDisable(false);
-        save_snapshot_menuitem.setDisable(false);
-        fast_snapshot_menuitem.setDisable(false);
         primaryStage.setTitle("Datasets Images Reader : " + file.getName());
 
 
-        if (!reader.hasLabels()) {
+        if (!reader.hasLabelsProperty().get()) {
             for (int i = 0; i<reader.getNumberOfImages();i++)
                 filteredImageIndexes.add(i);
             setupScrollBar();
             updateIndex(0);
-            mean_set_menuitem.setDisable(true);
-            mean_char_menuitem.setDisable(true);
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Datasets Images Reader");
             alert.setHeaderText("The labels file \""+DatasetReader.getLabelsFileName(file)+"\" could not be found.");
             alert.setContentText("The labels won't be shown. To show the labels, please put the labels file next to its associated images file.");
             alert.showAndWait();
         }else {
-            show_labels_checkbox.setDisable(false);
-            setDisabledLabelBoundedSorters(false);
             filteredChars.addAll(reader.getCharSet());
-            mean_set_menuitem.setDisable(false);
-            mean_char_menuitem.setDisable(false);
             loadFilters();
             updateCharFiltering();
             setupScrollBar();
@@ -425,29 +426,8 @@ public class Controller implements Initializable {
     private void reInitializeMenus(){
         currentImageIndex=0;
         filteredChars.clear();
-        show_labels_checkbox.setDisable(true);
-        canvas.setLabelVisible(false);
-        showall_chars_menuitem.setDisable(true);
         filteredImageIndexes.clear();
-        save_snapshot_menuitem.setDisable(true);
-        fast_snapshot_menuitem.setDisable(true);
-        setDisabledLabelBoundedSorters(true);
-    }
-
-    /**
-     * Sets the {@link javafx.beans.property.BooleanProperty Disable Property} of all the sorting
-     * {@link MenuItem} that needs labels in the {@link DatasetReader} to operate properly.
-     * @param disable true = disable, false enable.
-     */
-    private void setDisabledLabelBoundedSorters(boolean disable){
-        boolean separatorFound = false;
-        ((RadioMenuItem)sorters_menu.getItems().get(0)).setSelected(true);
-        for (int i =0; i< sorters_menu.getItems().size();i++) {
-            if (sorters_menu.getItems().get(i).getClass() == SeparatorMenuItem.class)
-                separatorFound = true;
-            else if (separatorFound)
-                sorters_menu.getItems().get(i).setDisable(disable);
-        }
+        canvas.setLabelVisible(false);
     }
 
     /**
@@ -464,7 +444,7 @@ public class Controller implements Initializable {
      * Update the displayed infos about the current image index.
      */
     private void updateIndex(int newFilteredIndex) {
-        if (reader.getCurrentFile() == null) return;
+        if (!reader.hasOpenFile().get()) return;
         if (filteredImageIndexes.size() == 0) {
             canvas.loadImage(getNullImage(), 112, 112, '?');
             index_label.setText("No image.");
@@ -538,7 +518,6 @@ public class Controller implements Initializable {
 
         filters_menu.getItems().addAll(charFilters);
         showonly_menu.getItems().addAll(showOnlyFilters);
-        showall_chars_menuitem.setDisable(false);
     }
 
     /**
@@ -720,33 +699,14 @@ public class Controller implements Initializable {
      * @return the closest int in the lis.
      */
     private static int findClosestInt(final int value, final List<Integer> sortedList) {
-        /*if(value>=oldValue && sortedList.get(sortedList.size()-1)<value)
-            return 0;
-        else if (value < oldValue && sortedList.get(0)>value)
-            return sortedList.get(sortedList.size()-1);
-
-
-        int exp = (int)Math.floor(Math.log(sortedList.size())/Math.log(2)),
-                index = (int)Math.pow(2,exp);
-        boolean dir; // true = ascend; false = descend.
-        while(exp>=0){
-            dir = sortedList.get(Math.min(index, sortedList.size() - 1)) < value;
-            exp--;
-            index = dir?index+(int)Math.pow(2,exp):index-(int)Math.pow(2,exp);
+        int lo = 0, hi = sortedList.size() - 1;
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (sortedList.get(mid) < value) lo = mid + 1;
+            else if (sortedList.get(mid) > value) hi = mid;
+            else return mid;
         }
-
-        return value>=oldValue ?
-                (sortedList.get(index)>value?
-                        sortedList.get(index):
-                        sortedList.get(index+1)):
-                (sortedList.get(index)<value?
-                        sortedList.get(index):
-                        sortedList.get(index-1))
-         ;*/ // Old fashion. Using a TreeSet is 5 to 18 times faster !
-        Integer ret = new TreeSet<>(sortedList).higher(value);
-        return ret!=null ?
-                ret :
-                sortedList.get(sortedList.size()-1); //Method with a TreeSet.
+        return lo > hi || sortedList.get(lo) < value ? sortedList.get(lo-1) : sortedList.get(lo);
     }
 
     /**

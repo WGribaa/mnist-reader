@@ -1,5 +1,10 @@
 package com.wholebrain.mnistreader;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,29 +18,37 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @SuppressWarnings("WeakerAccess")
 public class DatasetReader {
 
-    private File currentFile;
+    private final SimpleObjectProperty<File > currentFile = new SimpleObjectProperty<>();
+    private final BooleanProperty hasOpenFile = new SimpleBooleanProperty(),
+    hasLabels = new SimpleBooleanProperty();
     private int magicNumber, numberOfImages, numberOfRows, numberOfColumns;
     private boolean needsTransformation;
     private char[] labelsChars;
     private Map<Integer, Character> byteToCharMapping = new HashMap<>();
     private Map<Character, List<Integer>> charToImageIndexMapping = new LinkedHashMap<>();
 
-    public DatasetReader(){}
+    public DatasetReader(){
+        currentFile.addListener(e->hasOpenFile.setValue(currentFile.get()!=null));
 
-    public File getCurrentFile(){
-        return currentFile;
     }
 
+    public File getCurrentFile(){return currentFile.get();}
+
     public void setCurrentFile(File file){
-        if(currentFile==null || !file.getPath().equals(currentFile.getPath())){
-            currentFile=file;
+        if(file!=null && (currentFile.get()==null || !file.getPath().equals(currentFile.get().getPath()))){
+            currentFile.set(file);
             getMetaInfos();
         }
+    }
+
+    public BooleanProperty hasOpenFile(){
+        return hasOpenFile;
     }
 
     // All explicit getters.
@@ -82,8 +95,8 @@ public class DatasetReader {
     public Set<Character> getCharSet(){
         return charToImageIndexMapping.keySet();
     }
-    public boolean hasLabels(){
-        return labelsChars!=null;
+    public BooleanProperty hasLabelsProperty(){
+        return hasLabels;
     }
     /**
      * Returns all the indexes corresponding with the provided char.
@@ -177,7 +190,7 @@ public class DatasetReader {
         BufferedInputStream bis = null;
 
         try{
-            bis = new BufferedInputStream(new FileInputStream(currentFile));
+            bis = new BufferedInputStream(new FileInputStream(currentFile.get()));
             int bytesToSkip = 16+imageIndex*numberOfRows*numberOfColumns;
             while(bytesToSkip>0)
                 bytesToSkip-= bis.skip(bytesToSkip);
@@ -196,7 +209,7 @@ public class DatasetReader {
         byte[] buffer = new byte[4];
 
         try{
-            bis = new BufferedInputStream(new FileInputStream(currentFile));
+            bis = new BufferedInputStream(new FileInputStream(currentFile.get()));
             bis.read(buffer);
             magicNumber = bytesToInt(buffer);
             bis.read(buffer);
@@ -217,7 +230,7 @@ public class DatasetReader {
                 }
         }
 
-        needsTransformation = currentFile.getName().contains("emnist");
+        needsTransformation = currentFile.get().getName().contains("emnist");
 
         loadLabels();
     }
@@ -228,10 +241,11 @@ public class DatasetReader {
      */
     private void loadLabels() {
         labelsChars = null;
+        hasLabels.setValue(false);
         charToImageIndexMapping.clear();
         byteToCharMapping.clear();
 
-        File labelFile = new File(getLabelsFileName(currentFile));
+        File labelFile = new File(getLabelsFileName(currentFile.get()));
         if (!labelFile.exists())
             return;
 
@@ -262,6 +276,7 @@ public class DatasetReader {
         else {
             loadByteToCharMapping();
             labelsChars = new char[labelsBytes.length];
+            hasLabels.set(true);
             for (int i = 0; i < labelsBytes.length; i++) {
                 labelsChars[i] = byteToCharMapping.get((int) labelsBytes[i]);
                 if (charToImageIndexMapping.containsKey(labelsChars[i]))
@@ -280,13 +295,13 @@ public class DatasetReader {
      */
     private void loadByteToCharMapping(){
         byteToCharMapping.clear();
-        if(currentFile.getPath().lastIndexOf("emnist")==-1) {
+        if(currentFile.get().getPath().lastIndexOf("emnist")==-1) {
             System.out.println("No loading because not an Emnist dataset.");
             defaultMapping();
             return;
         }
-        String mappingType = currentFile.getName().split("-")[1];
-        File mappingFile = new File(currentFile.getParent()+File.separator+"emnist-"+mappingType+"-mapping.txt");
+        String mappingType = currentFile.get().getName().split("-")[1];
+        File mappingFile = new File(currentFile.get().getParent()+File.separator+"emnist-"+mappingType+"-mapping.txt");
         if (!mappingFile.exists()) {
             System.out.println("No loading because the file \""+ mappingFile.getPath()+"\" doesn't exist.");
             defaultMapping();
