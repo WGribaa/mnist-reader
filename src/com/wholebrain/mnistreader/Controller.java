@@ -1,5 +1,8 @@
 package com.wholebrain.mnistreader;
 
+import com.wholebrain.mnistreader.canvas.CustomCanvas;
+import com.wholebrain.mnistreader.canvas.MultipleCanvas;
+import com.wholebrain.mnistreader.canvas.SingleCanvas;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -9,6 +12,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Orientation;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -26,6 +30,7 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -59,14 +64,16 @@ public class Controller implements Initializable {
     @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
             _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
             _BOTTOM_POSITION_radiomenu, _LEFT_POSITION_radiomenu, _RIGHT_POSITION_radiomenu;
-    @FXML public Label index_label;
     @FXML public TextField jumpto_textfield;
-    @FXML public ScrollBar index_scrollbar;
     @FXML public ColorPicker empty_color_picker, full_color_picker;
     @FXML public Slider empty_threshold_slider, full_threshold_slider;
 
+    @FXML public Label index_label;
+    @FXML public ScrollBar index_scrollbar;
+    @FXML public VBox bottom_vbox;
+
     // Programmatically added GUI elements.
-    private CustomCanvas canvas = new CustomCanvas();
+    private CustomCanvas canvas = new MultipleCanvas();
     private List<CheckMenuItem> charFilters= new ArrayList<>();
     private List<MenuItem> showOnlyFilters = new ArrayList<>();
     private Stage primaryStage;
@@ -86,6 +93,7 @@ public class Controller implements Initializable {
     // Image
     private File lastImageFolder;
     private int lastExtension;
+
 
     /**
      * Closes the application.
@@ -285,6 +293,29 @@ public class Controller implements Initializable {
         initializeSorters();
         initializeHints();
 
+        setCanvas(canvas);
+    }
+
+    private void setCanvas(CustomCanvas canvas){
+        this.canvas = canvas;
+        main_layout.setCenter(canvas);
+        main_layout.setRight(null);
+        main_layout.setLeft(null);
+        bottom_vbox.getChildren().clear();
+        bottom_vbox.getChildren().add(index_label);
+        switch (canvas.getScrollBarPosition()){
+            case _BOTTOM:
+                bottom_vbox.getChildren().add(index_scrollbar);
+                break;
+            case _RIGHT:
+                index_scrollbar.setOrientation(Orientation.VERTICAL);
+                main_layout.setRight(index_scrollbar);
+                break;
+            case _LEFT:
+                index_scrollbar.setOrientation(Orientation.VERTICAL);
+                main_layout.setLeft(index_scrollbar);
+                break;
+        }
     }
 
     /**
@@ -387,7 +418,6 @@ public class Controller implements Initializable {
      */
     void setStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        main_layout.setCenter(canvas);
     }
 
     /**
@@ -446,29 +476,38 @@ public class Controller implements Initializable {
     private void updateIndex(int newFilteredIndex) {
         if (!reader.hasOpenFile().get()) return;
         if (filteredImageIndexes.size() == 0) {
-            canvas.loadImage(getNullImage(), 112, 112, '?');
-            index_label.setText("No image.");
+            canvas.loadImages(new byte[][] {getNullImage()},
+                    112, 112, new char[] {'?'});
+//            index_label.setText("No image.");
             jumpto_textfield.setText(null);
         } else {
             currentImageIndex = filteredImageIndexes.get(newFilteredIndex);
             index_label.setText(String.valueOf(currentImageIndex));
-            index_scrollbar.setValue(newFilteredIndex);
+            index_scrollbar.setValue(newFilteredIndex);/*
+            canvas.setIndices(filteredImageIndexes.subList(
+                    filteredImageIndexes.indexOf(newFilteredIndex),
+                    filteredImageIndexes.indexOf(newFilteredIndex)+canvas.getShownImageCount()));*/
             paint();
         }
     }
 
     /**
-     * Displays a colored representation of the current image on the {@link CustomCanvas canvas}.
+     * Displays a colored representation of the current image on the {@link SingleCanvas canvas}.
      */
     private void paint(){
-        byte[] imageBuffer = reader.getImageBuffer(currentImageIndex);
+        int imageCount = canvas.getShownImageCount();
 
+        List<Integer> indices = filteredImageIndexes.subList(filteredImageIndexes.indexOf(currentImageIndex),
+        filteredImageIndexes.indexOf(currentImageIndex)+imageCount);
+        byte[][] imageBuffers = reader.getImageBuffers(indices);
+        char[] chars = reader.getLabels(indices);
 
-        if (reader.isNeedsTransformation()) correctOrientation(reader, imageBuffer);
-
-        canvas.loadImage(imageBuffer, reader.getRowCount(),
-                reader.getColumnCount(),
-                reader.getLabel(currentImageIndex));
+        if (reader.isNeedsTransformation()) {
+            for(byte[] imageBuffer : imageBuffers)
+                correctOrientation(reader, imageBuffer);
+        }
+        canvas.loadImages(imageBuffers, reader.getRowCount(),
+                reader.getColumnCount(),chars);
     }
 
     /**
@@ -604,7 +643,7 @@ public class Controller implements Initializable {
 
     /**
      * Simply a byte by byte generated image for the fun !
-     * @return imageBuffer readable by the {@link CustomCanvas custom canvas}.
+     * @return imageBuffer readable by the {@link SingleCanvas custom canvas}.
      */
     private byte[] getNullImage(){
         byte[] imgData = new byte[12544];
@@ -635,7 +674,7 @@ public class Controller implements Initializable {
      * @param currentChar Character of the label to be shown.
      */
     private void launchMeanImage(byte[][] image, String title, char currentChar){
-        CustomCanvas meanCanvas = new CustomCanvas();
+        SingleCanvas meanCanvas = new SingleCanvas();
         meanCanvas.setLabelVisible(false);
         meanCanvas.initializePallet(full_color_picker.getValue());
         meanCanvas.setBackGroundColor(empty_color_picker.getValue());

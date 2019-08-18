@@ -1,7 +1,6 @@
 package com.wholebrain.mnistreader;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -18,7 +17,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 @SuppressWarnings("WeakerAccess")
@@ -26,7 +24,7 @@ public class DatasetReader {
 
     private final SimpleObjectProperty<File > currentFile = new SimpleObjectProperty<>();
     private final BooleanProperty hasOpenFile = new SimpleBooleanProperty(),
-    hasLabels = new SimpleBooleanProperty();
+            hasLabels = new SimpleBooleanProperty();
     private int magicNumber, numberOfImages, numberOfRows, numberOfColumns;
     private boolean needsTransformation;
     private char[] labelsChars;
@@ -67,9 +65,30 @@ public class DatasetReader {
     public char getLabel(int index){
         return labelsChars!=null?labelsChars[index]:'?';
     }
+    public char[] getLabels(List<Integer> indices){
+        char[] labels = new char[indices.size()];
+        for (int i = 0; i< indices.size(); i++)
+            labels[i] = getLabel(indices.get(i));
+        return labels;
+    }
     public char getCharForIndex(int index){
         return labelsChars[index];
     }
+    public int getNumberOfImages() {
+        return numberOfImages;
+    }
+    public Set<Character> getCharSet(){
+        return charToImageIndexMapping.keySet();
+    }
+    public BooleanProperty hasLabelsProperty(){
+        return hasLabels;
+    }
+
+    /**
+     * Returns the imageBuffer at a specific index.
+     * @param index Index of the image in the current Dataset.
+     * @return byte[]
+     */
     public byte[] getImageBuffer(int index){
         BufferedInputStream bis = getStreamAtImageIndex(index);
         if (bis == null) return null;
@@ -89,15 +108,36 @@ public class DatasetReader {
         }
         return imageBuffer;
     }
-    public int getNumberOfImages() {
-        return numberOfImages;
+
+    /**
+     * Returns the imageBuffers of specific indices.
+     * @param indices indices of the wanted imageBuffers.
+     * @return Array of imageBuffers as byte[].
+     */
+    public byte[][] getImageBuffers(List<Integer> indices){
+        byte[][] imageBuffers = new byte[indices.size()][];
+        int pixelCount = getPixelCount();
+        for(int i = 0; i<indices.size(); i++) {
+            BufferedInputStream bis = getStreamAtImageIndex(indices.get(i));
+            if (bis == null) return null;
+            byte[] imageBuffer = new byte[pixelCount];
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                bis.read(imageBuffer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            imageBuffers[i] = imageBuffer;
+        }
+        return imageBuffers;
     }
-    public Set<Character> getCharSet(){
-        return charToImageIndexMapping.keySet();
-    }
-    public BooleanProperty hasLabelsProperty(){
-        return hasLabels;
-    }
+
     /**
      * Returns all the indexes corresponding with the provided char.
      * @param c char to extract the indexes.
@@ -352,6 +392,7 @@ public class DatasetReader {
     private int bytesToInt(byte[] bytes){
         return bytes[0]<<24 | (bytes[1]&0xFF)<<16 | (bytes[2]&0xFF) <<8 | (bytes[3]&0xFF);
     }
+
 
 
     // Utils methods
