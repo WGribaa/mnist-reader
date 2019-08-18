@@ -4,8 +4,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
 public final class MultipleCanvas extends CustomCanvas {
-    private int imageNumberOfRows = 1, imageNumberOfColumns = 1,
-    image1StartY=0, xMouse, yMouse, xNumber, yNumber, gap;
+    private int line1StartY =0, xMouse, yMouse, xNumber=1, yNumber=1, gap;
     private double resolution = 1, currentYPos = 0;
 
     @Override
@@ -25,8 +24,8 @@ public final class MultipleCanvas extends CustomCanvas {
 
     @Override
     public int getShownImageCount() {
-        calculateImageCount();
-        return xNumber*yNumber;
+//        calculateImageCount();
+        return Math.max(xNumber*yNumber,1);
     }
 
     @Override
@@ -34,36 +33,41 @@ public final class MultipleCanvas extends CustomCanvas {
         int lastToFillCanvas =numberOfImages-numberOfImages%getShownImageCount() -1;
         return (indexTry>lastToFillCanvas?
                 lastToFillCanvas+1:
-                indexTry-indexTry%xNumber);
+                indexTry-indexTry%Math.max(xNumber,1));
     }
 
     protected void paint(GraphicsContext graphicsContext){
+        graphicsContext.setFill(backGroundColor);
+        graphicsContext.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
         if(imageBuffers==null || imageBuffers.length ==0)
-            return; //todo
+            return;
         calculateImageCount();
         // first row of images
-        for (int i = 0; i<xNumber && i<imageBuffers.length; i++){
-            drawImage(graphicsContext, i, image1StartY, i*(gap+1),0);
-        }
-        for (int line = 1; line<yNumber; line++){
-            for (int column = 0; column<yNumber; column++)
-                drawImage(graphicsContext,line*imageNumberOfColumns+column, 0,
-                        column*(gap+1),line*(gap+1));
-        }
-    }
-
-    private void calculateImageCount(){
-        xNumber = (int)(canvas.getWidth()/(resolution * imageNumberOfColumns));
-        gap = (int)((canvas.getWidth()-(xNumber*imageNumberOfColumns*resolution))/(xNumber+1.0));
-        int remainY = (int)(canvas.getHeight()-(imageNumberOfRows-image1StartY)*resolution)-gap;
-        yNumber = (int)(remainY/(imageNumberOfRows*resolution+gap));
+        for (int i = 0; i<xNumber && i<imageBuffers.length; i++)
+            drawImage(graphicsContext, i, line1StartY,
+                    (int)(i*numberOfColumns*resolution+gap*(i+1)),gap);
+        for (int i = xNumber; i<yNumber*xNumber && i < imageBuffers.length; i++)
+            drawImage(graphicsContext, i, 0,
+                    (int)(i%xNumber*(numberOfColumns*resolution))+gap*(i%xNumber+1),
+                    (int)(gap*(1+i/xNumber)+resolution*numberOfRows*(i/xNumber)));
     }
 
     private void drawImage(GraphicsContext gc, int index, int startY, int xPosOnContext, int yPosOnContext){
-        for(int y = startY; y<imageNumberOfRows; y++)
-            for (int x = 0; x<imageNumberOfColumns; x++){
-                gc.setFill(pallet[imageBuffers[index][y*imageNumberOfRows+x]&0xFF]);
+        for(int y = startY; y<numberOfRows; y++)
+            for (int x = 0; x<numberOfColumns; x++){
+                gc.setFill(pallet[imageBuffers[index][y*numberOfRows+x]&0xFF]);
                 gc.fillRect(xPosOnContext+x*resolution, yPosOnContext+y*resolution,resolution,resolution);
             }
+    }
+
+    private void calculateImageCount(){
+        xNumber = Math.max((int)(canvas.getWidth()/(resolution * numberOfColumns)),1);
+        gap = (int)((canvas.getWidth()-(xNumber*numberOfColumns*resolution))/(xNumber+1.0));
+        int remainY = (int)(canvas.getHeight()-(numberOfRows- line1StartY)*resolution)-gap;
+        yNumber = Math.max((int)(remainY/(numberOfRows*resolution+gap))+1,1);
+        System.out.println("*********** MULTIPLECANVAS.PAINT()*********\n\tResolution = "+resolution
+                +"\tImage definition = "+numberOfColumns+"*"+numberOfRows
+                +"("+(int)canvas.getWidth()+"*"+(int)canvas.getHeight()+")\n\txNumber = "+xNumber
+                +"\n\tyNumber = "+yNumber+"\n\tGAP = "+gap);
     }
 }

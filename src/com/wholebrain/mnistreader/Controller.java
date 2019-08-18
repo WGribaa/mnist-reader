@@ -74,6 +74,7 @@ public class Controller implements Initializable {
 
     // Programmatically added GUI elements.
     private CustomCanvas canvas = new MultipleCanvas();
+//    private CustomCanvas canvas = new SingleCanvas();
     private List<CheckMenuItem> charFilters= new ArrayList<>();
     private List<MenuItem> showOnlyFilters = new ArrayList<>();
     private Stage primaryStage;
@@ -492,15 +493,17 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Displays a colored representation of the current image on the {@link SingleCanvas canvas}.
+     * Displays a colored representation of the current images on the {@link SingleCanvas canvas}.
      */
     private void paint(){
-        int imageCount = canvas.getShownImageCount();
-
-        List<Integer> indices = filteredImageIndexes.subList(filteredImageIndexes.indexOf(currentImageIndex),
-        filteredImageIndexes.indexOf(currentImageIndex)+imageCount);
-        byte[][] imageBuffers = reader.getImageBuffers(indices);
-        char[] chars = reader.getLabels(indices);
+        int firstShownImageFilteredIndex = canvas.getFirstShownIndex(filteredImageIndexes.indexOf(currentImageIndex), filteredImageIndexes.size());
+        System.out.println("\n°°°°°°°°°° CONTROLLER.PAINT()°°°°°°°°°°\nNumber of images shown = "+canvas.getShownImageCount()+"\n\tFirst shown image index = "+firstShownImageFilteredIndex);
+        List<Integer> shownIndices = filteredImageIndexes.subList(firstShownImageFilteredIndex,
+        Math.min(firstShownImageFilteredIndex+canvas.getShownImageCount()-1,
+                filteredImageIndexes.size()-1)+1);
+        System.out.println("Image indices shown = "+shownIndices);
+        byte[][] imageBuffers = reader.getImageBuffers(shownIndices);
+        char[] chars = reader.getLabels(shownIndices);
 
         if (reader.isNeedsTransformation()) {
             for(byte[] imageBuffer : imageBuffers)
