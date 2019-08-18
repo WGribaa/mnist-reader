@@ -244,7 +244,8 @@ public class Controller implements Initializable {
         index_scrollbar.setMax(0);
         index_scrollbar.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() == oldValue.intValue()) return;
-            updateIndex(newValue.intValue());
+//            updateIndex(newValue.intValue());
+            updateIndex(canvas.getIndexFor(newValue.intValue()));
         });
 
         empty_color_picker.setValue(Color.WHITE);
@@ -467,7 +468,11 @@ public class Controller implements Initializable {
      */
     private void setupScrollBar(){
         index_scrollbar.setMin(0);
-        index_scrollbar.setMax(filteredImageIndexes.size()-1);
+//        index_scrollbar.setMax(filteredImageIndexes.size()-1);
+        index_scrollbar.setMax(canvas.getScrollBarMaxValueFor(filteredImageIndexes.size()));
+        System.out.println("ScrollBar Max Value = "+index_scrollbar.getMax());
+        index_scrollbar.setUnitIncrement(canvas.getScrollBarUnitIncrement());
+        System.out.println("ScrollBar Unit Increment = "+index_scrollbar.getUnitIncrement());
         index_scrollbar.setBlockIncrement(filteredImageIndexes.size()/20);
     }
 
@@ -484,8 +489,8 @@ public class Controller implements Initializable {
         } else {
             currentImageIndex = filteredImageIndexes.get(newFilteredIndex);
             index_label.setText(String.valueOf(currentImageIndex));
-            index_scrollbar.setValue(newFilteredIndex);/*
-            canvas.setIndices(filteredImageIndexes.subList(
+            index_scrollbar.setValue(canvas.getScrollValueForIndex(newFilteredIndex));
+            /*canvas.setIndices(filteredImageIndexes.subList(
                     filteredImageIndexes.indexOf(newFilteredIndex),
                     filteredImageIndexes.indexOf(newFilteredIndex)+canvas.getShownImageCount()));*/
             paint();
@@ -497,11 +502,11 @@ public class Controller implements Initializable {
      */
     private void paint(){
         int firstShownImageFilteredIndex = canvas.getFirstShownIndex(filteredImageIndexes.indexOf(currentImageIndex), filteredImageIndexes.size());
-        System.out.println("\n°°°°°°°°°° CONTROLLER.PAINT()°°°°°°°°°°\nNumber of images shown = "+canvas.getShownImageCount()+"\n\tFirst shown image index = "+firstShownImageFilteredIndex);
+//        System.out.println("\n°°°°°°°°°° CONTROLLER.PAINT()°°°°°°°°°°\nNumber of images shown = "+canvas.getShownImageCount()+"\n\tFirst shown image index = "+firstShownImageFilteredIndex);
         List<Integer> shownIndices = filteredImageIndexes.subList(firstShownImageFilteredIndex,
         Math.min(firstShownImageFilteredIndex+canvas.getShownImageCount()-1,
                 filteredImageIndexes.size()-1)+1);
-        System.out.println("Image indices shown = "+shownIndices);
+//        System.out.println("Image indices shown = "+shownIndices);
         byte[][] imageBuffers = reader.getImageBuffers(shownIndices);
         char[] chars = reader.getLabels(shownIndices);
 

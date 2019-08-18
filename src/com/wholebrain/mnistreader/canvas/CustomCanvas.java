@@ -26,9 +26,10 @@ public abstract class CustomCanvas extends Pane {
     protected boolean isLabelVisible = true;
     protected Color backGroundColor = Color.WHITE;
     protected Color[] pallet = new Color[256];
-    protected int numberOfRows, numberOfColumns, xMouse, yMouse;
-    protected double resolution, xPos, yPos;
+    protected int imageVResolution, imageHResolution, xMouse, yMouse, resolution=1;
+    protected double xPos, yPos;
     protected boolean showHint = true, showHintCoord = true, showHintValue = true;
+
 
     /**
      * An enum to tell the scene where to put the {@link ScrollBar}.
@@ -36,7 +37,8 @@ public abstract class CustomCanvas extends Pane {
     public enum DIRECTION{
         _BOTTOM,
         _RIGHT,
-        _LEFT
+        _LEFT;
+
     }
     /**
      * This enum has the purpose to make the position_radiobuttons easy to tell the canvas
@@ -51,29 +53,25 @@ public abstract class CustomCanvas extends Pane {
         _BOTTOM_POSITION(0.5,1),
         _LEFT_POSITION(0,0.5),
         _RIGHT_POSITION(1,0.5);
-
         private double vPosition,hPosition;
 
         POSITION(double hPosition, double vPosition){
             this.vPosition=vPosition;
             this.hPosition=hPosition;
         }
+
         double getVPosition(){
             return vPosition;
         }
-
         double getHPosition(){
             return hPosition;
         }
+
     }
 
     protected abstract void paint(GraphicsContext graphicsContext);
     protected abstract void paintLabels(GraphicsContext graphicsContext);
     protected abstract void initializeHint(Canvas canvas);
-    public abstract DIRECTION getScrollBarPosition();
-    public abstract int getShownImageCount();
-    public abstract int getFirstShownIndex(int indexTry, int numberOfImages);
-
     public final void layoutChildren(){
         int w = (int)getWidth();
         int h = (int)getHeight();
@@ -83,6 +81,13 @@ public abstract class CustomCanvas extends Pane {
             repaint();
         }
     }
+    public abstract DIRECTION getScrollBarPosition();
+    public abstract int getShownImageCount();
+    public abstract int getFirstShownIndex(int indexTry, int numberOfImages);
+    public abstract int getIndexFor(int value);
+    public abstract int getScrollValueForIndex(int index);
+    public abstract int getScrollBarMaxValueFor(int elementCount);
+    public abstract double getScrollBarUnitIncrement();
 
     public CustomCanvas(){
         getChildren().add(canvas);
@@ -124,8 +129,8 @@ public abstract class CustomCanvas extends Pane {
      */
     public final void loadImages(byte[][] imageBuffers, int numberOfRows, int numberOfColumns,char[] currentChars){
         this.imageBuffers = imageBuffers;
-        this.numberOfRows=numberOfRows;
-        this.numberOfColumns=numberOfColumns;
+        this.imageVResolution =numberOfRows;
+        this.imageHResolution =numberOfColumns;
         this.currentChars=currentChars;
         repaint();
     }

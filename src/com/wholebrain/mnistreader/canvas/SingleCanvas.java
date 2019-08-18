@@ -13,15 +13,15 @@ public final class SingleCanvas extends CustomCanvas {
      */
     protected void paint(GraphicsContext graphicsContext){
         double size = Double.min(canvas.getHeight(), canvas.getWidth());
-        resolution = Math.floor(Double.min(size/(1.0*numberOfRows), size/(1.0*numberOfColumns)));
-        xPos = Math.floor((canvas.getWidth()-resolution*numberOfColumns)/2.0);
-        yPos = Math.floor((canvas.getHeight()-resolution*numberOfRows)/2.0);
+        resolution = (int)(Double.min(size/(1.0* imageVResolution), size/(1.0* imageHResolution)));
+        xPos = Math.floor((canvas.getWidth()-resolution* imageHResolution)/2.0);
+        yPos = Math.floor((canvas.getHeight()-resolution* imageVResolution)/2.0);
 
         graphicsContext.setFill(backGroundColor);
         graphicsContext.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
-        for(int y = 0; y<numberOfRows; y++)
-            for (int x = 0; x<numberOfColumns; x++){
-                graphicsContext.setFill(pallet[imageBuffers[0][y*numberOfRows+x]&0xFF]);
+        for(int y = 0; y< imageVResolution; y++)
+            for (int x = 0; x< imageHResolution; x++){
+                graphicsContext.setFill(pallet[imageBuffers[0][y* imageVResolution +x]&0xFF]);
                 graphicsContext.fillRect(xPos+x*resolution, yPos+y*resolution,resolution,resolution);
             }
     }
@@ -37,8 +37,8 @@ public final class SingleCanvas extends CustomCanvas {
             else {
                 int currentXMouse = (int) Math.floor((event.getX() - xPos) / resolution);
                 int currentYMouse = (int) Math.floor((event.getY() - yPos) / resolution);
-                if (currentXMouse < 0 || currentXMouse >= numberOfColumns
-                        || currentYMouse < 0 || currentYMouse >= numberOfRows) {
+                if (currentXMouse < 0 || currentXMouse >= imageHResolution
+                        || currentYMouse < 0 || currentYMouse >= imageVResolution) {
                     Tooltip.uninstall(canvas, pxHint);
                 } else if (currentXMouse != xMouse || currentYMouse != yMouse) {
                     pxHint.show(canvas, event.getScreenX() + 10, event.getScreenY() + 10);
@@ -79,7 +79,7 @@ public final class SingleCanvas extends CustomCanvas {
                 "No image loaded":
                 (showHintCoord? "("+xMouse+";"+yMouse+")":"")+
                         (showHintCoord&&showHintValue?"=":"")+
-                        (showHintValue?(imageBuffers[0][(yMouse*numberOfColumns+xMouse)]&0xff):"");
+                        (showHintValue?(imageBuffers[0][(yMouse* imageHResolution +xMouse)]&0xff):"");
     }
 
     @Override
@@ -90,6 +90,26 @@ public final class SingleCanvas extends CustomCanvas {
     @Override
     public int getFirstShownIndex(int indexTry, int numberOfImages) {
         return indexTry;
+    }
+
+    @Override
+    public int getIndexFor(int value) {
+        return value;
+    }
+
+    @Override
+    public int getScrollValueForIndex(int index) {
+        return index;
+    }
+
+    @Override
+    public int getScrollBarMaxValueFor(int elementCount) {
+        return elementCount-1;
+    }
+
+    @Override
+    public double getScrollBarUnitIncrement() {
+        return 1;
     }
 
     public void loadImage(byte[] imageBuffer, int numberOfRows, int numberOfColumns, char currentChar){
