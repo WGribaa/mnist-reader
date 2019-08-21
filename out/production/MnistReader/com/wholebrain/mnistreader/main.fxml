@@ -41,6 +41,16 @@
                   <KeyCodeCombination alt="UP" code="X" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator></MenuItem>
            </Menu>
+         <Menu mnemonicParsing="false" text="View">
+           <items>
+             <MenuItem fx:id="switch_view" mnemonicParsing="false" onAction="#on_switch_view" text="Switch to multiple view" />
+                  <Menu fx:id="means_menu" disable="true" mnemonicParsing="false" text="Show mean image">
+                      <MenuItem mnemonicParsing="false" onAction="#on_mean_dataset" text="For dataset" />
+                      <MenuItem fx:id="mean_set_menuitem" mnemonicParsing="false" onAction="#on_mean_set" text="For current set" />
+                      <MenuItem fx:id="mean_char_menuitem" mnemonicParsing="false" onAction="#on_mean_char" text="For current character" />
+                  </Menu>
+           </items>
+         </Menu>
            <Menu mnemonicParsing="false" text="Images">
                <MenuItem mnemonicParsing="false" text="Empty Color">
                    <graphic>
@@ -113,11 +123,6 @@
                    <SeparatorMenuItem mnemonicParsing="false" />
                    <CheckMenuItem fx:id="hint_coordinates_menuitem" mnemonicParsing="false" selected="true" text="Coordinates" />
                    <CheckMenuItem fx:id="hint_value_menuitem" mnemonicParsing="false" selected="true" text="Value" />
-               </Menu>
-               <Menu fx:id="means_menu" disable="true" mnemonicParsing="false" text="Show mean image">
-                   <MenuItem mnemonicParsing="false" onAction="#on_mean_dataset" text="For dataset" />
-                   <MenuItem fx:id="mean_set_menuitem" mnemonicParsing="false" onAction="#on_mean_set" text="For current set" />
-                   <MenuItem fx:id="mean_char_menuitem" mnemonicParsing="false" onAction="#on_mean_char" text="For current character" />
                </Menu>
            </Menu>
            <Menu mnemonicParsing="false" text="Help">

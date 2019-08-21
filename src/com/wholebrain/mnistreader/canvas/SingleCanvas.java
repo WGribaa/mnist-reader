@@ -88,13 +88,8 @@ public final class SingleCanvas extends CustomCanvas {
     }
 
     @Override
-    public int getFirstShownIndex(int indexTry, int numberOfImages) {
-        return indexTry;
-    }
-
-    @Override
-    public int getIndexFor(int value) {
-        return value;
+    public int getIndexFor(int scrollValue) {
+        return scrollValue;
     }
 
     @Override
@@ -112,7 +107,7 @@ public final class SingleCanvas extends CustomCanvas {
         return 1;
     }
 
-    public void loadImage(byte[] imageBuffer, int numberOfRows, int numberOfColumns, char currentChar){
-        loadImages(new byte[][]{imageBuffer},numberOfRows, numberOfColumns, new char[] {currentChar});
+    public void loadImage(byte[] imageBuffer, char currentChar){
+        loadImages(new byte[][]{imageBuffer}, new char[] {currentChar});
     }
 }

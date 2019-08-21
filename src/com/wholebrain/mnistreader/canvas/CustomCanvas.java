@@ -26,7 +26,7 @@ public abstract class CustomCanvas extends Pane {
     protected boolean isLabelVisible = true;
     protected Color backGroundColor = Color.WHITE;
     protected Color[] pallet = new Color[256];
-    protected int imageVResolution, imageHResolution, xMouse, yMouse, resolution=1;
+    protected int imageVResolution=1, imageHResolution=1, xMouse, yMouse, resolution=2;
     protected double xPos, yPos;
     protected boolean showHint = true, showHintCoord = true, showHintValue = true;
 
@@ -38,7 +38,6 @@ public abstract class CustomCanvas extends Pane {
         _BOTTOM,
         _RIGHT,
         _LEFT;
-
     }
     /**
      * This enum has the purpose to make the position_radiobuttons easy to tell the canvas
@@ -54,7 +53,6 @@ public abstract class CustomCanvas extends Pane {
         _LEFT_POSITION(0,0.5),
         _RIGHT_POSITION(1,0.5);
         private double vPosition,hPosition;
-
         POSITION(double hPosition, double vPosition){
             this.vPosition=vPosition;
             this.hPosition=hPosition;
@@ -63,13 +61,14 @@ public abstract class CustomCanvas extends Pane {
         double getVPosition(){
             return vPosition;
         }
+
         double getHPosition(){
             return hPosition;
         }
 
     }
-
     protected abstract void paint(GraphicsContext graphicsContext);
+
     protected abstract void paintLabels(GraphicsContext graphicsContext);
     protected abstract void initializeHint(Canvas canvas);
     public final void layoutChildren(){
@@ -83,21 +82,10 @@ public abstract class CustomCanvas extends Pane {
     }
     public abstract DIRECTION getScrollBarPosition();
     public abstract int getShownImageCount();
-    public abstract int getFirstShownIndex(int indexTry, int numberOfImages);
-    public abstract int getIndexFor(int value);
+    public abstract int getIndexFor(int scrollValue);
     public abstract int getScrollValueForIndex(int index);
     public abstract int getScrollBarMaxValueFor(int elementCount);
     public abstract double getScrollBarUnitIncrement();
-
-    public CustomCanvas(){
-        getChildren().add(canvas);
-        setMinSize(280,280);
-        canvas.getGraphicsContext2D().setFont(labelFont);
-        canvas.getGraphicsContext2D().setTextBaseline(VPos.CENTER);
-        canvas.getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
-        initializeHint(canvas);
-    }
-
     /**
      * Returns a snapshot of the currently draw content of the canvas.
      * @param imageType File type of the wanted image scnapshot.
@@ -120,17 +108,27 @@ public abstract class CustomCanvas extends Pane {
         return bufferedImage;
     }
 
+
+    public CustomCanvas(){
+        getChildren().add(canvas);
+        setMinSize(280,280);
+        canvas.getGraphicsContext2D().setFont(labelFont);
+        canvas.getGraphicsContext2D().setTextBaseline(VPos.CENTER);
+        canvas.getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
+        initializeHint(canvas);
+    }
+
+    public final void setImageResolution(int hResolution, int vResolution){
+        this.imageHResolution = hResolution;
+        this.imageVResolution = vResolution;
+    }
     /**
      * Loads the image inside the buffer and stores its metadatas.
      * @param imageBuffers Image buffers with each pixel opacity in byte.
-     * @param numberOfRows Number of rows of the image.
-     * @param numberOfColumns Number of columns of the image.
      * @param currentChars Characters represented by the images.
      */
-    public final void loadImages(byte[][] imageBuffers, int numberOfRows, int numberOfColumns,char[] currentChars){
+    public final void loadImages(byte[][] imageBuffers,char[] currentChars){
         this.imageBuffers = imageBuffers;
-        this.imageVResolution =numberOfRows;
-        this.imageHResolution =numberOfColumns;
         this.currentChars=currentChars;
         repaint();
     }
@@ -151,7 +149,7 @@ public abstract class CustomCanvas extends Pane {
             for (int i = filterUpThreshold; i<256; i++)
                 pallet[i] = color;
         }
-        repaint();
+        if(imageBuffers!= null && imageBuffers.length >0) repaint();
     }
 
     /**
@@ -218,6 +216,7 @@ public abstract class CustomCanvas extends Pane {
      * Makes the {@link Canvas canvas} repaint itself.
      */
     protected final void repaint(){
+        if(imageBuffers== null) return;
         paint(canvas.getGraphicsContext2D());
         if(isLabelVisible) paintLabels(canvas.getGraphicsContext2D());
     }

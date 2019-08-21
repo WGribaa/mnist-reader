@@ -4,17 +4,16 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
 public final class MultipleCanvas extends CustomCanvas {
-    private int line1StartY =0, xMouse, yMouse, imagesPerLine =1, imagesPerColumn =1, gap;
-    private double currentYPos = 0;
+    private int firstLineStartY =0, xMouse, yMouse, imagesPerLine =1, imagesPerColumn =1, gap;
 
     @Override
     protected void paintLabels(GraphicsContext graphicsContext) {
-
+        // todo
     }
 
     @Override
     protected void initializeHint(Canvas canvas) {
-
+        //todo
     }
 
     @Override
@@ -24,52 +23,59 @@ public final class MultipleCanvas extends CustomCanvas {
 
     @Override
     public int getShownImageCount() {
-        return Math.max(imagesPerLine * imagesPerColumn,1);
-    }
-
-    @Override
-    public int getFirstShownIndex(int indexTry, int numberOfImages) {
-        int lastToFillCanvas =numberOfImages-numberOfImages%getShownImageCount() -1;
-        return (indexTry>lastToFillCanvas?
-                lastToFillCanvas+1:
-                indexTry-indexTry%Math.max(imagesPerLine,1));
+//        calculateImageCount();
+        System.out.println("Shown image count = "+
+                (Math.max(imagesPerLine * (1+imagesPerColumn),1)));
+        return Math.max(imagesPerLine * (1+imagesPerColumn),1);
     }
 
     @Override
     public int getIndexFor(int scrollValue) {
-        line1StartY = scrollValue %(gap+resolution* imageVResolution);
-        System.out.println("GET INDEX FOR : "+scrollValue+"\n\tLine starts at "+line1StartY+"\n\t"
+        firstLineStartY = scrollValue %(gap+resolution* imageVResolution);
+        /*System.out.println("GET INDEX FOR : "+scrollValue+"\n\tLine starts at "+line1StartY+"\n\t"
                 +(int)(imagesPerLine *(scrollValue/(gap+resolution* imageVResolution)))+
-                "\n\tImages shown = "+ imagesPerLine +"*"+ imagesPerColumn);
+                "\n\tImages shown = "+ imagesPerLine +"*"+ imagesPerColumn);*/
+        System.out.println("\nIndex for scrollValue "+scrollValue+" is "+
+                (imagesPerLine *(scrollValue/(gap+resolution* imageVResolution)))+ " starting at line "+ firstLineStartY);
         return imagesPerLine *(scrollValue/(gap+resolution* imageVResolution));
     }
 
     @Override
     public int getScrollValueForIndex(int index) {
-        System.out.println("\n\n\tScroll Value for index "+ index +" = "+
-                (line1StartY+ (index/ imagesPerLine)*(gap+resolution* imageVResolution))+
-                "\n\t with line 1 starting at "+line1StartY);
-        return line1StartY+ (index/ imagesPerLine)*(gap+resolution* imageVResolution);
-    }
+        calculateImageCount();
 
+//        int totalVRes = gap*(Math.ceil())
+
+
+        System.out.println("Scroll value for "+index+" is "+
+                (firstLineStartY + (index/ imagesPerLine)*(gap+resolution* imageVResolution)));
+        /*System.out.println("\n\n\tScroll Value for index "+ index +" = "+
+                (line1StartY+ (index/ imagesPerLine)*(gap+resolution* imageVResolution))+
+                "\n\t with line 1 starting at "+line1StartY);*/
+        return firstLineStartY + (index/ imagesPerLine)*(gap+resolution* imageVResolution);
+    }
 
     @Override
     public int getScrollBarMaxValueFor(int elementCount) {
-        return -(int)((Math.floor(-elementCount/(imagesPerLine *1.0))+ imagesPerColumn)*(gap+ imageVResolution *resolution));
+//        return (elementCount/imagesPerLine-imagesPerColumn)*(imageVResolution*resolution+gap);
+        calculateImageCount();
+        System.out.println("ScrollBar Max Value for "+elementCount+" = "+
+                (((int)Math.ceil(1.0*elementCount / imagesPerLine)*(gap+imageVResolution*resolution)+ gap)-(int)canvas.getHeight())+
+                " with "+imagesPerLine+" images per line.");
+        return ((int)Math.ceil(1.0*elementCount / imagesPerLine)*(gap+imageVResolution*resolution)+ gap)-(int)canvas.getHeight();
     }
 
     @Override
     public double getScrollBarUnitIncrement() {
-        return resolution*imageVResolution/3;
+        return resolution*imageVResolution/4;
 //        return 1;
     }
 
     protected void paint(GraphicsContext graphicsContext){
         graphicsContext.setFill(backGroundColor);
         graphicsContext.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
-        if(imageBuffers==null || imageBuffers.length ==0)
-            return;
         calculateImageCount();
+        if(imageBuffers==null || imageBuffers.length ==0)  return;
         // first row of images
         /*for (int i = 0; i<xNumber && i<imageBuffers.length; i++)
             drawImage(graphicsContext, i, line1StartY,
@@ -82,7 +88,7 @@ public final class MultipleCanvas extends CustomCanvas {
         for (int i = 0; i< imagesPerLine * imagesPerColumn && i<imageBuffers.length; i++)
             drawImage(graphicsContext, i,
                     i% imagesPerLine *imageHResolution*resolution+gap*(i% imagesPerLine +1),
-                    gap*(1+i/ imagesPerLine)+resolution*imageVResolution*(i/ imagesPerLine)-line1StartY);
+                    gap*(1+i/ imagesPerLine)+resolution*imageVResolution*(i/ imagesPerLine)- firstLineStartY);
     }
 
     private void drawImage(GraphicsContext gc, int index, int xPosOnContext, int yPosOnContext){
@@ -96,8 +102,12 @@ public final class MultipleCanvas extends CustomCanvas {
     private void calculateImageCount(){
         imagesPerLine = Math.max((int)(canvas.getWidth()/(resolution * imageHResolution)),1);
         gap = (int)((canvas.getWidth()-(imagesPerLine * imageHResolution *resolution))/(imagesPerLine +1.0));
-        int remainY = (int)(canvas.getHeight()-(imageVResolution - line1StartY)*resolution)-gap;
-        imagesPerColumn = Math.max((int)(remainY/(imageVResolution *resolution+gap))+1,1);
+        int remainY = (int)(canvas.getHeight()-(imageVResolution - firstLineStartY)*resolution)-gap;
+        imagesPerColumn = Math.max((remainY/(imageVResolution *resolution+gap)+1),1);
+        if(getHeight()> (gap+imageVResolution*resolution))
+            imagesPerColumn++;
+        System.out.println("*x = "+imagesPerLine+", y = "+imagesPerColumn+", start line = "+firstLineStartY+", gap = "+gap+", w*h="+canvas.getWidth()+"*"+canvas.getHeight());
+        /*System.out.println("*calculating image count with lineY = "+line1StartY);
         /*System.out.println("*********** MULTIPLECANVAS.PAINT()*********\n\tResolution = "+resolution
                 +"\tImage definition = "+numberOfColumns+"*"+numberOfRows
                 +"("+(int)canvas.getWidth()+"*"+(int)canvas.getHeight()+")\n\txNumber = "+xNumber

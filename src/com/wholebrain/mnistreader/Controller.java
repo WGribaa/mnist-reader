@@ -3,8 +3,10 @@ package com.wholebrain.mnistreader;
 import com.wholebrain.mnistreader.canvas.CustomCanvas;
 import com.wholebrain.mnistreader.canvas.MultipleCanvas;
 import com.wholebrain.mnistreader.canvas.SingleCanvas;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -54,11 +56,10 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-
 public class Controller implements Initializable {
     @FXML public BorderPane main_layout;
     @FXML public Menu labelposition_menu, filters_menu, showonly_menu, sorters_menu, means_menu;
-    @FXML public MenuItem open_menu, close_menu, showall_chars_menuitem,
+    @FXML public MenuItem open_menu, close_menu, showall_chars_menuitem, switch_view,
             mean_set_menuitem,mean_char_menuitem,save_snapshot_menuitem,fast_snapshot_menuitem;
     @FXML public CheckMenuItem show_labels_checkbox, hint_show_menuitem, hint_coordinates_menuitem, hint_value_menuitem;
     @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
@@ -85,7 +86,7 @@ public class Controller implements Initializable {
 
     // Filters
     private Set<Character> filteredChars = new HashSet<>();
-    private List<Integer> filteredImageIndexes = new ArrayList<>();
+    private List<Integer> filteredImageIndices = new ArrayList<>();
 
     // Sorter
     private Comparator<Integer> currentSorter;
@@ -94,6 +95,9 @@ public class Controller implements Initializable {
     // Image
     private File lastImageFolder;
     private int lastExtension;
+
+    //ScrollBar
+    private ScrollValueListener scrollValueListener = new ScrollValueListener();
 
 
     /**
@@ -145,7 +149,16 @@ public class Controller implements Initializable {
 
     @FXML
     public void on_mean_dataset() {
-        launchMeanImage(reader.getAllImageBuffers(),"of whole dataset");
+        byte[][][] loadingImageBuffers = new byte[1][][];
+        new ProgressDialog("Loading image buffers...",0,
+                new Task(){
+                    @Override
+                    protected Void call(){
+                        loadingImageBuffers[0] =reader.getAllImageBuffers();
+                        return null;
+                    }
+                });
+        launchMeanImage(loadingImageBuffers[0],"of whole dataset");
     }
 
     @FXML
@@ -153,16 +166,19 @@ public class Controller implements Initializable {
         StringBuilder charsInSet = new StringBuilder(filteredChars.size()<=1?"":"s").append(" [");
         for (char c : filteredChars)
             charsInSet.append(c).append(",");
+        List<Character> characterList = new ArrayList<>(filteredChars);
         charsInSet.replace(charsInSet.lastIndexOf(","),charsInSet.lastIndexOf(",")+1,"]");
-        launchMeanImage(reader.getAllImageBuffersForChars(filteredChars), "for character"+charsInSet.toString());
+        launchMeanImage(loadImageBuffersForChars(characterList), "for character"+charsInSet.toString());
     }
 
     @FXML
     public void on_mean_char() {
         ArrayList<Character> currentCharList = new ArrayList<>();
-        char currentChar = reader.getCharForIndex(currentImageIndex);
+        char currentChar = reader.getCharForIndex(
+                filteredImageIndices.get(canvas.getIndexFor((int)index_scrollbar.getValue())));
         currentCharList.add(currentChar);
-        launchMeanImage(reader.getAllImageBuffersForChars(currentCharList),"for character ["+currentChar+"]", currentChar);
+
+        launchMeanImage(loadImageBuffersForChars(currentCharList),"for character ["+currentChar+"]", currentChar);
     }
 
     @FXML
@@ -178,6 +194,7 @@ public class Controller implements Initializable {
         }
         fileChooser.setInitialDirectory(lastImageFolder == null ? reader.getCurrentFile().getParentFile():lastImageFolder);
         fileChooser.setSelectedExtensionFilter(fileChooser.getExtensionFilters().get(lastExtension));
+        int currentImageIndex = canvas.getIndexFor((int)index_scrollbar.getValue());
         String initialFileName =reader.getCurrentFile().getName().substring(0,reader.getCurrentFile().getName().lastIndexOf("idx")-1)
                 .concat("#").concat(Integer.toString(currentImageIndex));
         if(reader.hasLabelsProperty().get())
@@ -199,6 +216,7 @@ public class Controller implements Initializable {
 
     @FXML
     public void on_fast_snapshot() {
+        int currentImageIndex = canvas.getIndexFor((int)index_scrollbar.getValue());
         String[] formats = ImageIO.getWriterFileSuffixes();
         String fileName =reader.getCurrentFile().getName().substring(0,reader.getCurrentFile().getName().lastIndexOf("idx")-1)
                 .concat("#").concat(Integer.toString(currentImageIndex));
@@ -219,6 +237,38 @@ public class Controller implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    public void on_switch_view() {
+        if(canvas instanceof  SingleCanvas){
+            canvas = new MultipleCanvas();
+            switch_view.setText("Switch to single view");
+        }else{
+            canvas = new SingleCanvas();
+            switch_view.setText("Switch to multiple view");
+        }
+
+        canvas.initializePallet(full_color_picker.getValue());
+        canvas.setBackGroundColor(empty_color_picker.getValue());
+        setCanvas(canvas);
+        initializeHints();
+        setupScrollBar();
+        if(reader.hasOpenFile().get()) {
+            canvas.setImageResolution(reader.getColumnCount(), reader.getRowCount());
+        }
+        canvas.loadImages(null, null);
+
+        Platform.runLater(() -> {
+            updateCharFiltering();
+            setupScrollBar();
+            canvas.loadImages(null, null);
+            update(getScrollValueForImageIndex(currentImageIndex));
+            setupScrollBar();
+        });
+
+        System.out.println("Switching to "+canvas.getClass());
+
     }
 
     /**
@@ -242,11 +292,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         index_scrollbar.setMax(0);
-        index_scrollbar.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.intValue() == oldValue.intValue()) return;
-//            updateIndex(newValue.intValue());
-            updateIndex(canvas.getIndexFor(newValue.intValue()));
-        });
+        index_scrollbar.valueProperty().addListener(scrollValueListener);
 
         empty_color_picker.setValue(Color.WHITE);
         empty_color_picker.setOnAction(e->canvas.setBackGroundColor(empty_color_picker.getValue()));
@@ -256,7 +302,6 @@ public class Controller implements Initializable {
         full_color_picker.setOnAction(e-> canvas.initializePallet(full_color_picker.getValue()));
         full_color_picker.getCustomColors().add(Color.BLACK);
 
-        canvas.initializePallet(full_color_picker.getValue());
 
         jumpto_textfield.setTextFormatter(new TextFormatter<>(change -> {
             if(!change.getText().matches("\\d*"))
@@ -265,12 +310,12 @@ public class Controller implements Initializable {
         }));
         jumpto_textfield.textProperty().addListener((observable, oldValue, newValue) -> {
 
-            if (filteredImageIndexes.isEmpty())
+            if (filteredImageIndices.isEmpty())
                 return;
             if (newValue == null || newValue.isEmpty())
                 newValue = "0";
 
-            int newInt, maxValue=Collections.max(filteredImageIndexes);
+            int newInt, maxValue=Collections.max(filteredImageIndices);
             try {
                 newInt = Math.min(Integer.parseInt(newValue), maxValue);
 
@@ -279,11 +324,11 @@ public class Controller implements Initializable {
                 newInt = maxValue;
                 //throw new NumberFormatException("The input number \""+newValue+"\" is out of Integer range.");
             }
-            if (!filteredImageIndexes.contains(newInt))
-                newInt = findClosestInt(newInt,  filteredImageIndexes);
+            if (!filteredImageIndices.contains(newInt))
+                newInt = findClosestIntInSortedList(newInt, filteredImageIndices);
 
-            updateIndex(filteredImageIndexes.indexOf(newInt));
-
+//            canvas.startAtBeginning();
+            index_scrollbar.setValue(getScrollValueForImageIndex(newInt));
         });
 
         ChangeListener<Boolean> sendVisibleProperty =((observable, oldValue, newValue) ->
@@ -296,6 +341,7 @@ public class Controller implements Initializable {
         initializeHints();
 
         setCanvas(canvas);
+        canvas.initializePallet(full_color_picker.getValue());
     }
 
     private void setCanvas(CustomCanvas canvas){
@@ -307,6 +353,7 @@ public class Controller implements Initializable {
         bottom_vbox.getChildren().add(index_label);
         switch (canvas.getScrollBarPosition()){
             case _BOTTOM:
+                index_scrollbar.setOrientation(Orientation.HORIZONTAL);
                 bottom_vbox.getChildren().add(index_scrollbar);
                 break;
             case _RIGHT:
@@ -357,11 +404,11 @@ public class Controller implements Initializable {
         Comparator<Integer> sorterz0 = (i1, i2) -> reader.getCharForIndex(i2)-reader.getCharForIndex(i1);
         Comparator<Integer> sorterAZaz09 = Comparator.comparingInt(i -> (reader.getCharForIndex(i) - (byte)'A' + Byte.MAX_VALUE) % Byte.MAX_VALUE);
         Comparator<Integer> sorter90zaZA = (i1, i2) -> (reader.getCharForIndex(i2)-(byte)'A'+Byte.MAX_VALUE)%Byte.MAX_VALUE - (reader.getCharForIndex(i1)-(byte)'A'+Byte.MAX_VALUE)%Byte.MAX_VALUE;
-        Comparator<Integer> sorterazAZ09az = Comparator.comparingInt(i ->
-                -((reader.getCharForIndex(i) - (byte) 'A' + Byte.MAX_VALUE) % Byte.MAX_VALUE - 31 - Byte.MAX_VALUE) % Byte.MAX_VALUE);
-        Comparator<Integer> sorterza90ZA = (i1, i2) ->
+        Comparator<Integer> sorteraz09AZ = (i1, i2) ->
                 - ((reader.getCharForIndex(i2)-(byte)'A'+Byte.MAX_VALUE)%Byte.MAX_VALUE-31-Byte.MAX_VALUE)% Byte.MAX_VALUE
                         +((reader.getCharForIndex(i1)-(byte)'A'+Byte.MAX_VALUE)%Byte.MAX_VALUE-31-Byte.MAX_VALUE)%Byte.MAX_VALUE;
+        Comparator<Integer> sorterZA90za = Comparator.comparingInt(i ->
+                -((reader.getCharForIndex(i) - (byte) 'A' + Byte.MAX_VALUE) % Byte.MAX_VALUE - 31 - Byte.MAX_VALUE) % Byte.MAX_VALUE);
 
         sorters.put("Default order", sorterDefault);
         sorters.put("Inverted order", sorterInvertedDefault);
@@ -369,13 +416,13 @@ public class Controller implements Initializable {
         sorters.put("0 <- 9 <- A <- Z <- a <- z", sorterz0);
         sorters.put("A -> Z -> a -> z -> 0 -> 9",sorterAZaz09);
         sorters.put("A <- Z <- a <- z <- 0 <- 9",sorter90zaZA);
-        sorters.put("A -> Z -> 0 -> 9 -> a -> z",sorterazAZ09az);
-        sorters.put("A <- Z <- 0 <- 9 <- a <- z",sorterza90ZA);
+        sorters.put("a -> z -> 0 -> 9 -> A -> Z",sorteraz09AZ);
+        sorters.put("a <- z <- 0 <- 9 <- A <- Z",sorterZA90za);
 
         EventHandler<ActionEvent> sortEvent = event -> {
             currentSorter = sorters.getComparator(((RadioMenuItem) event.getSource()).getText());
             sort();
-            updateIndex(filteredImageIndexes.indexOf(currentImageIndex));
+            index_scrollbar.setValue(getScrollValueForImageIndex(currentImageIndex));
         };
 
         ToggleGroup sorterGroup = new ToggleGroup();
@@ -427,17 +474,18 @@ public class Controller implements Initializable {
      * @param file to read.
      */
     private void loadFile(File file) {
-        if(file == null) return;
+        if(file == null || file.equals(reader.getCurrentFile()))return;
         reInitializeMenus();
         reader.setCurrentFile(file);
+        canvas.setImageResolution(reader.getColumnCount(), reader.getRowCount());
         primaryStage.setTitle("Datasets Images Reader : " + file.getName());
 
 
         if (!reader.hasLabelsProperty().get()) {
             for (int i = 0; i<reader.getNumberOfImages();i++)
-                filteredImageIndexes.add(i);
+                filteredImageIndices.add(i);
             setupScrollBar();
-            updateIndex(0);
+            index_scrollbar.setValue(0);
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Datasets Images Reader");
             alert.setHeaderText("The labels file \""+DatasetReader.getLabelsFileName(file)+"\" could not be found.");
@@ -447,8 +495,8 @@ public class Controller implements Initializable {
             filteredChars.addAll(reader.getCharSet());
             loadFilters();
             updateCharFiltering();
-            setupScrollBar();
         }
+        update(0);
 
     }
 
@@ -456,9 +504,9 @@ public class Controller implements Initializable {
      * Sets the menus to the initial settings.
      */
     private void reInitializeMenus(){
-        currentImageIndex=0;
+        index_scrollbar.setValue(0);
         filteredChars.clear();
-        filteredImageIndexes.clear();
+        filteredImageIndices.clear();
         canvas.setLabelVisible(false);
     }
 
@@ -469,53 +517,11 @@ public class Controller implements Initializable {
     private void setupScrollBar(){
         index_scrollbar.setMin(0);
 //        index_scrollbar.setMax(filteredImageIndexes.size()-1);
-        index_scrollbar.setMax(canvas.getScrollBarMaxValueFor(filteredImageIndexes.size()));
+        index_scrollbar.setMax(canvas.getScrollBarMaxValueFor(filteredImageIndices.size()));
         System.out.println("ScrollBar Max Value = "+index_scrollbar.getMax());
         index_scrollbar.setUnitIncrement(canvas.getScrollBarUnitIncrement());
         System.out.println("ScrollBar Unit Increment = "+index_scrollbar.getUnitIncrement());
-        index_scrollbar.setBlockIncrement(filteredImageIndexes.size()/20);
-    }
-
-    /**
-     * Update the displayed infos about the current image index.
-     */
-    private void updateIndex(int newFilteredIndex) {
-        if (!reader.hasOpenFile().get()) return;
-        if (filteredImageIndexes.size() == 0) {
-            canvas.loadImages(new byte[][] {getNullImage()},
-                    112, 112, new char[] {'?'});
-//            index_label.setText("No image.");
-            jumpto_textfield.setText(null);
-        } else {
-            currentImageIndex = filteredImageIndexes.get(newFilteredIndex);
-            index_label.setText(String.valueOf(currentImageIndex));
-            index_scrollbar.setValue(canvas.getScrollValueForIndex(newFilteredIndex));
-            /*canvas.setIndices(filteredImageIndexes.subList(
-                    filteredImageIndexes.indexOf(newFilteredIndex),
-                    filteredImageIndexes.indexOf(newFilteredIndex)+canvas.getShownImageCount()));*/
-            paint();
-        }
-    }
-
-    /**
-     * Displays a colored representation of the current images on the {@link SingleCanvas canvas}.
-     */
-    private void paint(){
-        int firstShownImageFilteredIndex = canvas.getFirstShownIndex(filteredImageIndexes.indexOf(currentImageIndex), filteredImageIndexes.size());
-//        System.out.println("\n°°°°°°°°°° CONTROLLER.PAINT()°°°°°°°°°°\nNumber of images shown = "+canvas.getShownImageCount()+"\n\tFirst shown image index = "+firstShownImageFilteredIndex);
-        List<Integer> shownIndices = filteredImageIndexes.subList(firstShownImageFilteredIndex,
-        Math.min(firstShownImageFilteredIndex+canvas.getShownImageCount()-1,
-                filteredImageIndexes.size()-1)+1);
-//        System.out.println("Image indices shown = "+shownIndices);
-        byte[][] imageBuffers = reader.getImageBuffers(shownIndices);
-        char[] chars = reader.getLabels(shownIndices);
-
-        if (reader.isNeedsTransformation()) {
-            for(byte[] imageBuffer : imageBuffers)
-                correctOrientation(reader, imageBuffer);
-        }
-        canvas.loadImages(imageBuffers, reader.getRowCount(),
-                reader.getColumnCount(),chars);
+        index_scrollbar.setBlockIncrement(filteredImageIndices.size()/20);
     }
 
     /**
@@ -594,24 +600,37 @@ public class Controller implements Initializable {
      * to the indexes of the filtered characters.
      */
     private void updateCharFiltering(){
-        filteredImageIndexes.clear();
+        filteredImageIndices.clear();
         for(char c : filteredChars)
-            filteredImageIndexes.addAll(reader.getIndicesForChar(c));
+            filteredImageIndices.addAll(reader.getIndicesForChar(c));
         sort();
         setupScrollBar();
-        if(filteredImageIndexes.size()==0)
-            updateIndex(0);
-        else updateIndex(filteredImageIndexes.contains(currentImageIndex) ?
-                filteredImageIndexes.indexOf(currentImageIndex):
-                filteredImageIndexes.indexOf(findClosestInt(currentImageIndex,filteredImageIndexes)));
+        int newScrollIndex = filteredImageIndices.contains(currentImageIndex) ?
+                getScrollValueForImageIndex(currentImageIndex):
+                getScrollValueForImageIndex(findClosestInt(currentImageIndex, filteredImageIndices));
+
+        index_scrollbar.valueProperty().removeListener(scrollValueListener);
+        index_scrollbar.setValue(newScrollIndex);
+        index_scrollbar.valueProperty().addListener(scrollValueListener);
+        update(newScrollIndex);
+    }
+
+    /**
+     * Asks the canvas to get the value of the {@link ScrollBar} for a specific image index.
+     * @param imageIndex to ask for its scroll value.
+     * @return scroll value.
+     */
+    private int getScrollValueForImageIndex(int imageIndex){
+        return Math.min(canvas.getScrollValueForIndex(filteredImageIndices.indexOf(imageIndex)),
+                (int)index_scrollbar.getMax());
     }
 
     /**
      * Sort displayed characters in the chosen order.
      */
     private void sort(){
-        if(filteredImageIndexes.size()==0) return;
-        filteredImageIndexes.sort(currentSorter);
+        if(filteredImageIndices.size()==0) return;
+        filteredImageIndices.sort(currentSorter);
     }
 
     /**
@@ -654,16 +673,38 @@ public class Controller implements Initializable {
      * @return imageBuffer readable by the {@link SingleCanvas custom canvas}.
      */
     private byte[] getNullImage(){
-        byte[] imgData = new byte[12544];
-        pxRect(imgData, 5,62,20,96);
-        pxRect(imgData, 22,62,37,96);
-        pxSimpleTriangle(imgData, 5,62,36,true);
-        pxRect(imgData, 39,28,54,62);
-        pxRect(imgData, 56,28,71,62);
-        pxSimpleTriangle(imgData,39,62,70,false);
-        pxRect(imgData, 73,10,88,96);
-        pxRect(imgData, 90,10,105,96);
+        int x  = reader.getColumnCount(),
+                y = reader.getRowCount();
+        byte[] imgData = new byte[x*y];
+
+        pxRect(imgData, 2,15,5,24,x);
+        pxRect(imgData, 6,15,9,24,x);
+        pxSimpleTriangle(imgData, 2,15,8,x,true);
+        pxRect(imgData, 10,7,13,15,x);
+        pxRect(imgData, 14,7,17,15,x);
+        pxSimpleTriangle(imgData,10,15,16,x,false);
+        pxRect(imgData, 18,2,21,24,x);
+        pxRect(imgData, 22,2,25,24,x);
+
         return imgData;
+    }
+
+    /**
+     * Asks the dataset to give all the image buffers corresponding to a {@link List<Character> list of chars}
+     * and launch {@link ProgressDialog a window with a static progress bar} because it is a long process.
+     * @param listOfChars list of characters.
+     */
+    private byte[][] loadImageBuffersForChars(List<Character> listOfChars){
+        byte[][][] loadingImageBuffers = new byte[1][][];
+        new ProgressDialog("Loading image buffers...",0,
+                new Task(){
+                    @Override
+                    protected Void call(){
+                        loadingImageBuffers[0] =reader.getAllImageBuffersForChars(listOfChars);
+                        return null;
+                    }
+                });
+        return loadingImageBuffers[0];
     }
 
     /**
@@ -683,6 +724,7 @@ public class Controller implements Initializable {
      */
     private void launchMeanImage(byte[][] image, String title, char currentChar){
         SingleCanvas meanCanvas = new SingleCanvas();
+        meanCanvas.setImageResolution(reader.getColumnCount(),reader.getRowCount());
         meanCanvas.setLabelVisible(false);
         meanCanvas.initializePallet(full_color_picker.getValue());
         meanCanvas.setBackGroundColor(empty_color_picker.getValue());
@@ -721,7 +763,8 @@ public class Controller implements Initializable {
                     }
                 });
 
-        meanCanvas.loadImage(meanImageBuffer, reader.getRowCount(), reader.getColumnCount(),currentChar);
+        meanCanvas.loadImage(meanImageBuffer, currentChar);
+        System.out.println("launching mean image for "+String.valueOf(currentChar));
 
         BorderPane borderPane = new BorderPane(meanCanvas);
         Scene meanScene = new Scene(borderPane);
@@ -735,6 +778,47 @@ public class Controller implements Initializable {
         meanStage.show();
     }
 
+    /**
+     * Update the current image index, retrieve the needed imageBuffers from the {@link DatasetReader}
+     * and asks the {@link CustomCanvas} to draw them accordingly.
+     * @param scrollValue current value of the {@link ScrollBar}.
+     */
+    private void update(int scrollValue){
+        if (!reader.hasOpenFile().get()) return;
+        if (filteredImageIndices.size() == 0) {
+            canvas.loadImages(new byte[][] {getNullImage()}, new char[] {'?'});
+            index_label.setText("No image.");
+            setupScrollBar();
+            jumpto_textfield.setText(null);
+            return;
+        }
+        int updatedFilteredImageIndex = canvas.getIndexFor(scrollValue);
+        currentImageIndex = filteredImageIndices.get(updatedFilteredImageIndex);
+        List<Integer> shownIndices = filteredImageIndices.subList(
+                updatedFilteredImageIndex,
+                Math.min(updatedFilteredImageIndex+canvas.getShownImageCount()-1,
+                        filteredImageIndices.size()-1)+1);
+        System.out.println("asking for paint "+shownIndices.size()+" elements");
+//        System.out.println("Image indices shown = "+shownIndices);
+        byte[][] imageBuffers = reader.getImageBuffers(shownIndices);
+        char[] chars = reader.getLabels(shownIndices);
+
+        if (reader.isNeedsTransformation()) {
+            for(byte[] imageBuffer : imageBuffers)
+                correctOrientation(reader, imageBuffer);
+        }
+        index_label.setText(String.valueOf(currentImageIndex)+" ("+index_scrollbar.getValue()+")");
+        canvas.loadImages(imageBuffers,chars);
+    }
+
+    public class ScrollValueListener implements ChangeListener<Number>{
+        @Override
+        public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+            update(newValue.intValue());
+        }
+
+    }
+
     // Utils methods
 
     /**
@@ -742,10 +826,10 @@ public class Controller implements Initializable {
      * from a int.
      * Example : List = {0 ; 10 ; 20 ; 30 ; 40}. findClosestInt(21,List) will return 30.
      * @param value int to consider
-     * @param sortedList {@link }List<Integer>} sorted with int values from smallest to biggest.
-     * @return the closest int in the lis.
+     * @param sortedList {@link List<Integer>} sorted with int values from smallest to biggest.
+     * @return the closest int in the list.
      */
-    private static int findClosestInt(final int value, final List<Integer> sortedList) {
+    private static int findClosestIntInSortedList(final int value, final List<Integer> sortedList) {
         int lo = 0, hi = sortedList.size() - 1;
         while (lo < hi) {
             int mid = lo + (hi - lo) / 2;
@@ -757,6 +841,17 @@ public class Controller implements Initializable {
     }
 
     /**
+     * Finds the closest int in a {@link List<Integer> List of integer} from an int.
+     * @param value value to consider.
+     * @param list {@link List<Integer>} sorted or not.
+     * @return the closest int.
+     */
+    private static int findClosestInt(final int value, final List<Integer> list) {
+        return list.stream()
+                .min(Comparator.comparingInt(i -> Math.abs(i - value))).orElse(0);
+    }
+
+    /**
      * Colors a rectangle in the imageBuffer.
      * @param imageBuffer as an array of byte.
      * @param startX X coordinate of the top left corner of the rectangle.
@@ -764,10 +859,10 @@ public class Controller implements Initializable {
      * @param endX X coordinate of the bottom right corner of the rectangle.
      * @param endY Y coordinate of the bottom right corner of the rectangle.
      */
-    private static void pxRect(byte[] imageBuffer, int startX, int startY, int endX, int endY){
+    private static void pxRect(byte[] imageBuffer, int startX, int startY, int endX, int endY, int columnCount){
         for (int i = startY; i<endY; i++){
             for (int j = startX; j<endX; j++){
-                imageBuffer[i*112+j]=(byte)255;
+                imageBuffer[i*columnCount+j]=(byte)255;
             }
         }
     }
@@ -780,13 +875,15 @@ public class Controller implements Initializable {
      * @param endX X coordinate of the right corner of the triangle.
      * @param up Direction of the third corner of the triangle : true = up ; false = down.
      */
-    private static void pxSimpleTriangle(byte[] imageBuffer, int startX, @SuppressWarnings("SameParameterValue") int startY, int endX, boolean up){
+    private static void pxSimpleTriangle(byte[] imageBuffer, int startX, @SuppressWarnings("SameParameterValue") int startY, int endX,
+                                         int columnCount, boolean up){
         int height = (endX-startX)/2;
         int i = 0;
         while(i<=height){
             for (int j =0; j<=i; j++) {
-                imageBuffer[112 * startY + (up?-j:j) * 112 + startX + i] = (byte) 255;
-                imageBuffer[112 * startY + (up?-j:j) * 112 + endX-i]=(byte)255;
+                int i1 = (up ? -j : j) * columnCount;
+                imageBuffer[columnCount * startY + i1 + startX + i] = (byte) 255;
+                imageBuffer[columnCount * startY + i1 + endX-i]=(byte)255;
             }
             i++;
         }
