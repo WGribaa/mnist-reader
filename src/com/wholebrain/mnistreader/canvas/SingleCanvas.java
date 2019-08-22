@@ -61,10 +61,8 @@ public final class SingleCanvas extends CustomCanvas {
                 int currentYMouse = (int) Math.floor((mouseEvent.getY() - yPos) / resolution);
                 if (currentXMouse < 0 || currentXMouse >= imageHResolution
                         || currentYMouse < 0 || currentYMouse >= imageVResolution) {
-                    System.out.println("Mouse out");
                     Tooltip.uninstall(canvas, pxHint);
                 } else if (currentXMouse != xMouse || currentYMouse != yMouse) {
-                    System.out.println("Mouse in");
                     pxHint.show(canvas, mouseEvent.getScreenX() + 10, mouseEvent.getScreenY() + 10);
                     xMouse = currentXMouse;
                     yMouse = currentYMouse;

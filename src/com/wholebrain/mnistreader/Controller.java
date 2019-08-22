@@ -469,7 +469,6 @@ public class Controller implements Initializable, SizeChangeListener {
      * Sends the user configuration of the {@link javafx.scene.control.Tooltip mouse hint}.
      */
     private void sendHintSetupToCanvas(){
-        System.out.println("sending hint setups to canvas");
         boolean isCoordShown = hint_coordinates_menuitem.isSelected(),
                 isValueShown = hint_value_menuitem.isSelected(),
                 isIndexShown = hint_index_menuitem.isSelected(),
