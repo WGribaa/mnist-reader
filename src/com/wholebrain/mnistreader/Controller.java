@@ -75,8 +75,7 @@ public class Controller implements Initializable, SizeChangeListener {
     @FXML public VBox bottom_vbox;
 
     // Programmatically added GUI elements.
-    private CustomCanvas canvas = new MultipleCanvas();
-//    private CustomCanvas canvas = new SingleCanvas();
+    private CustomCanvas canvas = new SingleCanvas();
     private List<CheckMenuItem> charFilters= new ArrayList<>();
     private List<MenuItem> showOnlyFilters = new ArrayList<>();
     private Stage primaryStage;
@@ -259,25 +258,7 @@ public class Controller implements Initializable, SizeChangeListener {
             canvas.setImageResolution(reader.getColumnCount(), reader.getRowCount());
         }
         updateCharFiltering();
-        /*
-        canvas.requestLayout();
-//        setupScrollBar();
-//        update(getScrollValueForImageIndex(currentImageIndex));
-//        updateCharFiltering();
-
-        Platform.runLater(() -> {
-            updateCharFiltering();
-            canvas.requestLayout();
-            updateCharFiltering();
-//            canvas.layout();
-//            canvas.requestLayout();
-//            setupScrollBar();
-            setupScrollBar();
-            update(getScrollValueForImageIndex(currentImageIndex));
-            update(getScrollValueForImageIndex(currentImageIndex));
-        });
-*/
-        System.out.println("Switching to "+canvas.getClass());
+        initializeHints();
 
     }
 
@@ -527,11 +508,8 @@ public class Controller implements Initializable, SizeChangeListener {
      */
     private void setupScrollBar(){
         index_scrollbar.setMin(0);
-//        index_scrollbar.setMax(filteredImageIndexes.size()-1);
         index_scrollbar.setMax(canvas.getScrollBarMaxValueFor(filteredImageIndices.size()));
-        System.out.println("ScrollBar Max Value = "+index_scrollbar.getMax());
         index_scrollbar.setUnitIncrement(canvas.getScrollBarUnitIncrement());
-        System.out.println("ScrollBar Unit Increment = "+index_scrollbar.getUnitIncrement());
         index_scrollbar.setBlockIncrement(filteredImageIndices.size()/20);
     }
 
@@ -775,7 +753,6 @@ public class Controller implements Initializable, SizeChangeListener {
                 });
 
         meanCanvas.loadImage(meanImageBuffer, currentChar);
-        System.out.println("launching mean image for "+String.valueOf(currentChar));
 
         BorderPane borderPane = new BorderPane(meanCanvas);
         Scene meanScene = new Scene(borderPane);
@@ -809,8 +786,6 @@ public class Controller implements Initializable, SizeChangeListener {
                 updatedFilteredImageIndex,
                 Math.min(updatedFilteredImageIndex+canvas.getShownImageCount()-1,
                         filteredImageIndices.size()-1)+1);
-        System.out.println("asking for paint "+shownIndices.size()+" elements");
-//        System.out.println("Image indices shown = "+shownIndices);
         byte[][] imageBuffers = reader.getImageBuffers(shownIndices);
         char[] chars = reader.getLabels(shownIndices);
 
@@ -825,7 +800,11 @@ public class Controller implements Initializable, SizeChangeListener {
     @Override
     public void notifySizeChange() {
         setupScrollBar();
-        index_scrollbar.setValue(getScrollValueForImageIndex(currentImageIndex));
+        int newScrollValue = getScrollValueForImageIndex(currentImageIndex);
+        if((int)index_scrollbar.getValue()==newScrollValue)
+            update(newScrollValue);
+        else
+            index_scrollbar.setValue(newScrollValue);
     }
 
     public class ScrollValueListener implements ChangeListener<Number>{

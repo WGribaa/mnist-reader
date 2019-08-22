@@ -16,15 +16,11 @@
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller$5.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller$ScrollValueListener.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller$ScrollValueListener.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas$DIRECTION.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas$DIRECTION.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas$POSITION.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas$POSITION.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/MultipleCanvas.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/MultipleCanvas.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/SingleCanvas.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/SingleCanvas.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/CustomCanvas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/CustomCanvas.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/MultipleCanvas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/MultipleCanvas.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/SingleCanvas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/SingleCanvas.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />

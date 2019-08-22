@@ -89,12 +89,10 @@ public abstract class CustomCanvas extends Pane {
         int w = (int)getWidth();
         int h = (int)getHeight();
         if(w!=canvas.getWidth() || h!=canvas.getHeight()){
-            System.out.print("/!/!/");
             canvas.setWidth(w);
             canvas.setHeight(h);
-            notify(listener);
             repaint();
-//            if(listener != null)
+            notify(listener);
         }
     }
 
