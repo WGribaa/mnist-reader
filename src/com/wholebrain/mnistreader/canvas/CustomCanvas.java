@@ -21,7 +21,7 @@ import java.awt.image.BufferedImage;
 public abstract class CustomCanvas extends Pane {
     private int filterDownThreshold=0, filterUpThreshold = 255;
     private boolean isFiltered = false;
-    private SizeChangeListener listener;
+    private ImageBufferProvider listener;
 
     protected Canvas canvas = new Canvas(280,280);
     protected byte[][] imageBuffers;
@@ -30,11 +30,11 @@ public abstract class CustomCanvas extends Pane {
     protected boolean isLabelVisible = true;
     protected Color backGroundColor = Color.WHITE;
     protected Color[] pallet = new Color[256];
-    protected int imageVResolution=1, imageHResolution=1, xMouse, yMouse, mouseIndex, resolution=12;
+    protected int imageVDefinition =1, imageHDefinition =1, xMouse, yMouse, indexBelowMouse=0, resolution=3;
     protected boolean showHint = true, showHintCoord = true, showHintValue = true, showHintIndex=false;
     protected Tooltip pxHint= new Tooltip();
 
-    public void setSizeChangeListener(SizeChangeListener listener) {
+    public void setSizeChangeListener(ImageBufferProvider listener) {
         this.listener = listener;
     }
 
@@ -80,13 +80,26 @@ public abstract class CustomCanvas extends Pane {
     protected abstract void paint(GraphicsContext graphicsContext);
     protected abstract void paintLabels(GraphicsContext graphicsContext);
     protected abstract EventHandler<MouseEvent> getHintEvent();
-    protected abstract void notify(SizeChangeListener listener);
+    protected abstract void notify(ImageBufferProvider listener);
     public abstract DIRECTION getScrollBarPosition();
     public abstract int getShownImageCount();
-    public abstract int getIndexFor(int scrollValue);
+    public abstract int getIndexFor(int position);
     public abstract int getScrollValueForIndex(int index);
     public abstract int getScrollBarMaxValueFor(int elementCount);
     public abstract double getScrollBarUnitIncrement();
+
+    public CustomCanvas(){
+        getChildren().add(canvas);
+        setMinSize(280,280);
+        Font labelFont = new Font(Font.getDefault().getName(), 50);
+        canvas.getGraphicsContext2D().setFont(labelFont);
+        canvas.getGraphicsContext2D().setTextBaseline(VPos.CENTER);
+        canvas.getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
+        pxHint.setHideDelay(Duration.ZERO);
+        pxHint.setShowDelay(Duration.ZERO);
+        pxHint.setShowDuration(Duration.INDEFINITE);
+        canvas.setOnMouseMoved(getHintEvent());
+    }
 
     public final void layoutChildren(){
         int w = (int)getWidth();
@@ -123,21 +136,9 @@ public abstract class CustomCanvas extends Pane {
     }
 
 
-    public CustomCanvas(){
-        getChildren().add(canvas);
-        setMinSize(280,280);
-        Font labelFont = new Font(Font.getDefault().getName(), 50);
-        canvas.getGraphicsContext2D().setFont(labelFont);
-        canvas.getGraphicsContext2D().setTextBaseline(VPos.CENTER);
-        canvas.getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
-        pxHint.setHideDelay(Duration.ZERO);
-        pxHint.setShowDelay(Duration.ZERO);
-        canvas.setOnMouseMoved(getHintEvent());
-    }
-
     public final void setImageResolution(int hResolution, int vResolution){
-        this.imageHResolution = hResolution;
-        this.imageVResolution = vResolution;
+        this.imageHDefinition = hResolution;
+        this.imageVDefinition = vResolution;
     }
     /**
      * Loads the image inside the buffer and stores its metadatas.
@@ -234,13 +235,19 @@ public abstract class CustomCanvas extends Pane {
      * Returns the text that is to show on the {@link Tooltip}.
      * @return {@link String Text}.
      */
-    protected String getHintText(){
-        return (imageBuffers==null || imageBuffers.length == 0 )?
-                "No image loaded":
-                (showHintIndex?"["+mouseIndex+"]":"")+
-                        (showHintCoord? "("+xMouse+";"+yMouse+")":"")+
-                        (showHintCoord&&showHintValue?"=":"")+
-                        (showHintValue?(imageBuffers[0][(yMouse* imageHResolution +xMouse)]&0xff):"");
+    protected String getHintText(int index){
+        if(indexBelowMouse>=imageBuffers.length){
+            Tooltip.uninstall(canvas,pxHint);
+            return null;
+        }
+        StringBuilder text = new StringBuilder();
+        if(showHintIndex) text.append("[").append(listener.getIndexOfImageBuffer(indexBelowMouse)).append("] ");
+        if(showHintCoord) text.append("(").append(xMouse).append(";").append(yMouse).append(")");
+        if(showHintCoord&&showHintValue) text.append("=");
+        if(showHintValue)text.append((imageBuffers[index][(yMouse* imageHDefinition +xMouse)]&0xff));
+
+        return text.toString();
+
     }
 
     /**

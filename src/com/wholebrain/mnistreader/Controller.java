@@ -4,7 +4,7 @@ import com.wholebrain.mnistreader.canvas.CustomCanvas;
 import com.wholebrain.mnistreader.canvas.MultipleCanvas;
 import com.wholebrain.mnistreader.canvas.SingleCanvas;
 
-import com.wholebrain.mnistreader.canvas.SizeChangeListener;
+import com.wholebrain.mnistreader.canvas.ImageBufferProvider;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class Controller implements Initializable, SizeChangeListener {
+public class Controller implements Initializable, ImageBufferProvider {
     // FXML GUI elements
     @FXML public BorderPane main_layout;
     @FXML public Menu labelposition_menu, filters_menu, showonly_menu, sorters_menu, means_menu;
@@ -345,6 +345,11 @@ public class Controller implements Initializable, SizeChangeListener {
             update(newScrollValue);
         else
             index_scrollbar.setValue(newScrollValue);
+    }
+
+    @Override
+    public int getIndexOfImageBuffer(int position) {
+        return filteredImageIndices.get(filteredImageIndices.indexOf(currentImageIndex)+position);
     }
 
     /**
@@ -793,9 +798,9 @@ public class Controller implements Initializable, SizeChangeListener {
     /**
      * Update the current image index, retrieve the needed imageBuffers from the {@link DatasetReader}
      * and asks the {@link CustomCanvas} to draw them accordingly.
-     * @param scrollValue current value of the {@link ScrollBar}.
+     * @param position current value of the {@link ScrollBar}.
      */
-    private void update(int scrollValue){
+    private void update(int position){
         if (!reader.hasOpenFile().get()) return;
         if (filteredImageIndices.size() == 0) {
             canvas.loadImages(new byte[][] {getNullImage()}, new char[] {'?'});
@@ -804,7 +809,7 @@ public class Controller implements Initializable, SizeChangeListener {
             jumpto_textfield.setText(null);
             return;
         }
-        int updatedFilteredImageIndex = canvas.getIndexFor(scrollValue);
+        int updatedFilteredImageIndex = canvas.getIndexFor(position);
         currentImageIndex = filteredImageIndices.get(updatedFilteredImageIndex);
         List<Integer> shownIndices = filteredImageIndices.subList(
                 updatedFilteredImageIndex,

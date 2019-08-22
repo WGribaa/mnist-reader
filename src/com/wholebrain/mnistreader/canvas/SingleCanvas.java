@@ -16,21 +16,21 @@ public final class SingleCanvas extends CustomCanvas {
      */
     protected void paint(GraphicsContext graphicsContext){
         double size = Double.min(canvas.getHeight(), canvas.getWidth());
-        resolution = (int)(Double.min(size/(1.0* imageVResolution), size/(1.0* imageHResolution)));
-        xPos = Math.floor((canvas.getWidth()-resolution* imageHResolution)/2.0);
-        yPos = Math.floor((canvas.getHeight()-resolution* imageVResolution)/2.0);
+        resolution = (int)(Double.min(size/(1.0* imageVDefinition), size/(1.0* imageHDefinition)));
+        xPos = Math.floor((canvas.getWidth()-resolution* imageHDefinition)/2.0);
+        yPos = Math.floor((canvas.getHeight()-resolution* imageVDefinition)/2.0);
 
         graphicsContext.setFill(backGroundColor);
         graphicsContext.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
-        for(int y = 0; y< imageVResolution; y++)
-            for (int x = 0; x< imageHResolution; x++){
-                graphicsContext.setFill(pallet[imageBuffers[0][y* imageVResolution +x]&0xFF]);
+        for(int y = 0; y< imageVDefinition; y++)
+            for (int x = 0; x< imageHDefinition; x++){
+                graphicsContext.setFill(pallet[imageBuffers[0][y* imageVDefinition +x]&0xFF]);
                 graphicsContext.fillRect(xPos+x*resolution, yPos+y*resolution,resolution,resolution);
             }
     }
 
     @Override
-    protected void notify(SizeChangeListener listener) {
+    protected void notify(ImageBufferProvider listener) {
         // Since the ScrollBar value is not affected by the size of the canvas,
         // the listener is not notified.
     }
@@ -59,14 +59,16 @@ public final class SingleCanvas extends CustomCanvas {
             else {
                 int currentXMouse = (int) Math.floor((mouseEvent.getX() - xPos) / resolution);
                 int currentYMouse = (int) Math.floor((mouseEvent.getY() - yPos) / resolution);
-                if (currentXMouse < 0 || currentXMouse >= imageHResolution
-                        || currentYMouse < 0 || currentYMouse >= imageVResolution) {
+                if (currentXMouse < 0 || currentXMouse >= imageHDefinition
+                        || currentYMouse < 0 || currentYMouse >= imageVDefinition) {
                     Tooltip.uninstall(canvas, pxHint);
                 } else if (currentXMouse != xMouse || currentYMouse != yMouse) {
-                    pxHint.show(canvas, mouseEvent.getScreenX() + 10, mouseEvent.getScreenY() + 10);
+//                    pxHint.show(canvas, mouseEvent.getScreenX() + 10, mouseEvent.getScreenY() + 10);
+                    pxHint.setX(mouseEvent.getScreenX()+10);
+                    pxHint.setY(mouseEvent.getScreenY()+10);
                     xMouse = currentXMouse;
                     yMouse = currentYMouse;
-                    pxHint.setText(getHintText());
+                    pxHint.setText(getHintText(0));
                     if (!pxHint.isActivated())
                         Tooltip.install(canvas, pxHint);
                 }
@@ -81,8 +83,8 @@ public final class SingleCanvas extends CustomCanvas {
     }
 
     @Override
-    public int getIndexFor(int scrollValue) {
-        return scrollValue;
+    public int getIndexFor(int position) {
+        return position;
     }
 
     @Override
