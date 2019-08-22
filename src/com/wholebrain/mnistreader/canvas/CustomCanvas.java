@@ -230,12 +230,18 @@ public abstract class CustomCanvas extends Pane {
         this.showHintIndex = showHintIndex;
     }
 
-    public final void setResolution(int resolution){
-        if (this.resolution == resolution) return;
-        this.resolution=resolution;
+    public final void setResolution(int newResolution){
+        if (this.resolution == newResolution || newResolution <2)
+            return;
+        if((int)canvas.getWidth()<newResolution*imageHDefinition ||
+                (int)canvas.getHeight()<newResolution*imageVDefinition)
+            newResolution = Math.min((int)(canvas.getWidth() / imageHDefinition) ,
+                    (int)(canvas.getHeight() / imageVDefinition) );
+        this.resolution=newResolution;
         canvas.getGraphicsContext2D().setFont(new Font(Font.getDefault().getName(),
                 Math.max(imageVDefinition, imageHDefinition)*resolution/3.5));
-
+        repaint();
+        listener.notifySizeChange();
     }
 
     /**

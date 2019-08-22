@@ -8,6 +8,11 @@ import javafx.scene.input.MouseEvent;
 public final class MultipleCanvas extends CustomCanvas {
     private int firstLineStartY =0, imagesPerLine =1, imagesPerColumn =1, gap;
 
+    public MultipleCanvas(){
+        super();
+        canvas.setOnScroll(event ->setResolution(getResolution()+(event.getDeltaY()>0?1:-1)));
+    }
+
     @Override
     protected void paintLabels(GraphicsContext graphicsContext) {
         graphicsContext.setFill(pallet[255]);
@@ -130,6 +135,7 @@ public final class MultipleCanvas extends CustomCanvas {
         if(gap<0) gap = 0;
         if(canvas.getHeight()< getVerticalDefinition()+gap)
             gap=Math.min(gap,((int)canvas.getHeight()- getVerticalDefinition())/2);
+        System.out.println("paint gap = "+gap);
         imagesPerColumn= (int)Math.ceil(canvas.getHeight()/(getVerticalDefinition()+gap));
         if(firstLineStartY>0)
             imagesPerColumn++;

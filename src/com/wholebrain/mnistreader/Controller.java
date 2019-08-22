@@ -64,7 +64,7 @@ public class Controller implements Initializable, ImageBufferProvider {
     @FXML public MenuItem open_menu, close_menu, showall_chars_menuitem, switch_view,
             mean_set_menuitem,mean_char_menuitem,save_snapshot_menuitem,fast_snapshot_menuitem;
     @FXML public CheckMenuItem show_labels_checkbox, hint_show_menuitem, hint_coordinates_menuitem,
-            hint_value_menuitem,hint_index_menuitem;;
+            hint_value_menuitem,hint_index_menuitem;
     @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
             _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
             _BOTTOM_POSITION_radiomenu, _LEFT_POSITION_radiomenu, _RIGHT_POSITION_radiomenu;
