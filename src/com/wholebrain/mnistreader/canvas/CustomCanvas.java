@@ -1,24 +1,26 @@
 package com.wholebrain.mnistreader.canvas;
 
-import com.wholebrain.mnistreader.Controller;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.EventHandler;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 
 import java.awt.image.BufferedImage;
 
+@SuppressWarnings("WeakerAccess")
 public abstract class CustomCanvas extends Pane {
     private int filterDownThreshold=0, filterUpThreshold = 255;
     private boolean isFiltered = false;
-    private Font labelFont = new Font(Font.getDefault().getName(),50);
     private SizeChangeListener listener;
 
     protected Canvas canvas = new Canvas(280,280);
@@ -28,9 +30,9 @@ public abstract class CustomCanvas extends Pane {
     protected boolean isLabelVisible = true;
     protected Color backGroundColor = Color.WHITE;
     protected Color[] pallet = new Color[256];
-    protected int imageVResolution=1, imageHResolution=1, xMouse, yMouse, resolution=12;
-    protected double xPos, yPos;
-    protected boolean showHint = true, showHintCoord = true, showHintValue = true;
+    protected int imageVResolution=1, imageHResolution=1, xMouse, yMouse, mouseIndex, resolution=12;
+    protected boolean showHint = true, showHintCoord = true, showHintValue = true, showHintIndex=false;
+    protected Tooltip pxHint= new Tooltip();
 
     public void setSizeChangeListener(SizeChangeListener listener) {
         this.listener = listener;
@@ -43,12 +45,13 @@ public abstract class CustomCanvas extends Pane {
     public enum DIRECTION{
         _BOTTOM,
         _RIGHT,
-        _LEFT;
+        _LEFT
     }
     /**
      * This enum has the purpose to make the position_radiobuttons easy to tell the canvas
      * which positioning the user wants.
      */
+    @SuppressWarnings("unused")
     protected enum POSITION {
         _TOPLEFT_POSITION(0,0),
         _TOPRIGHT_POSITION(1,0),
@@ -76,7 +79,7 @@ public abstract class CustomCanvas extends Pane {
 
     protected abstract void paint(GraphicsContext graphicsContext);
     protected abstract void paintLabels(GraphicsContext graphicsContext);
-    protected abstract void initializeHint(Canvas canvas);
+    protected abstract EventHandler<MouseEvent> getHintEvent();
     protected abstract void notify(SizeChangeListener listener);
     public abstract DIRECTION getScrollBarPosition();
     public abstract int getShownImageCount();
@@ -123,10 +126,13 @@ public abstract class CustomCanvas extends Pane {
     public CustomCanvas(){
         getChildren().add(canvas);
         setMinSize(280,280);
+        Font labelFont = new Font(Font.getDefault().getName(), 50);
         canvas.getGraphicsContext2D().setFont(labelFont);
         canvas.getGraphicsContext2D().setTextBaseline(VPos.CENTER);
         canvas.getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
-        initializeHint(canvas);
+        pxHint.setHideDelay(Duration.ZERO);
+        pxHint.setShowDelay(Duration.ZERO);
+        canvas.setOnMouseMoved(getHintEvent());
     }
 
     public final void setImageResolution(int hResolution, int vResolution){
@@ -217,10 +223,24 @@ public abstract class CustomCanvas extends Pane {
      * @param showHintCoord Tells if the {@link Tooltip} shows the cursor coordinate on the {@link Canvas canvas}.
      * @param showHintValue Tells if the {@link Tooltip} shows the value of the pixel pointed by the cursor.
      */
-    public final void sendHintSetup(boolean showHint, boolean showHintCoord, boolean showHintValue) {
+    public final void updateHintSetup(boolean showHint, boolean showHintIndex, boolean showHintCoord, boolean showHintValue) {
         this.showHint=showHint;
         this.showHintCoord=showHintCoord;
         this.showHintValue=showHintValue;
+        this.showHintIndex = showHintIndex;
+    }
+
+    /**
+     * Returns the text that is to show on the {@link Tooltip}.
+     * @return {@link String Text}.
+     */
+    protected String getHintText(){
+        return (imageBuffers==null || imageBuffers.length == 0 )?
+                "No image loaded":
+                (showHintIndex?"["+mouseIndex+"]":"")+
+                        (showHintCoord? "("+xMouse+";"+yMouse+")":"")+
+                        (showHintCoord&&showHintValue?"=":"")+
+                        (showHintValue?(imageBuffers[0][(yMouse* imageHResolution +xMouse)]&0xff):"");
     }
 
     /**

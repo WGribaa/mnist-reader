@@ -1,10 +1,11 @@
 package com.wholebrain.mnistreader.canvas;
 
-import javafx.scene.canvas.Canvas;
+import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseEvent;
 
 public final class MultipleCanvas extends CustomCanvas {
-    private int firstLineStartY =0, xMouse, yMouse, imagesPerLine =1, imagesPerColumn =1, gap;
+    private int firstLineStartY =0, imagesPerLine =1, imagesPerColumn =1, gap;
 
     @Override
     protected void paintLabels(GraphicsContext graphicsContext) {
@@ -12,8 +13,8 @@ public final class MultipleCanvas extends CustomCanvas {
     }
 
     @Override
-    protected void initializeHint(Canvas canvas) {
-        //todo
+    protected EventHandler<MouseEvent> getHintEvent() {
+        return null;
     }
 
     @Override
@@ -34,19 +35,17 @@ public final class MultipleCanvas extends CustomCanvas {
     @Override
     public int getIndexFor(int scrollValue) {
         firstLineStartY = scrollValue %(gap+resolution* imageVResolution);
-        calculateImageCount();
+//        calculateImageCount();
         return imagesPerLine *(scrollValue/(gap+resolution* imageVResolution));
     }
 
     @Override
     public int getScrollValueForIndex(int index) {
-        calculateImageCount();
         return (index/ imagesPerLine)*(gap+resolution* imageVResolution);
     }
 
     @Override
     public int getScrollBarMaxValueFor(int elementCount) {
-        calculateImageCount();
         int numberOfLines = (int)Math.ceil(elementCount*1.0/imagesPerLine);
         int totalSize = numberOfLines*(imageHResolution*resolution)+(numberOfLines+1)*gap;
         return totalSize-(int)canvas.getHeight();

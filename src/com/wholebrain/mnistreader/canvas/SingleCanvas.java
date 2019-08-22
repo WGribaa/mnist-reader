@@ -1,11 +1,14 @@
 package com.wholebrain.mnistreader.canvas;
 
+import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
-import javafx.util.Duration;
+import javafx.scene.input.MouseEvent;
 
 public final class SingleCanvas extends CustomCanvas {
+
+    private double xPos, yPos;
 
     /**
      * Asks the {@link Canvas canvas} to draw the current image onto a specified {@link GraphicsContext graphics context}.
@@ -24,33 +27,6 @@ public final class SingleCanvas extends CustomCanvas {
                 graphicsContext.setFill(pallet[imageBuffers[0][y* imageVResolution +x]&0xFF]);
                 graphicsContext.fillRect(xPos+x*resolution, yPos+y*resolution,resolution,resolution);
             }
-    }
-
-    protected void initializeHint(Canvas canvas){
-        // Hint initialization
-        Tooltip pxHint = new Tooltip();
-        pxHint.setShowDelay(Duration.ZERO);
-        pxHint.setHideDelay(Duration.ZERO);
-
-        canvas.setOnMouseMoved(event -> {
-            if(!showHint) Tooltip.uninstall(canvas,pxHint);
-            else {
-                int currentXMouse = (int) Math.floor((event.getX() - xPos) / resolution);
-                int currentYMouse = (int) Math.floor((event.getY() - yPos) / resolution);
-                if (currentXMouse < 0 || currentXMouse >= imageHResolution
-                        || currentYMouse < 0 || currentYMouse >= imageVResolution) {
-                    Tooltip.uninstall(canvas, pxHint);
-                } else if (currentXMouse != xMouse || currentYMouse != yMouse) {
-                    pxHint.show(canvas, event.getScreenX() + 10, event.getScreenY() + 10);
-                    xMouse = currentXMouse;
-                    yMouse = currentYMouse;
-                    pxHint.setText(getHintText());
-                    if (!pxHint.isActivated())
-                        Tooltip.install(canvas, pxHint);
-                }
-            }
-
-        });
     }
 
     @Override
@@ -76,17 +52,30 @@ public final class SingleCanvas extends CustomCanvas {
         gc.fillText(toPrint,x,y);
     }
 
-    /**
-     * Returns the text that is to show on the {@link Tooltip}.
-     * @return {@link String Text}.
-     */
-    private String getHintText() {
-        return (imageBuffers==null || imageBuffers.length == 0 )?
-                "No image loaded":
-                (showHintCoord? "("+xMouse+";"+yMouse+")":"")+
-                        (showHintCoord&&showHintValue?"=":"")+
-                        (showHintValue?(imageBuffers[0][(yMouse* imageHResolution +xMouse)]&0xff):"");
+    @Override
+    protected EventHandler<MouseEvent> getHintEvent() {
+        return mouseEvent -> {
+            if(!showHint) Tooltip.uninstall(canvas,pxHint);
+            else {
+                int currentXMouse = (int) Math.floor((mouseEvent.getX() - xPos) / resolution);
+                int currentYMouse = (int) Math.floor((mouseEvent.getY() - yPos) / resolution);
+                if (currentXMouse < 0 || currentXMouse >= imageHResolution
+                        || currentYMouse < 0 || currentYMouse >= imageVResolution) {
+                    System.out.println("Mouse out");
+                    Tooltip.uninstall(canvas, pxHint);
+                } else if (currentXMouse != xMouse || currentYMouse != yMouse) {
+                    System.out.println("Mouse in");
+                    pxHint.show(canvas, mouseEvent.getScreenX() + 10, mouseEvent.getScreenY() + 10);
+                    xMouse = currentXMouse;
+                    yMouse = currentYMouse;
+                    pxHint.setText(getHintText());
+                    if (!pxHint.isActivated())
+                        Tooltip.install(canvas, pxHint);
+                }
+            }
+        };
     }
+
 
     @Override
     public int getShownImageCount() {

@@ -121,6 +121,7 @@
                <Menu mnemonicParsing="false" text="Infos over cursor">
                    <CheckMenuItem fx:id="hint_show_menuitem" mnemonicParsing="false" selected="true" text="Show" />
                    <SeparatorMenuItem mnemonicParsing="false" />
+               <CheckMenuItem fx:id="hint_index_menuitem" mnemonicParsing="false" text="Index in Dataset" />
                    <CheckMenuItem fx:id="hint_coordinates_menuitem" mnemonicParsing="false" selected="true" text="Coordinates" />
                    <CheckMenuItem fx:id="hint_value_menuitem" mnemonicParsing="false" selected="true" text="Value" />
                </Menu>

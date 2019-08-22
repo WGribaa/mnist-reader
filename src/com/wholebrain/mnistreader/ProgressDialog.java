@@ -21,11 +21,12 @@ public class ProgressDialog extends Stage{
             processLabel.setText(processName);
         }else {
             progressBar = new ProgressBar(elementsCount);
-            processLabel.setText(processName + " 0 / " + elementsCount);
+            processLabel.setText(processName + " 0 / " + elementsCount +
+                    "  ".repeat(String.valueOf(elementsCount).length()));
 
             task.progressProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> {
                 progressBar.setProgress(newValue.doubleValue());
-                processLabel.setText(processName + " " + (newValue.intValue() * elementsCount) + " / " + elementsCount);
+                processLabel.setText(processName + " " + (int)(newValue.doubleValue() * elementsCount) + " / " + elementsCount);
             }));
         }
         task.setOnSucceeded(wse -> this.close());

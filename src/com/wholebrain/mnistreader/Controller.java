@@ -58,11 +58,13 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 public class Controller implements Initializable, SizeChangeListener {
+    // FXML GUI elements
     @FXML public BorderPane main_layout;
     @FXML public Menu labelposition_menu, filters_menu, showonly_menu, sorters_menu, means_menu;
     @FXML public MenuItem open_menu, close_menu, showall_chars_menuitem, switch_view,
             mean_set_menuitem,mean_char_menuitem,save_snapshot_menuitem,fast_snapshot_menuitem;
-    @FXML public CheckMenuItem show_labels_checkbox, hint_show_menuitem, hint_coordinates_menuitem, hint_value_menuitem;
+    @FXML public CheckMenuItem show_labels_checkbox, hint_show_menuitem, hint_coordinates_menuitem,
+            hint_value_menuitem,hint_index_menuitem;;
     @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
             _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
             _BOTTOM_POSITION_radiomenu, _LEFT_POSITION_radiomenu, _RIGHT_POSITION_radiomenu;
@@ -99,7 +101,7 @@ public class Controller implements Initializable, SizeChangeListener {
     //ScrollBar
     private ScrollValueListener scrollValueListener = new ScrollValueListener();
 
-
+    // FXML event
     /**
      * Closes the application.
      */
@@ -329,12 +331,26 @@ public class Controller implements Initializable, SizeChangeListener {
 
         initializeBindings();
         initializeSorters();
-        initializeHints();
 
+        initializeHints();
         setCanvas(canvas);
         canvas.initializePallet(full_color_picker.getValue());
     }
 
+    @Override
+    public void notifySizeChange() {
+        setupScrollBar();
+        int newScrollValue = getScrollValueForImageIndex(currentImageIndex);
+        if((int)index_scrollbar.getValue()==newScrollValue)
+            update(newScrollValue);
+        else
+            index_scrollbar.setValue(newScrollValue);
+    }
+
+    /**
+     * Sets a usable {@link CustomCanvas} to start communication with the current {@link Controller Controller class}.
+     * @param canvas {@link CustomCanvas} to use.
+     */
     private void setCanvas(CustomCanvas canvas){
         this.canvas = canvas;
         main_layout.setCenter(canvas);
@@ -436,21 +452,30 @@ public class Controller implements Initializable, SizeChangeListener {
     }
 
     /**
-     * Initializes the behaviour of the {@link javafx.scene.control.Tooltip].
+     * Initializes the behaviour of the {@link javafx.scene.control.Tooltip mouse hint}.
      */
     private void initializeHints() {
         Platform.runLater(()->canvas.mouseTransparentProperty().bind(primaryStage.focusedProperty().not()));
-        EventHandler<ActionEvent> handler = event -> {
-            boolean isCoordShown = hint_coordinates_menuitem.isSelected(),
-                    isValueShown = hint_value_menuitem.isSelected(),
-                    isHintShown = hint_show_menuitem.isSelected()&&(isCoordShown || isValueShown);
-
-            canvas.sendHintSetup(isHintShown,isCoordShown,isValueShown);
-        };
+        EventHandler<ActionEvent> handler = event -> sendHintSetupToCanvas();
 
         hint_show_menuitem.setOnAction(handler);
+        hint_index_menuitem.setOnAction(handler);
         hint_coordinates_menuitem.setOnAction(handler);
         hint_value_menuitem.setOnAction(handler);
+        sendHintSetupToCanvas();
+    }
+
+    /**
+     * Sends the user configuration of the {@link javafx.scene.control.Tooltip mouse hint}.
+     */
+    private void sendHintSetupToCanvas(){
+        System.out.println("sending hint setups to canvas");
+        boolean isCoordShown = hint_coordinates_menuitem.isSelected(),
+                isValueShown = hint_value_menuitem.isSelected(),
+                isIndexShown = hint_index_menuitem.isSelected(),
+                isHintShown = hint_show_menuitem.isSelected()&&(isCoordShown || isValueShown || isIndexShown);
+
+        canvas.updateHintSetup(isHintShown,isIndexShown, isCoordShown,isValueShown);
     }
 
     /**
@@ -717,7 +742,7 @@ public class Controller implements Initializable, SizeChangeListener {
         meanCanvas.setLabelVisible(false);
         meanCanvas.initializePallet(full_color_picker.getValue());
         meanCanvas.setBackGroundColor(empty_color_picker.getValue());
-        meanCanvas.sendHintSetup(true, true, true);
+        meanCanvas.updateHintSetup(true, false,true, true);
 
         if(reader.isNeedsTransformation()) {
             //loading bar dialog for transformations
@@ -793,21 +818,11 @@ public class Controller implements Initializable, SizeChangeListener {
             for(byte[] imageBuffer : imageBuffers)
                 correctOrientation(reader, imageBuffer);
         }
-        index_label.setText(String.valueOf(currentImageIndex)+" ("+index_scrollbar.getValue()+")");
+        index_label.setText(currentImageIndex+" ("+index_scrollbar.getValue()+")");
         canvas.loadImages(imageBuffers,chars);
     }
 
-    @Override
-    public void notifySizeChange() {
-        setupScrollBar();
-        int newScrollValue = getScrollValueForImageIndex(currentImageIndex);
-        if((int)index_scrollbar.getValue()==newScrollValue)
-            update(newScrollValue);
-        else
-            index_scrollbar.setValue(newScrollValue);
-    }
-
-    public class ScrollValueListener implements ChangeListener<Number>{
+    private class ScrollValueListener implements ChangeListener<Number>{
         @Override
         public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
             update(newValue.intValue());
