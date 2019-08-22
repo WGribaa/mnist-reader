@@ -196,7 +196,7 @@ public class Controller implements Initializable, ImageBufferProvider {
         }
         fileChooser.setInitialDirectory(lastImageFolder == null ? reader.getCurrentFile().getParentFile():lastImageFolder);
         fileChooser.setSelectedExtensionFilter(fileChooser.getExtensionFilters().get(lastExtension));
-        int currentImageIndex = canvas.getIndexFor((int)index_scrollbar.getValue());
+        int currentImageIndex = filteredImageIndices.get(canvas.getIndexFor((int)index_scrollbar.getValue()));
         String initialFileName =reader.getCurrentFile().getName().substring(0,reader.getCurrentFile().getName().lastIndexOf("idx")-1)
                 .concat("#").concat(Integer.toString(currentImageIndex));
         if(reader.hasLabelsProperty().get())
@@ -218,7 +218,7 @@ public class Controller implements Initializable, ImageBufferProvider {
 
     @FXML
     public void on_fast_snapshot() {
-        int currentImageIndex = canvas.getIndexFor((int)index_scrollbar.getValue());
+        int currentImageIndex = filteredImageIndices.get(canvas.getIndexFor((int)index_scrollbar.getValue()));
         String[] formats = ImageIO.getWriterFileSuffixes();
         String fileName =reader.getCurrentFile().getName().substring(0,reader.getCurrentFile().getName().lastIndexOf("idx")-1)
                 .concat("#").concat(Integer.toString(currentImageIndex));
@@ -257,7 +257,7 @@ public class Controller implements Initializable, ImageBufferProvider {
         canvas.setUpFilter((int)full_threshold_slider.getValue());
         setCanvas(canvas);
         if(reader.hasOpenFile().get()) {
-            canvas.setImageResolution(reader.getColumnCount(), reader.getRowCount());
+            canvas.setImageDefinition(reader.getColumnCount(), reader.getRowCount());
         }
         updateCharFiltering();
         initializeHints();
@@ -498,7 +498,7 @@ public class Controller implements Initializable, ImageBufferProvider {
         if(file == null || file.equals(reader.getCurrentFile()))return;
         reInitializeMenus();
         reader.setCurrentFile(file);
-        canvas.setImageResolution(reader.getColumnCount(), reader.getRowCount());
+        canvas.setImageDefinition(reader.getColumnCount(), reader.getRowCount());
         primaryStage.setTitle("Datasets Images Reader : " + file.getName());
 
 
@@ -742,7 +742,7 @@ public class Controller implements Initializable, ImageBufferProvider {
      */
     private void launchMeanImage(byte[][] image, String title, char currentChar){
         SingleCanvas meanCanvas = new SingleCanvas();
-        meanCanvas.setImageResolution(reader.getColumnCount(),reader.getRowCount());
+        meanCanvas.setImageDefinition(reader.getColumnCount(),reader.getRowCount());
         meanCanvas.setLabelVisible(false);
         meanCanvas.initializePallet(full_color_picker.getValue());
         meanCanvas.setBackGroundColor(empty_color_picker.getValue());
@@ -789,7 +789,7 @@ public class Controller implements Initializable, ImageBufferProvider {
         meanCanvas.mouseTransparentProperty().bind(meanStage.focusedProperty().not());
         meanStage.setScene(meanScene);
         meanStage.setTitle("Mean image "+title+" in "+reader.getCurrentFile().getName());
-        meanCanvas.setPrefSize(280,280);
+        meanCanvas.setPrefSize(400,300);
         meanStage.setX(Math.min(primaryStage.getX()+primaryStage.getWidth(), Toolkit.getDefaultToolkit().getScreenSize().width-280));
         meanStage.setY(primaryStage.getY());
         meanStage.show();
@@ -822,7 +822,7 @@ public class Controller implements Initializable, ImageBufferProvider {
             for(byte[] imageBuffer : imageBuffers)
                 correctOrientation(reader, imageBuffer);
         }
-        index_label.setText(currentImageIndex+" ("+index_scrollbar.getValue()+")");
+        index_label.setText(String.valueOf(currentImageIndex));
         canvas.loadImages(imageBuffers,chars);
     }
 

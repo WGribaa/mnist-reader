@@ -16,12 +16,13 @@ public final class SingleCanvas extends CustomCanvas {
      */
     protected void paint(GraphicsContext graphicsContext){
         double size = Double.min(canvas.getHeight(), canvas.getWidth());
-        resolution = (int)(Double.min(size/(1.0* imageVDefinition), size/(1.0* imageHDefinition)));
-        xPos = Math.floor((canvas.getWidth()-resolution* imageHDefinition)/2.0);
-        yPos = Math.floor((canvas.getHeight()-resolution* imageVDefinition)/2.0);
+        setResolution((int)(Double.min(size/(1.0* imageVDefinition), size/(1.0* imageHDefinition))));
+        xPos = Math.floor((canvas.getWidth()-getHorizontalDefinition())/2.0);
+        yPos = Math.floor((canvas.getHeight()-getVerticalDefinition())/2.0);
 
         graphicsContext.setFill(backGroundColor);
         graphicsContext.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
+        int resolution = getResolution();
         for(int y = 0; y< imageVDefinition; y++)
             for (int x = 0; x< imageHDefinition; x++){
                 graphicsContext.setFill(pallet[imageBuffers[0][y* imageVDefinition +x]&0xFF]);
@@ -57,8 +58,8 @@ public final class SingleCanvas extends CustomCanvas {
         return mouseEvent -> {
             if(!showHint) Tooltip.uninstall(canvas,pxHint);
             else {
-                int currentXMouse = (int) Math.floor((mouseEvent.getX() - xPos) / resolution);
-                int currentYMouse = (int) Math.floor((mouseEvent.getY() - yPos) / resolution);
+                int currentXMouse = (int) Math.floor((mouseEvent.getX() - xPos) / getResolution());
+                int currentYMouse = (int) Math.floor((mouseEvent.getY() - yPos) / getResolution());
                 if (currentXMouse < 0 || currentXMouse >= imageHDefinition
                         || currentYMouse < 0 || currentYMouse >= imageVDefinition) {
                     Tooltip.uninstall(canvas, pxHint);

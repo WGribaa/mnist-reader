@@ -19,7 +19,7 @@ import java.awt.image.BufferedImage;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class CustomCanvas extends Pane {
-    private int filterDownThreshold=0, filterUpThreshold = 255;
+    private int filterDownThreshold=0, filterUpThreshold = 255, resolution = 3;
     private boolean isFiltered = false;
     private ImageBufferProvider listener;
 
@@ -30,7 +30,7 @@ public abstract class CustomCanvas extends Pane {
     protected boolean isLabelVisible = true;
     protected Color backGroundColor = Color.WHITE;
     protected Color[] pallet = new Color[256];
-    protected int imageVDefinition =1, imageHDefinition =1, xMouse, yMouse, indexBelowMouse=0, resolution=3;
+    protected int imageVDefinition =1, imageHDefinition =1, xMouse, yMouse, indexBelowMouse=0;
     protected boolean showHint = true, showHintCoord = true, showHintValue = true, showHintIndex=false;
     protected Tooltip pxHint= new Tooltip();
 
@@ -91,8 +91,6 @@ public abstract class CustomCanvas extends Pane {
     public CustomCanvas(){
         getChildren().add(canvas);
         setMinSize(280,280);
-        Font labelFont = new Font(Font.getDefault().getName(), 50);
-        canvas.getGraphicsContext2D().setFont(labelFont);
         canvas.getGraphicsContext2D().setTextBaseline(VPos.CENTER);
         canvas.getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
         pxHint.setHideDelay(Duration.ZERO);
@@ -111,7 +109,6 @@ public abstract class CustomCanvas extends Pane {
             notify(listener);
         }
     }
-
 
     /**
      * Returns a snapshot of the currently draw content of the canvas.
@@ -136,9 +133,11 @@ public abstract class CustomCanvas extends Pane {
     }
 
 
-    public final void setImageResolution(int hResolution, int vResolution){
+    public final void setImageDefinition(int hResolution, int vResolution){
         this.imageHDefinition = hResolution;
         this.imageVDefinition = vResolution;
+        canvas.getGraphicsContext2D().setFont(new Font(Font.getDefault().getName(),
+                Math.max(hResolution,vResolution)*resolution/3.5));
     }
     /**
      * Loads the image inside the buffer and stores its metadatas.
@@ -231,6 +230,14 @@ public abstract class CustomCanvas extends Pane {
         this.showHintIndex = showHintIndex;
     }
 
+    public final void setResolution(int resolution){
+        if (this.resolution == resolution) return;
+        this.resolution=resolution;
+        canvas.getGraphicsContext2D().setFont(new Font(Font.getDefault().getName(),
+                Math.max(imageVDefinition, imageHDefinition)*resolution/3.5));
+
+    }
+
     /**
      * Returns the text that is to show on the {@link Tooltip}.
      * @return {@link String Text}.
@@ -257,6 +264,16 @@ public abstract class CustomCanvas extends Pane {
         if(imageBuffers== null) return;
         paint(canvas.getGraphicsContext2D());
         if(isLabelVisible) paintLabels(canvas.getGraphicsContext2D());
+    }
+
+    protected final int getHorizontalDefinition(){
+        return resolution * imageHDefinition;
+    }
+    protected final int getVerticalDefinition(){
+        return resolution * imageVDefinition;
+    }
+    protected final int getResolution(){
+        return resolution;
     }
 
     /**

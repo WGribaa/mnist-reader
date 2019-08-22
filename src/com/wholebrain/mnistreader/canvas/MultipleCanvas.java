@@ -10,7 +10,15 @@ public final class MultipleCanvas extends CustomCanvas {
 
     @Override
     protected void paintLabels(GraphicsContext graphicsContext) {
-        // todo
+        graphicsContext.setFill(pallet[255]);
+        double x = (1+4*currentLabelPosition.getHPosition())/6d*(getHorizontalDefinition()+gap);
+        double y = (1+4*currentLabelPosition.getVPosition())/6d*(getVerticalDefinition()+gap)-firstLineStartY;
+        for (int i = 0; i<currentChars.length; i++){
+            //noinspection IntegerDivisionInFloatingPointContext
+            graphicsContext.fillText(String.valueOf(currentChars[i]),
+                    (gap+getHorizontalDefinition())*(i%imagesPerLine)+x,
+                    (gap+getVerticalDefinition())*(i/imagesPerLine)+y);
+        }
     }
 
     @Override
@@ -20,23 +28,23 @@ public final class MultipleCanvas extends CustomCanvas {
             else {
                 int currentXMouse = (int)mouseEvent.getX();
                 int currentYMouse = (int)mouseEvent.getY();
-                int frameHDefinition = imageHDefinition*resolution+gap;
+                int frameHDefinition = getHorizontalDefinition()+gap;
 
                 if(currentXMouse%(frameHDefinition)< gap){
                     Tooltip.uninstall(canvas, pxHint);
                 }
                 else{
-                    int frameVDefinition = imageVDefinition*resolution+gap;
+                    int frameVDefinition = getVerticalDefinition()+gap;
                     int yMouse2 = currentYMouse+firstLineStartY;
-                    if(yMouse2%(gap+ imageVDefinition *resolution)<gap)
+                    if(yMouse2%(gap+ getVerticalDefinition())<gap)
                         Tooltip.uninstall(canvas, pxHint);
                     else{
                         int column = currentXMouse/frameHDefinition;
                         int line = yMouse2/(frameVDefinition);
                         int xStart = column*frameHDefinition+gap;
                         int yStart = line*frameVDefinition-firstLineStartY+gap;
-                        int xCoord = (currentXMouse-xStart)/(resolution);
-                        int yCoord = (currentYMouse-yStart)/(resolution);
+                        int xCoord = (currentXMouse-xStart)/(getResolution());
+                        int yCoord = (currentYMouse-yStart)/(getResolution());
                         if(xMouse!= xCoord || yMouse != yCoord){
                             pxHint.setX(mouseEvent.getScreenX()+10);
                             pxHint.setY(mouseEvent.getScreenY()+10);
@@ -73,26 +81,26 @@ public final class MultipleCanvas extends CustomCanvas {
 
     @Override
     public int getIndexFor(int position) {
-        firstLineStartY = position %(gap+resolution* imageVDefinition);
+        firstLineStartY = position %(gap+getVerticalDefinition());
 //        calculateImageCount();
-        return imagesPerLine *(position /(gap+resolution* imageVDefinition));
+        return imagesPerLine *(position /(gap+getVerticalDefinition()));
     }
 
     @Override
     public int getScrollValueForIndex(int index) {
-        return (index/ imagesPerLine)*(gap+resolution* imageVDefinition);
+        return (index/ imagesPerLine)*(gap+getVerticalDefinition());
     }
 
     @Override
     public int getScrollBarMaxValueFor(int elementCount) {
         int numberOfLines = (int)Math.ceil(elementCount*1.0/imagesPerLine);
-        int totalSize = numberOfLines*(imageHDefinition *resolution)+(numberOfLines+1)*gap;
+        int totalSize = numberOfLines*(getHorizontalDefinition())+(numberOfLines+1)*gap;
         return totalSize-(int)canvas.getHeight();
     }
 
     @Override
     public double getScrollBarUnitIncrement() {
-        return resolution* imageVDefinition /4;
+        return getVerticalDefinition() /4;
     }
 
     protected void paint(GraphicsContext graphicsContext){
@@ -103,11 +111,12 @@ public final class MultipleCanvas extends CustomCanvas {
         if(imageBuffers==null || imageBuffers.length ==0)  return;
         for (int i = 0; i< imagesPerLine * imagesPerColumn && i<imageBuffers.length; i++)
             drawImage(graphicsContext, i,
-                    i% imagesPerLine * imageHDefinition *resolution+gap*(i% imagesPerLine +1),
-                    gap*(1+i/ imagesPerLine)+resolution* imageVDefinition *(i/ imagesPerLine)- firstLineStartY);
+                    i% imagesPerLine * getHorizontalDefinition()+gap*(i% imagesPerLine +1),
+                    gap*(1+i/ imagesPerLine)+getVerticalDefinition() *(i/ imagesPerLine)- firstLineStartY);
     }
 
     private void drawImage(GraphicsContext gc, int index, int xPosOnContext, int yPosOnContext){
+        int resolution = getResolution();
         for(int y = 0; y< imageVDefinition; y++)
             for (int x = 0; x< imageHDefinition; x++){
                 gc.setFill(pallet[imageBuffers[index][y* imageVDefinition +x]&0xFF]);
@@ -116,12 +125,12 @@ public final class MultipleCanvas extends CustomCanvas {
     }
 
     private void calculateImageCount(){
-        imagesPerLine = Math.max((int)(canvas.getWidth()/(resolution * imageHDefinition)),1);
-        gap = (int)((canvas.getWidth()-(imagesPerLine * imageHDefinition *resolution))/(imagesPerLine +1.0));
+        imagesPerLine = Math.max((int)(canvas.getWidth()/getHorizontalDefinition()),1);
+        gap = (int)((canvas.getWidth()-(imagesPerLine * getHorizontalDefinition()))/(imagesPerLine +1.0));
         if(gap<0) gap = 0;
-        if(canvas.getHeight()< imageVDefinition *resolution+gap)
-            gap=Math.min(gap,((int)canvas.getHeight()- imageVDefinition *resolution)/2);
-        imagesPerColumn= (int)Math.ceil(canvas.getHeight()/(imageVDefinition *resolution+gap));
+        if(canvas.getHeight()< getVerticalDefinition()+gap)
+            gap=Math.min(gap,((int)canvas.getHeight()- getVerticalDefinition())/2);
+        imagesPerColumn= (int)Math.ceil(canvas.getHeight()/(getVerticalDefinition()+gap));
         if(firstLineStartY>0)
             imagesPerColumn++;
     }
