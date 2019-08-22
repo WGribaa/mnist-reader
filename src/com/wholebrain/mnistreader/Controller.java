@@ -4,6 +4,7 @@ import com.wholebrain.mnistreader.canvas.CustomCanvas;
 import com.wholebrain.mnistreader.canvas.MultipleCanvas;
 import com.wholebrain.mnistreader.canvas.SingleCanvas;
 
+import com.wholebrain.mnistreader.canvas.SizeChangeListener;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -56,7 +57,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class Controller implements Initializable {
+public class Controller implements Initializable, SizeChangeListener {
     @FXML public BorderPane main_layout;
     @FXML public Menu labelposition_menu, filters_menu, showonly_menu, sorters_menu, means_menu;
     @FXML public MenuItem open_menu, close_menu, showall_chars_menuitem, switch_view,
@@ -251,22 +252,31 @@ public class Controller implements Initializable {
 
         canvas.initializePallet(full_color_picker.getValue());
         canvas.setBackGroundColor(empty_color_picker.getValue());
+        canvas.setDownFilter((int)empty_threshold_slider.getValue());
+        canvas.setUpFilter((int)full_threshold_slider.getValue());
         setCanvas(canvas);
-        initializeHints();
-        setupScrollBar();
         if(reader.hasOpenFile().get()) {
             canvas.setImageResolution(reader.getColumnCount(), reader.getRowCount());
         }
-        canvas.loadImages(null, null);
+        updateCharFiltering();
+        /*
+        canvas.requestLayout();
+//        setupScrollBar();
+//        update(getScrollValueForImageIndex(currentImageIndex));
+//        updateCharFiltering();
 
         Platform.runLater(() -> {
             updateCharFiltering();
+            canvas.requestLayout();
+            updateCharFiltering();
+//            canvas.layout();
+//            canvas.requestLayout();
+//            setupScrollBar();
             setupScrollBar();
-            canvas.loadImages(null, null);
             update(getScrollValueForImageIndex(currentImageIndex));
-            setupScrollBar();
+            update(getScrollValueForImageIndex(currentImageIndex));
         });
-
+*/
         System.out.println("Switching to "+canvas.getClass());
 
     }
@@ -365,6 +375,7 @@ public class Controller implements Initializable {
                 main_layout.setLeft(index_scrollbar);
                 break;
         }
+        canvas.setSizeChangeListener(this);
     }
 
     /**
@@ -809,6 +820,12 @@ public class Controller implements Initializable {
         }
         index_label.setText(String.valueOf(currentImageIndex)+" ("+index_scrollbar.getValue()+")");
         canvas.loadImages(imageBuffers,chars);
+    }
+
+    @Override
+    public void notifySizeChange() {
+        setupScrollBar();
+        index_scrollbar.setValue(getScrollValueForImageIndex(currentImageIndex));
     }
 
     public class ScrollValueListener implements ChangeListener<Number>{

@@ -1,5 +1,6 @@
 package com.wholebrain.mnistreader.canvas;
 
+import com.wholebrain.mnistreader.Controller;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
@@ -18,6 +19,7 @@ public abstract class CustomCanvas extends Pane {
     private int filterDownThreshold=0, filterUpThreshold = 255;
     private boolean isFiltered = false;
     private Font labelFont = new Font(Font.getDefault().getName(),50);
+    private SizeChangeListener listener;
 
     protected Canvas canvas = new Canvas(280,280);
     protected byte[][] imageBuffers;
@@ -26,9 +28,13 @@ public abstract class CustomCanvas extends Pane {
     protected boolean isLabelVisible = true;
     protected Color backGroundColor = Color.WHITE;
     protected Color[] pallet = new Color[256];
-    protected int imageVResolution=1, imageHResolution=1, xMouse, yMouse, resolution=2;
+    protected int imageVResolution=1, imageHResolution=1, xMouse, yMouse, resolution=12;
     protected double xPos, yPos;
     protected boolean showHint = true, showHintCoord = true, showHintValue = true;
+
+    public void setSizeChangeListener(SizeChangeListener listener) {
+        this.listener = listener;
+    }
 
 
     /**
@@ -67,25 +73,32 @@ public abstract class CustomCanvas extends Pane {
         }
 
     }
-    protected abstract void paint(GraphicsContext graphicsContext);
 
+    protected abstract void paint(GraphicsContext graphicsContext);
     protected abstract void paintLabels(GraphicsContext graphicsContext);
     protected abstract void initializeHint(Canvas canvas);
-    public final void layoutChildren(){
-        int w = (int)getWidth();
-        int h = (int)getHeight();
-        if(w!=canvas.getWidth() || h!=canvas.getHeight()){
-            canvas.setWidth(w);
-            canvas.setHeight(h);
-            repaint();
-        }
-    }
+    protected abstract void notify(SizeChangeListener listener);
     public abstract DIRECTION getScrollBarPosition();
     public abstract int getShownImageCount();
     public abstract int getIndexFor(int scrollValue);
     public abstract int getScrollValueForIndex(int index);
     public abstract int getScrollBarMaxValueFor(int elementCount);
     public abstract double getScrollBarUnitIncrement();
+
+    public final void layoutChildren(){
+        int w = (int)getWidth();
+        int h = (int)getHeight();
+        if(w!=canvas.getWidth() || h!=canvas.getHeight()){
+            System.out.print("/!/!/");
+            canvas.setWidth(w);
+            canvas.setHeight(h);
+            notify(listener);
+            repaint();
+//            if(listener != null)
+        }
+    }
+
+
     /**
      * Returns a snapshot of the currently draw content of the canvas.
      * @param imageType File type of the wanted image scnapshot.

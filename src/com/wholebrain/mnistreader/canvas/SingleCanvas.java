@@ -54,6 +54,12 @@ public final class SingleCanvas extends CustomCanvas {
     }
 
     @Override
+    protected void notify(SizeChangeListener listener) {
+        // Since the ScrollBar value is not affected by the size of the canvas,
+        // the listener is not notified.
+    }
+
+    @Override
     public DIRECTION getScrollBarPosition() {
         return DIRECTION._BOTTOM;
     }
