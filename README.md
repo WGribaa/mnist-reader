@@ -13,15 +13,15 @@ For the MNIST dataset, no further requirement (default mapping is applied).
 For the EMNIST dataset, you must also keep the "*-mapping.txt" file in the same folder as the others.
 
 Upcoming functionalities :
-- Another view that shows multiple images at once.
 - Saving single or multiple images into PNG, JPG or both types files.
 - Panel and/or dialog that shows details about the currently displayed image.
 - Panel and/or dialog that shows details about the currently read Dataset file.
 
 Added functionalities : 
+- Multiple views. To zoom : Ctrl + Mouse scroll. Mouse scroll to navigate, Shift + Mouse scroll to move more precisely, Alt + Mouse scroll to jump.
 - Snapshots in all formats supported natively by JAVA (JPG, PNG, BMP, TIF, TIFF, WBMP). Fast snapshots to the last folder used to save snapshots, or to the dataset directory if no saved snapshots were previously taken.
 - Image mean for the whole dataset, for filtered characters and for a specific character.
-- Hint appearing over the next to the cursor to give details (coordinate and value from 0 to 255) about individual pixels.
+- Hint appearing next to the cursor to give details (coordinates and value from 0 to 255) about individual pixels and the index of the image in the Dataset.
 - Multiple sorting.
 - Filters to show only selected characters (or figures).
 - Positioning of the labels at  8 possible locations.
