@@ -1,5 +1,7 @@
 package com.wholebrain.mnistreader.canvas;
 
+import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.VPos;
@@ -15,27 +17,53 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class CustomCanvas extends Pane {
     private int filterDownThreshold=0, filterUpThreshold = 255, resolution = 3;
     private boolean isFiltered = false;
-    private ImageBufferProvider listener;
+    private ImageBufferProvider provider;
+    private static int MAX_RESOLUTION=50, MIN_RESOLUTION = 2;
 
     protected Canvas canvas = new Canvas(280,280);
-    protected byte[][] imageBuffers;
     protected POSITION currentLabelPosition = POSITION._TOPLEFT_POSITION;
-    protected char[] currentChars = {};
-    protected boolean isLabelVisible = true;
     protected Color backGroundColor = Color.WHITE;
     protected Color[] pallet = new Color[256];
-    protected int imageVDefinition =1, imageHDefinition =1, xMouse, yMouse, indexBelowMouse=0;
-    protected boolean showHint = true, showHintCoord = true, showHintValue = true, showHintIndex=false;
     protected Tooltip pxHint= new Tooltip();
+    protected boolean isLabelVisible = true, showHint = true, showHintCoord = true, showHintValue = true, showHintIndex=false;
+    protected int imageVDefinition =1, imageHDefinition =1, xMouse, yMouse, indexBelowMouse=0;
+    private byte[][] imageBuffers;
+    protected char[] currentChars;
+    protected int[] currentIndices;
 
-    public void setSizeChangeListener(ImageBufferProvider listener) {
-        this.listener = listener;
+    private final CanvasRedrawTask<CanvasData> redrawTask = new CanvasRedrawTask<>(canvas) {
+        @Override
+        protected void redraw(GraphicsContext context, CanvasData data) {
+            context.setFill(backGroundColor);
+            context.fillRect(0,0,canvas.getWidth(), canvas.getHeight());
+            for (int i = 0; i< data.getPosX().length() && i<imageBuffers.length; i++){
+                for(int y = 0; y< imageVDefinition; y++)
+                    for (int x = 0; x< imageHDefinition; x++){
+                        context.setFill(pallet[imageBuffers[i][y* imageVDefinition +x]&0xFF]);
+                        context.fillRect(data.getPosX().get(i)+x*resolution, data.getPosY().get(i)+y*resolution,resolution,resolution);
+                    }
+                if(isLabelVisible){
+                    context.setFill(pallet[255]);
+                    String toPrint = String.valueOf(currentChars.length>0?currentChars[i]:' ');
+                    context.fillText(toPrint,
+                            data.getPosX().get(i)+(1+4*currentLabelPosition.getHPosition())/6d*imageHDefinition*resolution,
+                            data.getPosY().get(i)+(1+4*currentLabelPosition.getVPosition())/6d*imageVDefinition*resolution);
+                }
+            }
+        }
+    };
+
+    public void setImageProvider(ImageBufferProvider listener) {
+        this.provider = listener;
     }
 
 
@@ -77,8 +105,7 @@ public abstract class CustomCanvas extends Pane {
 
     }
 
-    protected abstract void paint(GraphicsContext graphicsContext);
-    protected abstract void paintLabels(GraphicsContext graphicsContext);
+    protected abstract CanvasData getCanvasData();
     protected abstract EventHandler<MouseEvent> getHintEvent();
     protected abstract void notify(ImageBufferProvider listener);
     public abstract DIRECTION getScrollBarPosition();
@@ -97,6 +124,7 @@ public abstract class CustomCanvas extends Pane {
         pxHint.setShowDelay(Duration.ZERO);
         pxHint.setShowDuration(Duration.INDEFINITE);
         canvas.setOnMouseMoved(getHintEvent());
+
     }
 
     public final void layoutChildren(){
@@ -106,7 +134,7 @@ public abstract class CustomCanvas extends Pane {
             canvas.setWidth(w);
             canvas.setHeight(h);
             repaint();
-            notify(listener);
+            notify(provider);
         }
     }
 
@@ -137,15 +165,18 @@ public abstract class CustomCanvas extends Pane {
         this.imageVDefinition = vResolution;
         canvas.getGraphicsContext2D().setFont(new Font(Font.getDefault().getName(),
                 Math.max(hResolution,vResolution)*resolution/3.5));
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        MAX_RESOLUTION = Math.max(screenSize.width/hResolution+1, screenSize.height / vResolution+1);
     }
     /**
      * Loads the image inside the buffer and stores its metadatas.
      * @param imageBuffers Image buffers with each pixel opacity in byte.
      * @param currentChars Characters represented by the images.
      */
-    public final void loadImages(byte[][] imageBuffers,char[] currentChars){
+    public final void loadImages(byte[][] imageBuffers,char[] currentChars, int[] currentIndices){
         this.imageBuffers = imageBuffers;
         this.currentChars=currentChars;
+        this.currentIndices = currentIndices;
         repaint();
     }
 
@@ -230,17 +261,17 @@ public abstract class CustomCanvas extends Pane {
     }
 
     public final void setResolution(int newResolution){
-        if (this.resolution == newResolution || newResolution <2)
+        if (this.resolution == newResolution || newResolution <MIN_RESOLUTION || newResolution > MAX_RESOLUTION)
             return;
-        if((int)canvas.getWidth()<newResolution*imageHDefinition ||
+        /*if((int)canvas.getWidth()<newResolution*imageHDefinition ||
                 (int)canvas.getHeight()<newResolution*imageVDefinition)
             newResolution = Math.min((int)(canvas.getWidth() / imageHDefinition) ,
-                    (int)(canvas.getHeight() / imageVDefinition) );
+                    (int)(canvas.getHeight() / imageVDefinition) );*/
         this.resolution=newResolution;
         canvas.getGraphicsContext2D().setFont(new Font(Font.getDefault().getName(),
                 Math.max(imageVDefinition, imageHDefinition)*resolution/3.5));
         repaint();
-        if(listener != null) listener.notifySizeChange();
+        if(provider != null) provider.notifySizeChange();
     }
 
     /**
@@ -253,7 +284,7 @@ public abstract class CustomCanvas extends Pane {
             return null;
         }
         StringBuilder text = new StringBuilder();
-        if(showHintIndex) text.append("[").append(listener.getIndexOfImageBuffer(indexBelowMouse)).append("] ");
+        if(showHintIndex) text.append("[").append(currentIndices[indexBelowMouse]).append("] ");
         if(showHintCoord) text.append("(").append(xMouse).append(";").append(yMouse).append(")");
         if(showHintCoord&&showHintValue) text.append("=");
         if(showHintValue)text.append((imageBuffers[index][(yMouse* imageHDefinition +xMouse)]&0xff));
@@ -266,8 +297,11 @@ public abstract class CustomCanvas extends Pane {
      */
     protected final void repaint(){
         if(imageBuffers== null) return;
-        paint(canvas.getGraphicsContext2D());
-        if(isLabelVisible) paintLabels(canvas.getGraphicsContext2D());
+        CanvasData data = getCanvasData();
+        Platform.runLater(() -> redrawTask.requestRedraw(data));
+//        paint(canvas.getGraphicsContext2D());
+//        if(isLabelVisible) paintLabels(canvas.getGraphicsContext2D());
+
     }
 
     protected final int getHorizontalDefinition(){
@@ -281,7 +315,7 @@ public abstract class CustomCanvas extends Pane {
     }
 
     protected final void forceDeltaPosition(int delta){
-        if(listener!= null && delta !=0) listener.forceDeltaPosition(delta);
+        if(provider != null && delta !=0) provider.forceDeltaPosition(delta);
     }
 
     /**
@@ -290,5 +324,25 @@ public abstract class CustomCanvas extends Pane {
     private void updateFiltering(){
         isFiltered = !(filterDownThreshold ==0 && filterUpThreshold ==255);
         initializePallet(pallet[255]);
+    }
+
+    private abstract static class CanvasRedrawTask<T> extends AnimationTimer {
+        private final AtomicReference<T> data= new AtomicReference<>(null);
+        private final Canvas canvas;
+
+        public CanvasRedrawTask(Canvas canvas){
+            this.canvas = canvas;
+        }
+        public void requestRedraw(T dataToDraw){
+            data.set(dataToDraw);
+            start();
+        }
+
+        public void handle(long now){
+            T dataToDraw = data.getAndSet(null);
+            if(dataToDraw != null)
+                redraw(canvas.getGraphicsContext2D(), dataToDraw);
+        }
+        protected abstract void redraw(GraphicsContext context, T data);
     }
 }

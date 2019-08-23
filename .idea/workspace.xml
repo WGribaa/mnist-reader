@@ -15,13 +15,15 @@
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller$5.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller$ScrollValueListener.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller$ScrollValueListener.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Controller.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/DatasetReader.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/DatasetReader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas$DIRECTION.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas$DIRECTION.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas$POSITION.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas$POSITION.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/CustomCanvas.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/ImageBufferProvider.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/ImageBufferProvider.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/MultipleCanvas.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/MultipleCanvas.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/SingleCanvas.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MnistReader/com/wholebrain/mnistreader/canvas/SingleCanvas.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Controller.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/DatasetReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/DatasetReader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/CustomCanvas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/CustomCanvas.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/ImageBufferProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/ImageBufferProvider.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/MultipleCanvas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/wholebrain/mnistreader/canvas/MultipleCanvas.java" afterDir="false" />
@@ -83,8 +85,8 @@
         <option value="module-info" />
         <option value="JavaFXApplication" />
         <option value="FxmlFile" />
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>

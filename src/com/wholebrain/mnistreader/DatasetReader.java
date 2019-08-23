@@ -65,10 +65,10 @@ public class DatasetReader {
     public char getLabel(int index){
         return labelsChars!=null?labelsChars[index]:'?';
     }
-    public char[] getLabels(List<Integer> indices){
-        char[] labels = new char[indices.size()];
-        for (int i = 0; i< indices.size(); i++)
-            labels[i] = getLabel(indices.get(i));
+    public char[] getLabels(int[] indices){
+        char[] labels = new char[indices.length];
+        for (int i = 0; i< indices.length; i++)
+            labels[i] = getLabel(indices[i]);
         return labels;
     }
     public char getCharForIndex(int index){
@@ -114,11 +114,11 @@ public class DatasetReader {
      * @param indices indices of the wanted imageBuffers.
      * @return Array of imageBuffers as byte[].
      */
-    public byte[][] getImageBuffers(List<Integer> indices){
-        byte[][] imageBuffers = new byte[indices.size()][];
+    public byte[][] getImageBuffers(int[] indices){
+        byte[][] imageBuffers = new byte[indices.length][];
         int pixelCount = getPixelCount();
-        for(int i = 0; i<indices.size(); i++) {
-            BufferedInputStream bis = getStreamAtImageIndex(indices.get(i));
+        for(int i = 0; i<indices.length; i++) {
+            BufferedInputStream bis = getStreamAtImageIndex(indices[i]);
             if (bis == null) return null;
             byte[] imageBuffer = new byte[pixelCount];
             try {

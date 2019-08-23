@@ -1,9 +1,10 @@
 package com.wholebrain.mnistreader.canvas;
 
 import javafx.event.EventHandler;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
+
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public final class MultipleCanvas extends CustomCanvas {
     private int firstLineStartY =0, imagesPerLine =1, imagesPerColumn =1, gap;
@@ -20,19 +21,6 @@ public final class MultipleCanvas extends CustomCanvas {
             else
                 forceDeltaPosition(-(int) event.getDeltaY());
         });
-    }
-
-    @Override
-    protected void paintLabels(GraphicsContext graphicsContext) {
-        graphicsContext.setFill(pallet[255]);
-        double x = (1+4*currentLabelPosition.getHPosition())/6d*(getHorizontalDefinition()+gap);
-        double y = (1+4*currentLabelPosition.getVPosition())/6d*(getVerticalDefinition()+gap)-firstLineStartY;
-        for (int i = 0; i<currentChars.length; i++){
-            //noinspection IntegerDivisionInFloatingPointContext
-            graphicsContext.fillText(String.valueOf(currentChars[i]),
-                    (gap+getHorizontalDefinition())*(i%imagesPerLine)+x,
-                    (gap+getVerticalDefinition())*(i/imagesPerLine)+y);
-        }
     }
 
     @Override
@@ -117,26 +105,17 @@ public final class MultipleCanvas extends CustomCanvas {
         return getVerticalDefinition() /4;
     }
 
-    protected void paint(GraphicsContext graphicsContext){
-        graphicsContext.setFill(backGroundColor);
-        graphicsContext.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
-
+    protected CanvasData getCanvasData(){
         calculateImageCount();
-        if(imageBuffers==null || imageBuffers.length ==0)  return;
-        for (int i = 0; i< imagesPerLine * imagesPerColumn && i<imageBuffers.length; i++)
-            drawImage(graphicsContext, i,
-                    i% imagesPerLine * getHorizontalDefinition()+gap*(i% imagesPerLine +1),
-                    gap*(1+i/ imagesPerLine)+getVerticalDefinition() *(i/ imagesPerLine)- firstLineStartY);
+        AtomicIntegerArray posX = new AtomicIntegerArray(imagesPerLine*imagesPerColumn),
+            posY = new AtomicIntegerArray(imagesPerLine*imagesPerColumn);
+        for (int i = 0; i<posX.length(); i++){
+            posX.set(i,i%imagesPerLine*getHorizontalDefinition()+gap*(i%imagesPerLine+1));
+            posY.set(i, gap*(1+i/ imagesPerLine)+getVerticalDefinition() *(i/ imagesPerLine)- firstLineStartY);
+        }
+        return new CanvasData(posX, posY);
     }
 
-    private void drawImage(GraphicsContext gc, int index, int xPosOnContext, int yPosOnContext){
-        int resolution = getResolution();
-        for(int y = 0; y< imageVDefinition; y++)
-            for (int x = 0; x< imageHDefinition; x++){
-                gc.setFill(pallet[imageBuffers[index][y* imageVDefinition +x]&0xFF]);
-                gc.fillRect(xPosOnContext+x*resolution, yPosOnContext+y*resolution,resolution,resolution);
-            }
-    }
 
     private void calculateImageCount(){
         imagesPerLine = Math.max((int)(canvas.getWidth()/getHorizontalDefinition()),1);

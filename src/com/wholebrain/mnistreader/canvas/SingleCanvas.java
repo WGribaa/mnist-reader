@@ -1,17 +1,18 @@
 package com.wholebrain.mnistreader.canvas;
 
 import javafx.event.EventHandler;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class SingleCanvas extends CustomCanvas {
 
     private double xPos, yPos;
     public SingleCanvas(){
         super();
-        canvas.setOnScroll(event -> {if(event.isShiftDown())
+        canvas.setOnScroll(event -> {
+            if(event.isShiftDown())
                 forceDeltaPosition(event.getDeltaX() > 0 ? -1 : 1);
             else if(event.isAltDown())
                 forceDeltaPosition((int)(-event.getDeltaY()*20));
@@ -20,24 +21,15 @@ public final class SingleCanvas extends CustomCanvas {
         });
     }
 
-    /**
-     * Asks the {@link Canvas canvas} to draw the current image onto a specified {@link GraphicsContext graphics context}.
-     * @param graphicsContext to draw onto.
-     */
-    protected void paint(GraphicsContext graphicsContext){
+    @Override
+    protected CanvasData getCanvasData() {
         double size = Double.min(canvas.getHeight(), canvas.getWidth());
         setResolution((int)(Double.min(size/(1.0* imageVDefinition), size/(1.0* imageHDefinition))));
         xPos = Math.floor((canvas.getWidth()-getHorizontalDefinition())/2.0);
         yPos = Math.floor((canvas.getHeight()-getVerticalDefinition())/2.0);
 
-        graphicsContext.setFill(backGroundColor);
-        graphicsContext.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
-        int resolution = getResolution();
-        for(int y = 0; y< imageVDefinition; y++)
-            for (int x = 0; x< imageHDefinition; x++){
-                graphicsContext.setFill(pallet[imageBuffers[0][y* imageVDefinition +x]&0xFF]);
-                graphicsContext.fillRect(xPos+x*resolution, yPos+y*resolution,resolution,resolution);
-            }
+        return new CanvasData(new AtomicInteger((int)xPos),
+                new AtomicInteger((int)yPos));
     }
 
     @Override
@@ -49,18 +41,6 @@ public final class SingleCanvas extends CustomCanvas {
     @Override
     public DIRECTION getScrollBarPosition() {
         return DIRECTION._BOTTOM;
-    }
-
-    /**
-     * Make the canvas draw the label.
-     * @param gc The canvas' {@link GraphicsContext}.
-     */
-    protected void paintLabels(GraphicsContext gc) {
-        gc.setFill(pallet[255]);
-        String toPrint = String.valueOf(currentChars.length>0?currentChars[0]:' ');
-        double x = (1+4*currentLabelPosition.getHPosition())/6d*canvas.getWidth();
-        double y = (1+4*currentLabelPosition.getVPosition())/6d*canvas.getHeight();
-        gc.fillText(toPrint,x,y);
     }
 
     @Override
@@ -113,7 +93,7 @@ public final class SingleCanvas extends CustomCanvas {
         return 1;
     }
 
-    public void loadImage(byte[] imageBuffer, char currentChar){
-        loadImages(new byte[][]{imageBuffer}, new char[] {currentChar});
+    public void loadImage(byte[] imageBuffer, char currentChar, int currentIndex){
+        loadImages(new byte[][]{imageBuffer}, new char[] {currentChar}, new int[]{currentIndex});
     }
 }

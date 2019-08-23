@@ -348,11 +348,6 @@ public class Controller implements Initializable, ImageBufferProvider {
     }
 
     @Override
-    public int getIndexOfImageBuffer(int position) {
-        return filteredImageIndices.get(filteredImageIndices.indexOf(currentImageIndex)+position);
-    }
-
-    @Override
     public void forceDeltaPosition(int delta) {
         index_scrollbar.setValue(Math.max(index_scrollbar.getMin(),
                 Math.min(index_scrollbar.getValue()+delta,
@@ -384,7 +379,7 @@ public class Controller implements Initializable, ImageBufferProvider {
                 main_layout.setLeft(index_scrollbar);
                 break;
         }
-        canvas.setSizeChangeListener(this);
+        canvas.setImageProvider(this);
     }
 
     /**
@@ -788,7 +783,7 @@ public class Controller implements Initializable, ImageBufferProvider {
                     }
                 });
 
-        meanCanvas.loadImage(meanImageBuffer, currentChar);
+        meanCanvas.loadImage(meanImageBuffer, currentChar, currentImageIndex);
 
         BorderPane borderPane = new BorderPane(meanCanvas);
         Scene meanScene = new Scene(borderPane);
@@ -810,7 +805,7 @@ public class Controller implements Initializable, ImageBufferProvider {
     private void update(int position){
         if (!reader.hasOpenFile().get()) return;
         if (filteredImageIndices.size() == 0) {
-            canvas.loadImages(new byte[][] {getNullImage()}, new char[] {'?'});
+            canvas.loadImages(new byte[][] {getNullImage()}, new char[] {'?'}, new int[0]);
             index_label.setText("No image.");
             setupScrollBar();
             jumpto_textfield.setText(null);
@@ -818,10 +813,9 @@ public class Controller implements Initializable, ImageBufferProvider {
         }
         int updatedFilteredImageIndex = canvas.getIndexFor(position);
         currentImageIndex = filteredImageIndices.get(updatedFilteredImageIndex);
-        List<Integer> shownIndices = filteredImageIndices.subList(
-                updatedFilteredImageIndex,
-                Math.min(updatedFilteredImageIndex+canvas.getShownImageCount()-1,
-                        filteredImageIndices.size()-1)+1);
+        int[] shownIndices = new int[Math.min(canvas.getShownImageCount(),filteredImageIndices.size()-updatedFilteredImageIndex)];
+        for (int i = 0; i< shownIndices.length; i++)
+            shownIndices[i] = filteredImageIndices.get(updatedFilteredImageIndex+i);
         byte[][] imageBuffers = reader.getImageBuffers(shownIndices);
         char[] chars = reader.getLabels(shownIndices);
 
@@ -830,7 +824,7 @@ public class Controller implements Initializable, ImageBufferProvider {
                 correctOrientation(reader, imageBuffer);
         }
         index_label.setText(String.valueOf(currentImageIndex));
-        canvas.loadImages(imageBuffers,chars);
+        canvas.loadImages(imageBuffers,chars, shownIndices);
     }
 
     private class ScrollValueListener implements ChangeListener<Number>{
