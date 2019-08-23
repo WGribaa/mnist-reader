@@ -819,12 +819,12 @@ public class Controller implements Initializable, ImageBufferProvider {
         byte[][] imageBuffers = reader.getImageBuffers(shownIndices);
         char[] chars = reader.getLabels(shownIndices);
 
+        index_label.setText(String.valueOf(currentImageIndex));
         if (reader.isNeedsTransformation()) {
             for(byte[] imageBuffer : imageBuffers)
-                correctOrientation(reader, imageBuffer);
+                new Thread(()->correctOrientation(reader, imageBuffer)).start();
         }
-        index_label.setText(String.valueOf(currentImageIndex));
-        canvas.loadImages(imageBuffers,chars, shownIndices);
+        new Thread(()->canvas.loadImages(imageBuffers,chars, shownIndices)).start();
     }
 
     private class ScrollValueListener implements ChangeListener<Number>{

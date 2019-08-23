@@ -133,7 +133,7 @@ public abstract class CustomCanvas extends Pane {
         if(w!=canvas.getWidth() || h!=canvas.getHeight()){
             canvas.setWidth(w);
             canvas.setHeight(h);
-            repaint();
+            refresh();
             notify(provider);
         }
     }
@@ -299,9 +299,15 @@ public abstract class CustomCanvas extends Pane {
         if(imageBuffers== null) return;
         CanvasData data = getCanvasData();
         Platform.runLater(() -> redrawTask.requestRedraw(data));
-//        paint(canvas.getGraphicsContext2D());
-//        if(isLabelVisible) paintLabels(canvas.getGraphicsContext2D());
 
+    }
+
+    /**
+     * Refreshes the drawing information {@link Canvas canvas} calcultates length to draw.
+     */
+    protected final void refresh(){
+        if(imageBuffers== null) return;
+        getCanvasData();
     }
 
     protected final int getHorizontalDefinition(){

@@ -4,6 +4,8 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public final class MultipleCanvas extends CustomCanvas {
@@ -108,11 +110,48 @@ public final class MultipleCanvas extends CustomCanvas {
     protected CanvasData getCanvasData(){
         calculateImageCount();
         AtomicIntegerArray posX = new AtomicIntegerArray(imagesPerLine*imagesPerColumn),
-            posY = new AtomicIntegerArray(imagesPerLine*imagesPerColumn);
-        for (int i = 0; i<posX.length(); i++){
-            posX.set(i,i%imagesPerLine*getHorizontalDefinition()+gap*(i%imagesPerLine+1));
-            posY.set(i, gap*(1+i/ imagesPerLine)+getVerticalDefinition() *(i/ imagesPerLine)- firstLineStartY);
+                posY = new AtomicIntegerArray(imagesPerLine*imagesPerColumn);
+        final AtomicInteger processProgress = new AtomicInteger(0);
+        processProgress.set(posX.length());
+        Thread[] threads = new Thread[posX.length()];
+        Runnable getCoords = () -> {
+            int j = processProgress.decrementAndGet();
+            posX.set(j, j % imagesPerLine * getHorizontalDefinition() + gap * (j % imagesPerLine + 1));
+            posY.set(j, gap * (1 + j / imagesPerLine) + getVerticalDefinition() * (j / imagesPerLine) - firstLineStartY);
+        };
+        for (int i = 0; i<posX.length(); i++) {
+            threads[i] = new Thread( getCoords);
+            threads[i].start();
         }
+        for (int i=0; i<posX.length(); i++){
+            try {
+                threads[i].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        /*for (int x = 0; x<posX.length(); x++){
+            new Thread(()-> {
+                synchronized (this){
+                    int i = processProgress.decrementAndGet();
+                    try{
+                        posX.set(i, i % imagesPerLine * getHorizontalDefinition() + gap * (i % imagesPerLine + 1));
+                        posY.set(i, gap * (1 + i / imagesPerLine) + getVerticalDefinition() * (i / imagesPerLine) - firstLineStartY);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }*/
+//        while(processProgress.get()>0);
+        /*for (int i = 0; i<posX.length(); i++){
+            posX.set(i, i % imagesPerLine * getHorizontalDefinition() + gap * (i % imagesPerLine + 1));
+            posY.set(i, gap * (1 + i / imagesPerLine) + getVerticalDefinition() * (i / imagesPerLine) - firstLineStartY);
+
+        }*/
+
         return new CanvasData(posX, posY);
     }
 
