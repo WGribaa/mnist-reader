@@ -10,7 +10,16 @@ public final class MultipleCanvas extends CustomCanvas {
 
     public MultipleCanvas(){
         super();
-        canvas.setOnScroll(event ->setResolution(getResolution()+(event.getDeltaY()>0?1:-1)));
+        canvas.setOnScroll(event -> {
+            if (event.isControlDown())
+                setResolution(getResolution() + (event.getDeltaY() > 0 ? 1 : -1));
+            else if(event.isShiftDown())
+                forceDeltaPosition(event.getDeltaX() > 0 ? -1 : 1);
+            else if(event.isAltDown())
+                forceDeltaPosition((int)(-event.getDeltaY()*20));
+            else
+                forceDeltaPosition(-(int) event.getDeltaY());
+        });
     }
 
     @Override
@@ -135,9 +144,6 @@ public final class MultipleCanvas extends CustomCanvas {
         if(gap<0) gap = 0;
         if(canvas.getHeight()< getVerticalDefinition()+gap)
             gap=Math.min(gap,((int)canvas.getHeight()- getVerticalDefinition())/2);
-        System.out.println("paint gap = "+gap);
-        imagesPerColumn= (int)Math.ceil(canvas.getHeight()/(getVerticalDefinition()+gap));
-        if(firstLineStartY>0)
-            imagesPerColumn++;
+        imagesPerColumn= (int)Math.ceil(canvas.getHeight()/(getVerticalDefinition()+gap))+1;
     }
 }

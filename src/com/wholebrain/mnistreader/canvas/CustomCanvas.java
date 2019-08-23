@@ -132,7 +132,6 @@ public abstract class CustomCanvas extends Pane {
         return bufferedImage;
     }
 
-
     public final void setImageDefinition(int hResolution, int vResolution){
         this.imageHDefinition = hResolution;
         this.imageVDefinition = vResolution;
@@ -241,14 +240,14 @@ public abstract class CustomCanvas extends Pane {
         canvas.getGraphicsContext2D().setFont(new Font(Font.getDefault().getName(),
                 Math.max(imageVDefinition, imageHDefinition)*resolution/3.5));
         repaint();
-        listener.notifySizeChange();
+        if(listener != null) listener.notifySizeChange();
     }
 
     /**
      * Returns the text that is to show on the {@link Tooltip}.
      * @return {@link String Text}.
      */
-    protected String getHintText(int index){
+    protected final String getHintText(int index){
         if(indexBelowMouse>=imageBuffers.length){
             Tooltip.uninstall(canvas,pxHint);
             return null;
@@ -260,7 +259,6 @@ public abstract class CustomCanvas extends Pane {
         if(showHintValue)text.append((imageBuffers[index][(yMouse* imageHDefinition +xMouse)]&0xff));
 
         return text.toString();
-
     }
 
     /**
@@ -280,6 +278,10 @@ public abstract class CustomCanvas extends Pane {
     }
     protected final int getResolution(){
         return resolution;
+    }
+
+    protected final void forceDeltaPosition(int delta){
+        if(listener!= null && delta !=0) listener.forceDeltaPosition(delta);
     }
 
     /**

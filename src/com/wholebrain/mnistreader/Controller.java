@@ -352,6 +352,13 @@ public class Controller implements Initializable, ImageBufferProvider {
         return filteredImageIndices.get(filteredImageIndices.indexOf(currentImageIndex)+position);
     }
 
+    @Override
+    public void forceDeltaPosition(int delta) {
+        index_scrollbar.setValue(Math.max(index_scrollbar.getMin(),
+                Math.min(index_scrollbar.getValue()+delta,
+                        index_scrollbar.getMax())));
+    }
+
     /**
      * Sets a usable {@link CustomCanvas} to start communication with the current {@link Controller Controller class}.
      * @param canvas {@link CustomCanvas} to use.
@@ -789,7 +796,7 @@ public class Controller implements Initializable, ImageBufferProvider {
         meanCanvas.mouseTransparentProperty().bind(meanStage.focusedProperty().not());
         meanStage.setScene(meanScene);
         meanStage.setTitle("Mean image "+title+" in "+reader.getCurrentFile().getName());
-        meanCanvas.setPrefSize(400,300);
+        meanCanvas.setPrefSize(300,200);
         meanStage.setX(Math.min(primaryStage.getX()+primaryStage.getWidth(), Toolkit.getDefaultToolkit().getScreenSize().width-280));
         meanStage.setY(primaryStage.getY());
         meanStage.show();

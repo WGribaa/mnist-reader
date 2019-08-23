@@ -9,6 +9,16 @@ import javafx.scene.input.MouseEvent;
 public final class SingleCanvas extends CustomCanvas {
 
     private double xPos, yPos;
+    public SingleCanvas(){
+        super();
+        canvas.setOnScroll(event -> {if(event.isShiftDown())
+                forceDeltaPosition(event.getDeltaX() > 0 ? -1 : 1);
+            else if(event.isAltDown())
+                forceDeltaPosition((int)(-event.getDeltaY()*20));
+            else
+                forceDeltaPosition(-(int) event.getDeltaY());
+        });
+    }
 
     /**
      * Asks the {@link Canvas canvas} to draw the current image onto a specified {@link GraphicsContext graphics context}.
