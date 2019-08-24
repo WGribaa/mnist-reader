@@ -15,7 +15,7 @@ public class ProgressDialog extends Stage{
     private Label processLabel = new Label();
     private ProgressBar progressBar;
 
-    ProgressDialog(String processName, int elementsCount, Task task) {
+    public ProgressDialog(String processName, int elementsCount, Task task) {
         if(elementsCount==0) {
             progressBar = new ProgressBar();
             processLabel.setText(processName);

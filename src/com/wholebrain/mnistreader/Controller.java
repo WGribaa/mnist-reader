@@ -5,6 +5,7 @@ import com.wholebrain.mnistreader.canvas.MultipleCanvas;
 import com.wholebrain.mnistreader.canvas.SingleCanvas;
 
 import com.wholebrain.mnistreader.canvas.ImageBufferProvider;
+import com.wholebrain.mnistreader.datasetreader.DatasetReader;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -19,6 +20,8 @@ import javafx.geometry.Orientation;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
@@ -67,7 +70,8 @@ public class Controller implements Initializable, ImageBufferProvider {
             hint_value_menuitem,hint_index_menuitem;
     @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
             _BOTTOMLEFT_POSITION_radiomenu, _BOTTOMRIGHT_POSITION_radiomenu, _TOP_POSITION_radiomenu,
-            _BOTTOM_POSITION_radiomenu, _LEFT_POSITION_radiomenu, _RIGHT_POSITION_radiomenu;
+            _BOTTOM_POSITION_radiomenu, _LEFT_POSITION_radiomenu, _RIGHT_POSITION_radiomenu,
+            ramreading_menu_item,diskreading_menuitem;
     @FXML public TextField jumpto_textfield;
     @FXML public ColorPicker empty_color_picker, full_color_picker;
     @FXML public Slider empty_threshold_slider, full_threshold_slider;
@@ -85,6 +89,7 @@ public class Controller implements Initializable, ImageBufferProvider {
     // Dataset related
     private DatasetReader reader = new DatasetReader();
     private int currentImageIndex = 0;
+    private static DatasetReader.ReadingMethod DEFAULT_READING_METHOD = DatasetReader.ReadingMethod.RamMethod;
 
     // Filters
     private Set<Character> filteredChars = new HashSet<>();
@@ -121,7 +126,47 @@ public class Controller implements Initializable, ImageBufferProvider {
                 new FileChooser.ExtensionFilter("Mnist DataSet files (*.idx3-ubyte)","*.idx3-ubyte"),
                 new FileChooser.ExtensionFilter("Emnist DataSet files ","*-idx3-ubyte"));
         fileChooser.setInitialDirectory(reader.getCurrentFile() != null ?reader.getCurrentFile().getParentFile(): null);
-        loadFile(fileChooser.showOpenDialog(primaryStage));
+        File file =fileChooser.showOpenDialog(primaryStage);
+        if(file == null )
+            return;
+        if(file.length()>100000000L) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Datasets Images Reader");
+            alert.setHeaderText("The file \"" + DatasetReader.getLabelsFileName(file) + "\" weights "+(file.length()/1000000)+"MB.");
+            alert.setContentText("Would you like to load it in the RAM to shorten access times ?");
+            ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.OK_DONE);
+            ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+            ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
+            //noinspection OptionalGetWithoutIsPresent
+            ButtonBar.ButtonData buttonPressed = alert.showAndWait().get().getButtonData();
+                if(buttonPressed== ButtonBar.ButtonData.OK_DONE) {
+                    ramreading_menu_item.setSelected(true);
+                    on_ram_readingmethod();
+                    loadFile(file);
+                }else if(buttonPressed== ButtonBar.ButtonData.NO) {
+                    diskreading_menuitem.setSelected(true);
+                    on_disk_readingmethod();
+                    loadFile(file);
+                }
+        } else{
+            reader.setMethod(DEFAULT_READING_METHOD);
+            loadFile(file);
+        }
+    }
+
+    @FXML
+    public void on_ram_readingmethod() {
+        setMethod(DatasetReader.ReadingMethod.RamMethod);
+    }
+
+    @FXML
+    public void on_disk_readingmethod() {
+        setMethod(DatasetReader.ReadingMethod.DiskMethod);
+    }
+    private void setMethod(DatasetReader.ReadingMethod method){
+        DEFAULT_READING_METHOD = method;
+        reader.setMethod(DEFAULT_READING_METHOD);
     }
 
     @FXML
@@ -511,7 +556,7 @@ public class Controller implements Initializable, ImageBufferProvider {
             index_scrollbar.setValue(0);
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Datasets Images Reader");
-            alert.setHeaderText("The labels file \""+DatasetReader.getLabelsFileName(file)+"\" could not be found.");
+            alert.setHeaderText("The labels file \""+ DatasetReader.getLabelsFileName(file)+"\" could not be found.");
             alert.setContentText("The labels won't be shown. To show the labels, please put the labels file next to its associated images file.");
             alert.showAndWait();
         }else {
@@ -654,27 +699,6 @@ public class Controller implements Initializable, ImageBufferProvider {
     }
 
     /**
-     * The EMNIST dataset needs 2 transformations in order to be drawn as identifiable character :
-     * 1 - A horizontal mirroring (or a vertical axial symmetry)
-     * 2 - A 90° counter-clockwise rotation.
-     * The transformation resulting is an axial symmetry along a descendant diagonal.
-     * Modifies directly the content of the array passed as parameter.
-     * @param imageBuffer Array of bytes of the image.
-     * @
-     */
-    private static void correctOrientation(DatasetReader reader, byte[] imageBuffer){
-        byte buffer;
-        int rowCount = reader.getRowCount(),
-                columnCount = reader.getColumnCount();
-        for (int y=0;y<columnCount;y++)
-            for(int x = y+1; x<rowCount; x++){
-                buffer = imageBuffer[y*columnCount+x];
-                imageBuffer[y*columnCount+x] = imageBuffer[x*columnCount+y];
-                imageBuffer[x*columnCount+y] = buffer;
-            }
-    }
-
-    /**
      * Open the user's main web browsing application (if available) and browses to the link.
      * @param link Link to open in the Web Browser.
      */
@@ -749,7 +773,7 @@ public class Controller implements Initializable, ImageBufferProvider {
         meanCanvas.initializePallet(full_color_picker.getValue());
         meanCanvas.setBackGroundColor(empty_color_picker.getValue());
         meanCanvas.updateHintSetup(true, false,true, true);
-
+/*
         if(reader.isNeedsTransformation()) {
             //loading bar dialog for transformations
             new ProgressDialog("Transforming image ", image.length,
@@ -757,13 +781,13 @@ public class Controller implements Initializable, ImageBufferProvider {
                         @Override
                         protected Void call() {
                             for (int i = 0; i< image.length; i++) {
-                                correctOrientation(reader,image[i]);
+                                image[i]=reader.getCorrectOrientation(image[i]);
                                 updateProgress(i,image.length);
                             }
                             return null;
                         }
                     });
-        }
+        }*/
 
         byte[] meanImageBuffer = new byte[reader.getPixelCount()];
         new ProgressDialog("Calculating mean for image ", image.length,
@@ -803,6 +827,7 @@ public class Controller implements Initializable, ImageBufferProvider {
      * @param position current value of the {@link ScrollBar}.
      */
     private void update(int position){
+        long time = System.nanoTime();
         if (!reader.hasOpenFile().get()) return;
         if (filteredImageIndices.size() == 0) {
             canvas.loadImages(new byte[][] {getNullImage()}, new char[] {'?'}, new int[0]);
@@ -820,12 +845,10 @@ public class Controller implements Initializable, ImageBufferProvider {
         char[] chars = reader.getLabels(shownIndices);
 
         index_label.setText(String.valueOf(currentImageIndex));
-        if (reader.isNeedsTransformation()) {
-            for(byte[] imageBuffer : imageBuffers)
-                new Thread(()->correctOrientation(reader, imageBuffer)).start();
-        }
-        new Thread(()->canvas.loadImages(imageBuffers,chars, shownIndices)).start();
+                canvas.loadImages(imageBuffers,chars, shownIndices);
+        System.out.println(DEFAULT_READING_METHOD+" took "+(System.nanoTime()-time)/1000000+" ms.");
     }
+
 
     private class ScrollValueListener implements ChangeListener<Number>{
         @Override

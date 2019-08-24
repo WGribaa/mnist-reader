@@ -1,7 +1,6 @@
 package com.wholebrain.mnistreader.canvas;
 
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.VPos;
@@ -18,6 +17,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,6 +28,9 @@ public abstract class CustomCanvas extends Pane {
     private boolean isFiltered = false;
     private ImageBufferProvider provider;
     private static int MAX_RESOLUTION=50, MIN_RESOLUTION = 2;
+    private static long refreshTimeNs =
+            1000000000L/GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getRefreshRate();
+
 
     protected Canvas canvas = new Canvas(280,280);
     protected POSITION currentLabelPosition = POSITION._TOPLEFT_POSITION;
@@ -37,7 +40,7 @@ public abstract class CustomCanvas extends Pane {
     protected boolean isLabelVisible = true, showHint = true, showHintCoord = true, showHintValue = true, showHintIndex=false;
     protected int imageVDefinition =1, imageHDefinition =1, xMouse, yMouse, indexBelowMouse=0;
     private byte[][] imageBuffers;
-    protected char[] currentChars;
+    protected String[] currentChars;
     protected int[] currentIndices;
 
     private final CanvasRedrawTask<CanvasData> redrawTask = new CanvasRedrawTask<>(canvas) {
@@ -124,7 +127,6 @@ public abstract class CustomCanvas extends Pane {
         pxHint.setShowDelay(Duration.ZERO);
         pxHint.setShowDuration(Duration.INDEFINITE);
         canvas.setOnMouseMoved(getHintEvent());
-
     }
 
     public final void layoutChildren(){
@@ -175,7 +177,9 @@ public abstract class CustomCanvas extends Pane {
      */
     public final void loadImages(byte[][] imageBuffers,char[] currentChars, int[] currentIndices){
         this.imageBuffers = imageBuffers;
-        this.currentChars=currentChars;
+        this.currentChars=new String[currentChars.length];
+        for (int i = 0; i<currentChars.length; i++)
+            this.currentChars[i] = String.valueOf(currentChars[i]);
         this.currentIndices = currentIndices;
         repaint();
     }
@@ -298,7 +302,7 @@ public abstract class CustomCanvas extends Pane {
     protected final void repaint(){
         if(imageBuffers== null) return;
         CanvasData data = getCanvasData();
-        Platform.runLater(() -> redrawTask.requestRedraw(data));
+        redrawTask.requestRedraw(data);
 
     }
 
@@ -335,6 +339,7 @@ public abstract class CustomCanvas extends Pane {
     private abstract static class CanvasRedrawTask<T> extends AnimationTimer {
         private final AtomicReference<T> data= new AtomicReference<>(null);
         private final Canvas canvas;
+        private  long lastRefresh=0L;
 
         public CanvasRedrawTask(Canvas canvas){
             this.canvas = canvas;
@@ -345,9 +350,12 @@ public abstract class CustomCanvas extends Pane {
         }
 
         public void handle(long now){
-            T dataToDraw = data.getAndSet(null);
-            if(dataToDraw != null)
-                redraw(canvas.getGraphicsContext2D(), dataToDraw);
+//            if(now-lastRefresh>= refreshTimeNs) {
+                T dataToDraw = data.getAndSet(null);
+                if (dataToDraw != null)
+                    redraw(canvas.getGraphicsContext2D(), dataToDraw);
+                lastRefresh=now;
+//            }
         }
         protected abstract void redraw(GraphicsContext context, T data);
     }
