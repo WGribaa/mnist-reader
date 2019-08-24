@@ -18,6 +18,8 @@ Upcoming functionalities :
 - Panel and/or dialog that shows details about the currently read Dataset file.
 
 Added functionalities : 
+- Choose between Ram (copies all the images into memory) or Disk (BufferedInputStream) reading.
+- MultiThreaded performance.
 - Multiple views. To zoom : Ctrl + Mouse scroll. Mouse scroll to navigate, Shift + Mouse scroll to move more precisely, Alt + Mouse scroll to jump.
 - Snapshots in all formats supported natively by JAVA (JPG, PNG, BMP, TIF, TIFF, WBMP). Fast snapshots to the last folder used to save snapshots, or to the dataset directory if no saved snapshots were previously taken.
 - Image mean for the whole dataset, for filtered characters and for a specific character.
