@@ -303,7 +303,6 @@ public abstract class CustomCanvas extends Pane {
         if(imageBuffers== null) return;
         CanvasData data = getCanvasData();
         redrawTask.requestRedraw(data);
-
     }
 
     /**

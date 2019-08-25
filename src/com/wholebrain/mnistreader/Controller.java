@@ -187,7 +187,7 @@ public class Controller implements Initializable, ImageBufferProvider {
     }
 
     @FXML
-    public void on_showall_labels() {
+    public void on_showall_labels(ActionEvent event) {
         for(CheckMenuItem m : charFilters)
             m.setSelected(true);
         filteredChars.addAll(reader.getCharSet());
@@ -300,10 +300,10 @@ public class Controller implements Initializable, ImageBufferProvider {
         canvas.setBackGroundColor(empty_color_picker.getValue());
         canvas.setDownFilter((int)empty_threshold_slider.getValue());
         canvas.setUpFilter((int)full_threshold_slider.getValue());
+        canvas.setLabelVisible(show_labels_checkbox.isSelected());
         setCanvas(canvas);
-        if(reader.hasOpenFile().get()) {
+        if(reader.hasOpenFile().get())
             canvas.setImageDefinition(reader.getColumnCount(), reader.getRowCount());
-        }
         updateCharFiltering();
         initializeHints();
 
@@ -552,8 +552,7 @@ public class Controller implements Initializable, ImageBufferProvider {
         if (!reader.hasLabelsProperty().get()) {
             for (int i = 0; i<reader.getNumberOfImages();i++)
                 filteredImageIndices.add(i);
-            setupScrollBar();
-            index_scrollbar.setValue(0);
+            show_labels_checkbox.setSelected(false);
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Datasets Images Reader");
             alert.setHeaderText("The labels file \""+ DatasetReader.getLabelsFileName(file)+"\" could not be found.");
@@ -562,8 +561,10 @@ public class Controller implements Initializable, ImageBufferProvider {
         }else {
             filteredChars.addAll(reader.getCharSet());
             loadFilters();
-            updateCharFiltering();
+
         }
+        updateCharFiltering();
+        setupScrollBar();
         update(0);
 
     }
@@ -665,9 +666,11 @@ public class Controller implements Initializable, ImageBufferProvider {
      * to the indexes of the filtered characters.
      */
     private void updateCharFiltering(){
-        filteredImageIndices.clear();
-        for(char c : filteredChars)
-            filteredImageIndices.addAll(reader.getIndicesForChar(c));
+        if(reader.hasLabelsProperty().get()) {
+            filteredImageIndices.clear();
+            for (char c : filteredChars)
+                filteredImageIndices.addAll(reader.getIndicesForChar(c));
+        }
         sort();
         setupScrollBar();
         int newScrollIndex = filteredImageIndices.contains(currentImageIndex) ?
@@ -827,7 +830,6 @@ public class Controller implements Initializable, ImageBufferProvider {
      * @param position current value of the {@link ScrollBar}.
      */
     private void update(int position){
-        long time = System.nanoTime();
         if (!reader.hasOpenFile().get()) return;
         if (filteredImageIndices.size() == 0) {
             canvas.loadImages(new byte[][] {getNullImage()}, new char[] {'?'}, new int[0]);
@@ -838,7 +840,8 @@ public class Controller implements Initializable, ImageBufferProvider {
         }
         int updatedFilteredImageIndex = canvas.getIndexFor(position);
         currentImageIndex = filteredImageIndices.get(updatedFilteredImageIndex);
-        int[] shownIndices = new int[Math.min(canvas.getShownImageCount(),filteredImageIndices.size()-updatedFilteredImageIndex)];
+        int[] shownIndices = new int[Math.min(canvas.getShownImageCount(),
+                filteredImageIndices.size()-updatedFilteredImageIndex)];
         for (int i = 0; i< shownIndices.length; i++)
             shownIndices[i] = filteredImageIndices.get(updatedFilteredImageIndex+i);
         byte[][] imageBuffers = reader.getImageBuffers(shownIndices);
@@ -846,7 +849,6 @@ public class Controller implements Initializable, ImageBufferProvider {
 
         index_label.setText(String.valueOf(currentImageIndex));
                 canvas.loadImages(imageBuffers,chars, shownIndices);
-        System.out.println(DEFAULT_READING_METHOD+" took "+(System.nanoTime()-time)/1000000+" ms.");
     }
 
 
@@ -907,7 +909,7 @@ public class Controller implements Initializable, ImageBufferProvider {
     }
 
     /**
-     * Colors a horizontal based equilateral triangle int the imageBuffer.
+     * Colors a horizontal based equilateral triangle into the imageBuffer.
      * @param imageBuffer as an array of byte.
      * @param startX X coordinate of the left corner of the triangle.
      * @param startY Y coordinate of the left corner of the triangle.

@@ -97,7 +97,7 @@ public final class MultipleCanvas extends CustomCanvas {
     @Override
     public int getScrollBarMaxValueFor(int elementCount) {
         int numberOfLines = (int)Math.ceil(elementCount*1.0/imagesPerLine);
-        int totalSize = numberOfLines*(getHorizontalDefinition())+(numberOfLines+1)*gap;
+        int totalSize = numberOfLines*getVerticalDefinition()+(numberOfLines+1)*gap;
         return totalSize-(int)canvas.getHeight();
     }
 
