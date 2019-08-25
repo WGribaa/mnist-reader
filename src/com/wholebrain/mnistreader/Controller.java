@@ -142,16 +142,16 @@ public class Controller implements Initializable, ImageBufferProvider {
             ButtonBar.ButtonData buttonPressed = alert.showAndWait().get().getButtonData();
                 if(buttonPressed== ButtonBar.ButtonData.OK_DONE) {
                     ramreading_menu_item.setSelected(true);
-                    on_ram_readingmethod();
                     loadFile(file);
+                    on_ram_readingmethod();
                 }else if(buttonPressed== ButtonBar.ButtonData.NO) {
                     diskreading_menuitem.setSelected(true);
-                    on_disk_readingmethod();
                     loadFile(file);
+                    on_disk_readingmethod();
                 }
         } else{
-            reader.setMethod(DEFAULT_READING_METHOD);
             loadFile(file);
+            reader.setMethod(DEFAULT_READING_METHOD);
         }
     }
 
