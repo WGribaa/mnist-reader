@@ -1,6 +1,7 @@
 package com.wholebrain.mnistreader.canvas;
 
 import javafx.event.EventHandler;
+import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 
@@ -106,6 +107,11 @@ public final class MultipleCanvas extends CustomCanvas {
         return getVerticalDefinition() /4;
     }
 
+    @Override
+    protected boolean isResolutionModifiable() {
+        return true;
+    }
+
     protected CanvasData getCanvasData(){
         calculateImageCount();
         AtomicIntegerArray posX = new AtomicIntegerArray(imagesPerLine*imagesPerColumn),
@@ -129,28 +135,6 @@ public final class MultipleCanvas extends CustomCanvas {
                 e.printStackTrace();
             }
         }
-
-
-        /*for (int x = 0; x<posX.length(); x++){
-            new Thread(()-> {
-                synchronized (this){
-                    int i = processProgress.decrementAndGet();
-                    try{
-                        posX.set(i, i % imagesPerLine * getHorizontalDefinition() + gap * (i % imagesPerLine + 1));
-                        posY.set(i, gap * (1 + i / imagesPerLine) + getVerticalDefinition() * (i / imagesPerLine) - firstLineStartY);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-        }*/
-//        while(processProgress.get()>0);
-        /*for (int i = 0; i<posX.length(); i++){
-            posX.set(i, i % imagesPerLine * getHorizontalDefinition() + gap * (i % imagesPerLine + 1));
-            posY.set(i, gap * (1 + i / imagesPerLine) + getVerticalDefinition() * (i / imagesPerLine) - firstLineStartY);
-
-        }*/
-
         return new CanvasData(posX, posY);
     }
 

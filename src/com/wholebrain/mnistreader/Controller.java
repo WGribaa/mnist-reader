@@ -79,6 +79,7 @@ public class Controller implements Initializable, ImageBufferProvider {
     @FXML public Label index_label;
     @FXML public ScrollBar index_scrollbar;
     @FXML public VBox bottom_vbox;
+    @FXML public Slider resolution_slider;
 
     // Programmatically added GUI elements.
     private CustomCanvas canvas = new SingleCanvas();
@@ -164,6 +165,7 @@ public class Controller implements Initializable, ImageBufferProvider {
     public void on_disk_readingmethod() {
         setMethod(DatasetReader.ReadingMethod.DiskMethod);
     }
+
     private void setMethod(DatasetReader.ReadingMethod method){
         DEFAULT_READING_METHOD = method;
         reader.setMethod(DEFAULT_READING_METHOD);
@@ -187,7 +189,7 @@ public class Controller implements Initializable, ImageBufferProvider {
     }
 
     @FXML
-    public void on_showall_labels(ActionEvent event) {
+    public void on_showall_labels() {
         for(CheckMenuItem m : charFilters)
             m.setSelected(true);
         filteredChars.addAll(reader.getCharSet());
@@ -301,6 +303,7 @@ public class Controller implements Initializable, ImageBufferProvider {
         canvas.setDownFilter((int)empty_threshold_slider.getValue());
         canvas.setUpFilter((int)full_threshold_slider.getValue());
         canvas.setLabelVisible(show_labels_checkbox.isSelected());
+        canvas.setupResolution(resolution_slider);
         setCanvas(canvas);
         if(reader.hasOpenFile().get())
             canvas.setImageDefinition(reader.getColumnCount(), reader.getRowCount());
@@ -452,6 +455,8 @@ public class Controller implements Initializable, ImageBufferProvider {
         showonly_menu.disableProperty().bind(reader.hasLabelsProperty().not());
         mean_char_menuitem.disableProperty().bind(reader.hasLabelsProperty().not());
         mean_set_menuitem.disableProperty().bind(reader.hasLabelsProperty().not());
+
+        canvas.setupResolution(resolution_slider);
     }
 
     /**

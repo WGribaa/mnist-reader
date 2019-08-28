@@ -93,6 +93,11 @@ public final class SingleCanvas extends CustomCanvas {
         return 1;
     }
 
+    @Override
+    protected boolean isResolutionModifiable() {
+        return false;
+    }
+
     public void loadImage(byte[] imageBuffer, char currentChar, int currentIndex){
         loadImages(new byte[][]{imageBuffer}, new char[] {currentChar}, new int[]{currentIndex});
     }

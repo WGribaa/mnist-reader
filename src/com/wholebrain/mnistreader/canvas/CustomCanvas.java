@@ -1,12 +1,17 @@
 package com.wholebrain.mnistreader.canvas;
 
 import javafx.animation.AnimationTimer;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
@@ -117,6 +122,7 @@ public abstract class CustomCanvas extends Pane {
     public abstract int getScrollValueForIndex(int index);
     public abstract int getScrollBarMaxValueFor(int elementCount);
     public abstract double getScrollBarUnitIncrement();
+    protected abstract boolean isResolutionModifiable();
 
     public CustomCanvas(){
         getChildren().add(canvas);
@@ -278,6 +284,20 @@ public abstract class CustomCanvas extends Pane {
         if(provider != null) provider.notifySizeChange();
     }
 
+    public final void setupResolution(Slider resolutionSlider){
+        if(isResolutionModifiable()){
+            resolutionSlider.setDisable(false);
+            resolutionSlider.setMin(MIN_RESOLUTION);
+            resolutionSlider.setMax(MAX_RESOLUTION);
+            resolutionSlider.setValue(getResolution());
+            resolutionSlider.valueProperty().addListener((observableValue, oldValue, newValue) ->
+                    setResolution(newValue.intValue())
+            );
+        }else{
+            resolutionSlider.setDisable(true);
+        }
+    }
+
     /**
      * Returns the text that is to show on the {@link Tooltip}.
      * @return {@link String Text}.
@@ -350,10 +370,10 @@ public abstract class CustomCanvas extends Pane {
 
         public void handle(long now){
 //            if(now-lastRefresh>= refreshTimeNs) {
-                T dataToDraw = data.getAndSet(null);
-                if (dataToDraw != null)
-                    redraw(canvas.getGraphicsContext2D(), dataToDraw);
-                lastRefresh=now;
+            T dataToDraw = data.getAndSet(null);
+            if (dataToDraw != null)
+                redraw(canvas.getGraphicsContext2D(), dataToDraw);
+            lastRefresh=now;
 //            }
         }
         protected abstract void redraw(GraphicsContext context, T data);

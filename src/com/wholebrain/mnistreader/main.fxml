@@ -13,6 +13,7 @@
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
@@ -161,6 +162,15 @@
                    </MenuItem>
                </Menu>
            </MenuBar>
+           <ToolBar prefHeight="40.0" prefWidth="200.0">
+               <Label text="Resolution">
+                   <padding>
+                       <Insets left="10.0"/>
+                   </padding>
+               </Label>
+               <Slider fx:id="resolution_slider" blockIncrement="1.0" minorTickCount="1" prefHeight="14.0"
+                       prefWidth="150.0"/>
+           </ToolBar>
        </VBox>
    </top>
 </BorderPane>
