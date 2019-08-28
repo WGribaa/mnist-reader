@@ -135,13 +135,13 @@ public abstract class CustomCanvas extends Pane {
         canvas.setOnMouseMoved(getHintEvent());
     }
 
-    public final void layoutChildren(){
-        int w = (int)getWidth();
-        int h = (int)getHeight();
+    public final void layoutChildren() {
+        int w = (int) getWidth();
+        int h = (int) getHeight();
         if(w!=canvas.getWidth() || h!=canvas.getHeight()){
             canvas.setWidth(w);
             canvas.setHeight(h);
-            refresh();
+            repaint();
             notify(provider);
         }
     }
@@ -355,27 +355,27 @@ public abstract class CustomCanvas extends Pane {
         initializePallet(pallet[255]);
     }
 
-    private abstract static class CanvasRedrawTask<T> extends AnimationTimer {
-        private final AtomicReference<T> data= new AtomicReference<>(null);
-        private final Canvas canvas;
-        private  long lastRefresh=0L;
+private abstract static class CanvasRedrawTask<T> extends AnimationTimer {
+    private final AtomicReference<T> data= new AtomicReference<>(null);
+    private final Canvas canvas;
+    private  long lastRefresh=0L;
 
-        public CanvasRedrawTask(Canvas canvas){
-            this.canvas = canvas;
-        }
-        public void requestRedraw(T dataToDraw){
-            data.set(dataToDraw);
-            start();
-        }
-
-        public void handle(long now){
-//            if(now-lastRefresh>= refreshTimeNs) {
-            T dataToDraw = data.getAndSet(null);
-            if (dataToDraw != null)
-                redraw(canvas.getGraphicsContext2D(), dataToDraw);
-            lastRefresh=now;
-//            }
-        }
-        protected abstract void redraw(GraphicsContext context, T data);
+    public CanvasRedrawTask(Canvas canvas){
+        this.canvas = canvas;
     }
+    public void requestRedraw(T dataToDraw){
+        data.set(dataToDraw);
+        start();
+    }
+
+    public void handle(long now){
+//            if(now-lastRefresh>= refreshTimeNs) {
+        T dataToDraw = data.getAndSet(null);
+        if (dataToDraw != null)
+            redraw(canvas.getGraphicsContext2D(), dataToDraw);
+        lastRefresh=now;
+//            }
+    }
+    protected abstract void redraw(GraphicsContext context, T data);
+}
 }

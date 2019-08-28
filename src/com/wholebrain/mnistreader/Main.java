@@ -16,7 +16,7 @@ public class Main extends Application {
         primaryStage.setTitle("Datasets Images Reader");
         primaryStage.setScene(new Scene(root,420,420));
         primaryStage.setMinWidth(324); // before the CustomCanvas update :  294
-        primaryStage.setMinHeight(424);
+        primaryStage.setMinHeight(465);
         primaryStage.centerOnScreen();
         primaryStage.setOnCloseRequest(event -> System.exit(0));
         primaryStage.show();

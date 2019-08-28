@@ -162,16 +162,15 @@
                    </MenuItem>
                </Menu>
            </MenuBar>
-         <ToolBar prefHeight="40.0" prefWidth="200.0">
-            <items>
+           <ToolBar prefHeight="40.0" prefWidth="200.0">
                <Label text="Resolution">
-                  <padding>
-                     <Insets left="10.0" />
-                  </padding>
+                   <padding>
+                       <Insets left="10.0"/>
+                   </padding>
                </Label>
-               <Slider fx:id="resolution_slider" blockIncrement="1.0" minorTickCount="1" prefHeight="14.0" prefWidth="150.0" />
-            </items>
-         </ToolBar>
+               <Slider fx:id="resolution_slider" blockIncrement="1.0" minorTickCount="1" prefHeight="14.0"
+                       prefWidth="150.0"/>
+           </ToolBar>
        </VBox>
    </top>
 </BorderPane>
