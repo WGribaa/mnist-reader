@@ -22,6 +22,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
@@ -80,6 +81,7 @@ public class Controller implements Initializable, ImageBufferProvider {
     @FXML public ScrollBar index_scrollbar;
     @FXML public VBox bottom_vbox;
     @FXML public Slider resolution_slider;
+    @FXML public CheckBox hint_index_checkbox, hint_coord_checkbox, hint_value_checkbox, hint_show_checkbox;
 
     // Programmatically added GUI elements.
     private CustomCanvas canvas = new SingleCanvas();
@@ -513,12 +515,22 @@ public class Controller implements Initializable, ImageBufferProvider {
      */
     private void initializeHints() {
         Platform.runLater(()->canvas.mouseTransparentProperty().bind(primaryStage.focusedProperty().not()));
-        EventHandler<ActionEvent> handler = event -> sendHintSetupToCanvas();
+        ChangeListener<Boolean> listener = (observableValue, aBoolean, t1) -> sendHintSetupToCanvas();
 
-        hint_show_menuitem.setOnAction(handler);
-        hint_index_menuitem.setOnAction(handler);
-        hint_coordinates_menuitem.setOnAction(handler);
-        hint_value_menuitem.setOnAction(handler);
+        hint_show_menuitem.selectedProperty().addListener(listener);
+        hint_index_menuitem.selectedProperty().addListener(listener);
+        hint_coordinates_menuitem.selectedProperty().addListener(listener);
+        hint_value_menuitem.selectedProperty().addListener(listener);
+
+        hint_show_checkbox.selectedProperty().bindBidirectional(hint_show_menuitem.selectedProperty());
+        hint_value_checkbox.visibleProperty().bind(hint_show_checkbox.selectedProperty());
+        hint_index_checkbox.visibleProperty().bind(hint_show_checkbox.selectedProperty());
+        hint_coord_checkbox.visibleProperty().bind(hint_show_checkbox.selectedProperty());
+
+        hint_coord_checkbox.selectedProperty().bindBidirectional(hint_coordinates_menuitem.selectedProperty());
+        hint_index_checkbox.selectedProperty().bindBidirectional(hint_index_menuitem.selectedProperty());
+        hint_value_checkbox.selectedProperty().bindBidirectional(hint_value_menuitem.selectedProperty());
+
         sendHintSetupToCanvas();
     }
 

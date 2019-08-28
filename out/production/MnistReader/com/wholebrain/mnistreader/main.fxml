@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
@@ -165,11 +166,14 @@
            <ToolBar prefHeight="40.0" prefWidth="200.0">
                <Label text="Resolution">
                    <padding>
-                       <Insets left="10.0"/>
+                       <Insets left="10.0" />
                    </padding>
                </Label>
-               <Slider fx:id="resolution_slider" blockIncrement="1.0" minorTickCount="1" prefHeight="14.0"
-                       prefWidth="150.0"/>
+               <Slider fx:id="resolution_slider" blockIncrement="1.0" minorTickCount="1" prefHeight="14.0" prefWidth="150.0" />
+            <CheckBox fx:id="hint_show_checkbox" mnemonicParsing="false" selected="true" text="Show infos over cursor" />
+            <CheckBox fx:id="hint_index_checkbox" focusTraversable="false" mnemonicParsing="false" text="Show index" />
+            <CheckBox fx:id="hint_coord_checkbox" focusTraversable="false" mnemonicParsing="false" selected="true" text="Show coordinates" />
+            <CheckBox fx:id="hint_value_checkbox" focusTraversable="false" mnemonicParsing="false" selected="true" text="Show value" />
            </ToolBar>
        </VBox>
    </top>
