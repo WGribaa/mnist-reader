@@ -44,6 +44,7 @@
                        </accelerator>
                    </MenuItem>
                    <SeparatorMenuItem mnemonicParsing="false" />
+               <MenuItem fx:id="save_images_menuitem" mnemonicParsing="false" onAction="#on_save_images" text="Save images as..." />
                    <MenuItem fx:id="save_snapshot_menuitem" disable="true" mnemonicParsing="false" onAction="#on_save_snapshot" text="Save snapshot">
                        <accelerator>
                            <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />

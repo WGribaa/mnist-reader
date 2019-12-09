@@ -66,7 +66,8 @@ public class Controller implements Initializable, ImageBufferProvider {
     @FXML public BorderPane main_layout;
     @FXML public Menu labelposition_menu, filters_menu, showonly_menu, sorters_menu, means_menu;
     @FXML public MenuItem open_menu, close_menu, showall_chars_menuitem, switch_view,
-            mean_set_menuitem,mean_char_menuitem,save_snapshot_menuitem,fast_snapshot_menuitem;
+            mean_set_menuitem,mean_char_menuitem,save_snapshot_menuitem,fast_snapshot_menuitem,
+            save_images_menuitem;
     @FXML public CheckMenuItem show_labels_checkbox, hint_show_menuitem, hint_coordinates_menuitem,
             hint_value_menuitem,hint_index_menuitem;
     @FXML public RadioMenuItem _TOPLEFT_POSITION_radiomenu, _TOPRIGHT_POSITION_radiomenu,
@@ -230,6 +231,20 @@ public class Controller implements Initializable, ImageBufferProvider {
         currentCharList.add(currentChar);
 
         launchMeanImage(loadImageBuffersForChars(currentCharList),"for character ["+currentChar+"]", currentChar);
+    }
+
+    @FXML public void on_save_images() throws IOException {
+        if(filteredImageIndices.size() ==0) return;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("save_image.fxml"));
+        Stage saveImagesStage = new Stage();
+        Parent root = loader.load();
+        saveImagesStage.setTitle("Datasets Images Reader");
+        saveImagesStage.setScene(new Scene(root));
+        saveImagesStage.setResizable(false);
+        saveImagesStage.centerOnScreen();
+        saveImagesStage.initOwner(primaryStage);
+        saveImagesStage.initModality(Modality.APPLICATION_MODAL);
+        saveImagesStage.showAndWait();
     }
 
     @FXML
@@ -448,6 +463,7 @@ public class Controller implements Initializable, ImageBufferProvider {
         full_threshold_slider.valueProperty().addListener((observable, oldValue, newValue) -> canvas.setUpFilter(newValue.intValue()));
 
         means_menu.disableProperty().bind(reader.hasOpenFile().not());
+        save_images_menuitem.disableProperty().bind(reader.hasOpenFile().not());
         fast_snapshot_menuitem.disableProperty().bind(reader.hasOpenFile().not());
         save_snapshot_menuitem.disableProperty().bind(reader.hasOpenFile().not());
 

@@ -44,6 +44,7 @@
                        </accelerator>
                    </MenuItem>
                    <SeparatorMenuItem mnemonicParsing="false" />
+               <MenuItem fx:id="save_images_menuitem" mnemonicParsing="false" onAction="#on_save_images" text="Save images as..." />
                    <MenuItem fx:id="save_snapshot_menuitem" disable="true" mnemonicParsing="false" onAction="#on_save_snapshot" text="Save snapshot">
                        <accelerator>
                            <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
@@ -171,9 +172,9 @@
                </Label>
                <Slider fx:id="resolution_slider" blockIncrement="1.0" minorTickCount="1" prefHeight="14.0" prefWidth="150.0" />
             <CheckBox fx:id="hint_show_checkbox" mnemonicParsing="false" selected="true" text="Show infos over cursor" />
-            <CheckBox fx:id="hint_index_checkbox" focusTraversable="false" mnemonicParsing="false" text="Show index" />
-            <CheckBox fx:id="hint_coord_checkbox" focusTraversable="false" mnemonicParsing="false" selected="true" text="Show coordinates" />
-            <CheckBox fx:id="hint_value_checkbox" focusTraversable="false" mnemonicParsing="false" selected="true" text="Show value" />
+            <CheckBox fx:id="hint_index_checkbox" mnemonicParsing="false" text="Show index" />
+            <CheckBox fx:id="hint_coord_checkbox" mnemonicParsing="false" selected="true" text="Show coordinates" />
+            <CheckBox fx:id="hint_value_checkbox" mnemonicParsing="false" selected="true" text="Show value" />
            </ToolBar>
        </VBox>
    </top>
